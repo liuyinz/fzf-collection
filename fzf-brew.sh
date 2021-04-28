@@ -37,8 +37,8 @@ bic() {
   fi
 }
 
-# [B]rew [C]lean [F]ormulae
-bcf() {
+# [B]rew [U]ninstal [F]ormulae
+buf() {
   local uninst
   uninst=$(brew leaves | eval "fzf ${FZF_DEFAULT_OPTS} \
     --header='[brew uninstall: formulae]'")
@@ -50,8 +50,8 @@ bcf() {
   fi
 }
 
-# [B]rew [C]lean [C]ask
-bcc() {
+# [B]rew [U]ninstall [C]ask
+buc() {
   local uninst
   uninst=$(brew list --cask | eval "fzf ${FZF_DEFAULT_OPTS} \
     --header='[brew uninstall: cask]'")
@@ -63,8 +63,8 @@ bcc() {
   fi
 }
 
-# [B]rew [U]pdate [P]lugin
-bup() {
+# [B]rew up[G]rade [F]ormulae
+bgf() {
   brew update
   local upd
   upd=$(brew outdated --greedy | eval "fzf ${FZF_DEFAULT_OPTS} \

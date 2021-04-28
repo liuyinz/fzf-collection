@@ -16,8 +16,8 @@ ppi() {
   fi
 }
 
-# [P]ip [U]pgrade
-ppu() {
+# [P]ip up[G]rade
+ppg() {
   local inst
   inst=$(pip3 list --outdated | tail -n +3 | awk '{print $1}' |
     eval "fzf ${FZF_DEFAULT_OPTS} --header='[pip:upgrade]'")
@@ -29,8 +29,8 @@ ppu() {
   fi
 }
 
-# [P]ip [C]lean
-ppc() {
+# [P]ip [U]ninstall
+ppu() {
   local inst
   inst=$(pip3 list | tail -n +3 | awk '{print $1}' |
     eval "fzf ${FZF_DEFAULT_OPTS} --header='[pip:uninstall]'")
