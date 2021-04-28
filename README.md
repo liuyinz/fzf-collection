@@ -52,10 +52,6 @@ plugins=(... fzf-collection)
 - `ppc` : pip3 uninstall [package]
 - `ppg` : pip3 upgrade [package]
 
-### fzf-git
-
-- `grebuild` : rebuild git commits history 
-
 ### fzf-default (MacOS)
 
 - `b` : chrome bookmark
