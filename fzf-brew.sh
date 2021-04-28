@@ -119,5 +119,3 @@ bio() {
   fi
   cd $pwd || exit
 }
-
-g
