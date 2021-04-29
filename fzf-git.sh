@@ -89,3 +89,16 @@ gsmr() {
 }
 
 # TODO git submodule fzf
+
+# [G]it [I]gnore-io [F]zf
+gif() {
+  local inst
+  inst=$(git ignore-io -l | sed -e "s/[[:space:]]\+/\n/g" |
+    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git ignore-io:append]'")
+
+  if [[ $inst ]]; then
+    for prog in $(echo "$inst"); do
+      git ignore-io --append "$prog"
+    done
+  fi
+}
