@@ -35,6 +35,19 @@ plugins=(... fzf-collection)
 
 # Commands
 
+### fzf-default (MacOS)
+
+```zsh
+# dependency
+brew install coreutils gnu-sed gawk jq ripgrep
+```
+
+- `b` : chrome bookmark
+- `h` : chrome history
+- `kp` : kill process
+- `fp` : find $PATH
+- `ffp` : find $FPATH
+
 ### fzf-brew
 
 - `bif` : brew install [formulae]
@@ -43,19 +56,29 @@ plugins=(... fzf-collection)
 - `buc` : brew uninstall [cask]
 - `bgf` : brew upgrade [both]
 - `but` : brew untap
-- `brd` : remove useless dependence
-- `bio` : install older formulae
 
 ### fzf-pip
+
+```zsh
+# dependency
+brew install grep gnu-sed gawk coreutils
+```
 
 - `ppi` : pip3 install [package]
 - `ppc` : pip3 uninstall [package]
 - `ppg` : pip3 upgrade [package]
 
-### fzf-default (MacOS)
+### fzf-git
 
-- `b` : chrome bookmark
-- `h` : chrome history
-- `kp` : kill process
-- `fp` : find $PATH
-- `ffp` : find $FPATH
+```zsh
+# dependency
+brew install git-extras coreutils gnu-sed 
+```
+
+- `gaf` : git add
+- `gap` : git add --patch
+- `gef` : git restore
+- `ges` : git restore --staged
+- `gea` : git resore --staged --worktree
+- `gif` : git ignore-io --append
+- `gsmr` : submodule removal 
