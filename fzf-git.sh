@@ -74,6 +74,7 @@ geaf() {
 }
 
 # [G]it [S]ub[M]odule [R]emove
+#  FIXME @https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
 gsmr() {
   local inst
   inst=$(git config -z --file .gitmodules --get-regexp '\.path$' | \
