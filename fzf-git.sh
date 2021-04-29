@@ -6,8 +6,8 @@
 # [G]it [A]dd [F]zf
 gaf() {
   local inst
-  inst=$(git ls-files -m -o --exclude-standard | eval "fzf ${FZF_DEFAULT_OPTS} \
-    --header='[git add:]'")
+  inst=$(git ls-files -m -o --exclude-standard | \
+    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git add:]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -19,8 +19,8 @@ gaf() {
 # [G]it [A]dd [P]atch [F]zf
 gapf() {
   local inst
-  inst=$(git ls-files -m -o --exclude-standard | eval "fzf ${FZF_DEFAULT_OPTS} \
-    --header='[git add: --patch]'")
+  inst=$(git ls-files -m -o --exclude-standard | \
+    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git add: --patch]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -32,8 +32,8 @@ gapf() {
 # [G]it r[E]store [F]zf
 gef() {
   local inst
-  inst=$(git ls-files -m --exclude-standard | eval "fzf ${FZF_DEFAULT_OPTS} \
-    --header='[git restore:]'")
+  inst=$(git ls-files -m --exclude-standard | \
+    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git restore:]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -46,9 +46,10 @@ gef() {
 #  HACK @https://www.javaer101.com/en/article/16751334.html
 gesf() {
   local inst
-  inst=$(git diff --name-only --cached | xargs -I '{}' realpath --relative-to=. \
-    $(git rev-parse --show-toplevel)/'{}' | eval "fzf ${FZF_DEFAULT_OPTS} \
-    --header='[git restore: --staged]'")
+  inst=$(git diff --name-only --cached | \
+    xargs -I '{}' realpath --relative-to=. \
+    $(git rev-parse --show-toplevel)/'{}' | \
+    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git restore: --staged]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -60,9 +61,10 @@ gesf() {
 # [G]it r[E]store [A]ll [F]zf
 geaf() {
   local inst
-  inst=$(git diff --name-only HEAD | xargs -I '{}' realpath --relative-to=. \
-    $(git rev-parse --show-toplevel)/'{}' | eval "fzf ${FZF_DEFAULTOPTS} \
-    --header='[git restore: --staged --worktree]'")
+  inst=$(git diff --name-only HEAD | \
+    xargs -I '{}' realpath --relative-to=. \
+    $(git rev-parse --show-toplevel)/'{}' | \
+    eval "fzf ${FZF_DEFAULTOPTS} --header='[git restore: --staged --worktree]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -74,7 +76,8 @@ geaf() {
 # [G]it [S]ub[M]odule [R]emove
 gsmr() {
   local inst
-  inst=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }' |
+  inst=$(git config -z --file .gitmodules --get-regexp '\.path$' | \
+    sed -nz 's/^[^\n]*\n//p' | tr '\0' '\n'| \
     eval "fzf ${FZF_DEFAULT_OPTS} --header='[git delete-submodule: --force]'")
 
   if [[ $inst ]]; then
