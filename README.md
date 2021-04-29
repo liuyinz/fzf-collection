@@ -9,13 +9,13 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
 
 First, clone this repository.
 
-```zsh
+```sh
 git clone https://github.com/liuyinz/fzf-collection.git
 ```
 
 Then add the following line to your `~/.zshrc` .
 
-```zsh
+```sh
 source /path/to/fzf-collection.plugin.zsh
 ```
 
@@ -23,21 +23,22 @@ source /path/to/fzf-collection.plugin.zsh
 
 Clone this repository to custom plugin directory
 
-```zsh
+```sh
 git clone https://github.com/liuyinz/fzf-collection.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-collection
 ```
 
 To start using it, add the fzf-collection plugin to your plugins array in `~/.zshrc`:
 
-```zsh
-plugins=(... fzf-collection)
+```diff
+- plugins=(...)
++ plugins=(... fzf-collection)
 ```
 
 # Commands
 
 ### fzf-default (MacOS)
 
-```zsh
+```sh
 # dependency
 brew install coreutils gnu-sed gawk jq ripgrep
 ```
@@ -59,7 +60,7 @@ brew install coreutils gnu-sed gawk jq ripgrep
 
 ### fzf-pip
 
-```zsh
+```sh
 # dependency
 brew install grep gnu-sed gawk coreutils
 ```
@@ -70,7 +71,7 @@ brew install grep gnu-sed gawk coreutils
 
 ### fzf-git
 
-```zsh
+```sh
 # dependency
 brew install git-extras coreutils gnu-sed 
 ```
