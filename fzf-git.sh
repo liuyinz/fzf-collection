@@ -16,8 +16,8 @@ gaf() {
   fi
 }
 
-# [G]it [A]dd [P]atch [F]zf
-gapf() {
+# [G]it [A]dd [P]atch
+gap() {
   local inst
   inst=$(git ls-files -m -o --exclude-standard |
     eval "fzf ${FZF_DEFAULT_OPTS} --header='[git add: --patch]'")
@@ -42,9 +42,9 @@ gef() {
   fi
 }
 
-# [G]it r[E]store [S]taged [F]zf
+# [G]it r[E]store [S]taged
 #  HACK @https://www.javaer101.com/en/article/16751334.html
-gesf() {
+ges() {
   local inst
   inst=$(git diff --name-only --cached |
     xargs -I '{}' realpath --relative-to=. \
@@ -58,8 +58,8 @@ gesf() {
   fi
 }
 
-# [G]it r[E]store [A]ll [F]zf
-geaf() {
+# [G]it r[E]store [A]ll
+gea() {
   local inst
   inst=$(git diff --name-only HEAD |
     xargs -I '{}' realpath --relative-to=. \
@@ -74,7 +74,7 @@ geaf() {
 }
 
 # [G]it [S]ub[M]odule [R]emove
-#  FIXME @https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
+#  HACK @https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
 gsmr() {
   local inst
   inst=$(git config -z --file .gitmodules --get-regexp '\.path$' |
