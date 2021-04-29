@@ -48,7 +48,7 @@ ges() {
   local inst
   inst=$(git diff --name-only --cached |
     xargs -I '{}' realpath --relative-to=. \
-      $(git rev-parse --show-toplevel)/'{}' |
+      "$(git rev-parse --show-toplevel)"/'{}' |
     eval "fzf ${FZF_DEFAULT_OPTS} --header='[git restore: --staged]'")
 
   if [[ $inst ]]; then
@@ -63,7 +63,7 @@ gea() {
   local inst
   inst=$(git diff --name-only HEAD |
     xargs -I '{}' realpath --relative-to=. \
-      $(git rev-parse --show-toplevel)/'{}' |
+      "$(git rev-parse --show-toplevel)"/'{}' |
     eval "fzf ${FZF_DEFAULTOPTS} --header='[git restore: --staged --worktree]'")
 
   if [[ $inst ]]; then
@@ -77,7 +77,8 @@ gea() {
 #  HACK @https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
 gsmr() {
   local inst
-  inst=$(git config -z --file .gitmodules --get-regexp '\.path$' |
+  inst=$(git config -z --file \
+    "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
     sed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
     eval "fzf ${FZF_DEFAULT_OPTS} --header='[git delete-submodule: --force]'")
 
