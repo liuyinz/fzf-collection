@@ -6,8 +6,8 @@
 # [B]rew [I]nstall [F]ormulae
 bif() {
   local inst
-  inst=$(brew formulae | eval "fzf ${FZF_DEFAULT_OPTS} \
-    --exact --header='[brew install: formulae]'")
+  inst=$(brew formulae | eval "fzf ${FZF_COLLECTION_OPTS} \
+    --header='[brew install: formulae]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -23,8 +23,8 @@ bif() {
 # [B]rew [I]nstall [C]ask
 bic() {
   local inst
-  inst=$(brew casks | eval "fzf ${FZF_DEFAULT_OPTS} \
-    --exact --header='[brew install: cask]'")
+  inst=$(brew casks | eval "fzf ${FZF_COLLECTION_OPTS} \
+    --header='[brew install: cask]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -40,7 +40,7 @@ bic() {
 # [B]rew [U]ninstal [F]ormulae
 buf() {
   local uninst
-  uninst=$(brew leaves | eval "fzf ${FZF_DEFAULT_OPTS} \
+  uninst=$(brew leaves | eval "fzf ${FZF_COLLECTION_OPTS} \
     --header='[brew uninstall: formulae]'")
 
   if [[ $uninst ]]; then
@@ -53,7 +53,7 @@ buf() {
 # [B]rew [U]ninstall [C]ask
 buc() {
   local uninst
-  uninst=$(brew list --cask | eval "fzf ${FZF_DEFAULT_OPTS} \
+  uninst=$(brew list --cask | eval "fzf ${FZF_COLLECTION_OPTS} \
     --header='[brew uninstall: cask]'")
 
   if [[ $uninst ]]; then
@@ -67,7 +67,7 @@ buc() {
 bgf() {
   brew update
   local upd
-  upd=$(brew outdated --greedy | eval "fzf ${FZF_DEFAULT_OPTS} \
+  upd=$(brew outdated --greedy | eval "fzf ${FZF_COLLECTION_OPTS} \
     --header='[brew update: both]'")
 
   if [[ $upd ]]; then
@@ -80,7 +80,7 @@ bgf() {
 # [B]rew [U]n[T]ap
 but() {
   local upd
-  upd=$(brew tap | eval "fzf ${FZF_DEFAULT_OPTS} \
+  upd=$(brew tap | eval "fzf ${FZF_COLLECTION_OPTS} \
     --header='[brew untap:]'")
 
   if [[ $upd ]]; then

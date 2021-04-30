@@ -7,7 +7,7 @@
 gaf() {
   local inst
   inst=$(git ls-files -m -o --exclude-standard |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git add:]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git add:]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -20,7 +20,7 @@ gaf() {
 gap() {
   local inst
   inst=$(git ls-files -m -o --exclude-standard |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git add: --patch]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git add: --patch]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -33,7 +33,7 @@ gap() {
 gef() {
   local inst
   inst=$(git ls-files -m --exclude-standard |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git restore:]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore:]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -49,7 +49,7 @@ ges() {
   inst=$(git diff --name-only --cached |
     xargs -I '{}' realpath --relative-to=. \
       "$(git rev-parse --show-toplevel)"/'{}' |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git restore: --staged]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore: --staged]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -64,7 +64,7 @@ gea() {
   inst=$(git diff --name-only HEAD |
     xargs -I '{}' realpath --relative-to=. \
       "$(git rev-parse --show-toplevel)"/'{}' |
-    eval "fzf ${FZF_DEFAULTOPTS} --header='[git restore: --staged --worktree]'")
+    eval "fzf ${FZF_COLLECTIONOPTS} --header='[git restore: --staged --worktree]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -80,7 +80,7 @@ gsmr() {
   inst=$(git config -z --file \
     "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
     sed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git delete-submodule: --force]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git delete-submodule: --force]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -95,7 +95,7 @@ gsmr() {
 gif() {
   local inst
   inst=$(git ignore-io -l | sed -e "s/[[:space:]]\+/\n/g" |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[git ignore-io:append]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git ignore-io:append]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do

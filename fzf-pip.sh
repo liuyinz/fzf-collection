@@ -7,7 +7,7 @@ ppi() {
   local inst
   inst=$(curl -s "$(pip3 config get global.index-url)/" |
     grep '</a>' | sed 's/^.*">//g' | sed 's/<.*$//g' |
-    eval "fzf ${FZF_DEFAULT_OPTS} --exact --header='[pip:install]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:install]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -20,7 +20,7 @@ ppi() {
 ppg() {
   local inst
   inst=$(pip3 list --outdated | tail -n +3 | awk '{print $1}' |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[pip:upgrade]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:upgrade]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -33,7 +33,7 @@ ppg() {
 ppu() {
   local inst
   inst=$(pip3 list | tail -n +3 | awk '{print $1}' |
-    eval "fzf ${FZF_DEFAULT_OPTS} --header='[pip:uninstall]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:uninstall]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do

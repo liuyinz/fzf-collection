@@ -3,9 +3,26 @@
 
 A collection of functions to enhance cmdline with [FZF](https://github.com/junegunn/fzf)
 
+<!-- markdown-toc start -->
+**目录**
+
+- [fzf-collection](#fzf-collection)
+- [Install](#install)
+  - [Manual](#manual)
+  - [Oh-My-Zsh](#oh-my-zsh)
+- [Commands](#commands)
+  - [fzf-default](#fzf-default)
+  - [fzf-brew](#fzf-brew)
+  - [fzf-pip](#fzf-pip)
+  - [fzf-git](#fzf-git)
+- [Envrionment](#envrionment)
+  - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
+
+<!-- markdown-toc end -->
+
 # Install
 
-### Manual
+## Manual
 
 First, clone this repository.
 
@@ -19,7 +36,7 @@ Then add the following line to your `~/.zshrc` .
 source /path/to/fzf-collection.plugin.zsh
 ```
 
-### Oh-My-Zsh
+## Oh-My-Zsh
 
 Clone this repository to custom plugin directory
 
@@ -36,7 +53,7 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 # Commands
 
-### fzf-default (MacOS)
+## fzf-default
 
 ```sh
 # dependency
@@ -49,7 +66,7 @@ brew install coreutils gnu-sed gawk jq ripgrep
 - `fp` : find $PATH
 - `ffp` : find $FPATH
 
-### fzf-brew
+## fzf-brew
 
 - `bif` : brew install [formulae]
 - `bic` : brew install [cask]
@@ -58,7 +75,7 @@ brew install coreutils gnu-sed gawk jq ripgrep
 - `bgf` : brew upgrade [both]
 - `but` : brew untap
 
-### fzf-pip
+## fzf-pip
 
 ```sh
 # dependency
@@ -69,7 +86,7 @@ brew install grep gnu-sed gawk coreutils
 - `ppc` : pip3 uninstall [package]
 - `ppg` : pip3 upgrade [package]
 
-### fzf-git
+## fzf-git
 
 ```sh
 # dependency
@@ -83,3 +100,19 @@ brew install git-extras coreutils gnu-sed
 - `gea` : git resore --staged --worktree
 - `gif` : git ignore-io --append
 - `gsmr` : submodule removal 
+
+# Envrionment
+
+## FZF_COLLECTION_OPTS
+
+```sh
+# set options if needed, otherwise use default as below:
+export FZF_COLLECTION_OPTS=" \
+    --reverse \
+    --cycle \
+    --multi \
+    --sort \
+    --exact \
+    --info=inline"
+```
+
