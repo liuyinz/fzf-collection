@@ -105,8 +105,11 @@ brew install git-extras coreutils gnu-sed
 
 ## FZF_COLLECTION_OPTS
 
+Usually, `FZF_DEFAULT_OPTS` is applied if be settled. 
+Another env `FZF_COLLECTION_OPTS` is provided for users to customize. 
+
 ```sh
-# set options if needed, otherwise use default as below:
+# set options if needed, default value is as below :
 export FZF_COLLECTION_OPTS=" \
     --reverse \
     --cycle \
