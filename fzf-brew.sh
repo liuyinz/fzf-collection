@@ -11,10 +11,10 @@ bif() {
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
-      if brew ls --versions $prog &>/dev/null; then
+      if brew ls --versions "$prog" &>/dev/null; then
         echo "$prog already installed."
       else
-        brew install $prog
+        brew install "$prog"
       fi
     done
   fi
@@ -28,10 +28,10 @@ bic() {
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
-      if brew ls --cask --versions $prog &>/dev/null; then
+      if brew ls --cask --versions "$prog" &>/dev/null; then
         echo "$prog already installed."
       else
-        brew install $prog
+        brew install "$prog"
       fi
     done
   fi
