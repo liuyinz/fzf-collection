@@ -75,17 +75,66 @@ gea() {
 
 # [G]it [S]ub[M]odule [R]emove
 #  HACK @https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
-gsmr() {
-  local inst
-  inst=$(git config -z --file \
+gsmi() {
+  local module
+  local subcmd
+
+  module=$(git config -z --file \
     "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
     sed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git delete-submodule: --force]'")
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'")
+
+  if [[ $module ]]; then
+    subcmd=$(echo "remove\ninit\ndeinit\nupdate-init\nupdate-remote" |
+      eval "fzf --header='[git submodule: subcmd]'")
+
+    for prog in $(echo "$module"); do
+      case $subcmd in
+      remove)
+        git delete-submodule --force "$prog"
+        ;;
+      update-remote)
+        (cd "$prog" && git switch "$(
+          git config -f $toplevel/.gitmodules submodule.$name.branch ||
+            git_main_branch
+        )")
+        git submodule update --remote "$prog"
+        ;;
+      update-init)
+        git submodule update --init "$prog"
+        ;;
+      deinit)
+        git submodule deinit --force "$prog"
+        ;;
+      init)
+        git submodule init "$prog"
+        ;;
+      esac
+    done
+  fi
+}
+
+# [G]it [ST]ash [I]nteractive
+gsti() {
+  local inst
+  inst=$(git stash list |
+    eval "fzf $FZF_COLLECTION_OPTS --header='[git stash: pop]'" |
+    awk 'BEGIN { FS = ":" } { print $1 }' | tac)
 
   if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      git delete-submodule --force "$prog"
-    done
+    local subcmd
+
+    subcmd=$(echo "pop\nbranch\ndrop\napply" | eval "fzf --header='[git stash: subcmd]'")
+
+    if [ "$subcmd" = "branch" ]; then
+      local name
+      name=$(bash -c 'read -r -p "Branch name: "; echo $REPLY')
+      git stash branch "$name" "$inst"
+    else
+      for prog in $(echo "$inst"); do
+        git stash "$subcmd" "$prog"
+      done
+    fi
   fi
 }
 
