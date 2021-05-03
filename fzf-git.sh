@@ -88,7 +88,8 @@ gsmi() {
     subcmd=$(echo "remove\ninit\ndeinit\nupdate-init\nupdate-remote" |
       eval "fzf --header='[git submodule: subcmd]'")
 
-    for prog in $(echo "$module"); do
+    for i in $(echo "$module"); do
+      prog="$(git rev-parse --show-toplevel)"/$i
       case $subcmd in
       remove)
         git delete-submodule --force "$prog"
