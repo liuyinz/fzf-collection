@@ -98,10 +98,9 @@ brew install git-extras coreutils gnu-sed
 - `gef` : git restore
 - `ges` : git restore --staged
 - `gea` : git resore --staged --worktree
-- `gstp` : git stash pop
-- `gsti` : stash interactive
+- `gsmi` : git submodule INTERACTIVE 
+- `gsti` : git stash INTERACTIVE
 - `gif` : git ignore-io --append
-- `gsmr` : submodule removal 
 
 # Envrionment
 
