@@ -3,32 +3,6 @@
 # GIT
 # ------------------
 
-# [G]it [A]dd [F]zf
-gaf() {
-  local inst
-  inst=$(git ls-files -m -o --exclude-standard |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git add:]'")
-
-  if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      git add "$prog"
-    done
-  fi
-}
-
-# [G]it [A]dd [P]atch
-gap() {
-  local inst
-  inst=$(git ls-files -m -o --exclude-standard |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git add: --patch]'")
-
-  if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      git add --patch "$prog"
-    done
-  fi
-}
-
 # [G]it r[E]store [F]zf
 gef() {
   local inst

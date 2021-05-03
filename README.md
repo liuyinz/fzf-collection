@@ -68,11 +68,9 @@ brew install coreutils gnu-sed gawk jq ripgrep
 
 ## fzf-brew
 
-- `bif` : brew install [formulae]
-- `bic` : brew install [cask]
-- `buf` : brew uninstall [formulae]
-- `buc` : brew uninstall [cask]
-- `bgf` : brew upgrade [both]
+- `bif` : brew install
+- `buf` : brew uninstall
+- `bgf` : brew upgrade
 - `but` : brew untap
 
 ## fzf-pip
@@ -93,8 +91,6 @@ brew install grep gnu-sed gawk coreutils
 brew install git-extras coreutils gnu-sed 
 ```
 
-- `gaf` : git add
-- `gap` : git add --patch
 - `gef` : git restore
 - `ges` : git restore --staged
 - `gea` : git resore --staged --worktree
