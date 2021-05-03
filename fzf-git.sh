@@ -2,6 +2,60 @@
 
 # GIT
 # ------------------
+# gsha - get git commit sha
+gsha() {
+  local commit
+
+  commit=$(git log --pretty=oneline --abbrev-commit |
+    eval "fzf $FZF_COLLECTION_OPTS --header='[commits: ]'" |
+    sed "s/ .*//")
+
+  echo "$commit"
+}
+
+# gck - checkout git commit
+gck() {
+  local commit
+  commit=$(gsha)
+
+  if [[ $commit ]]; then
+    git checkout "$commit"
+  fi
+}
+
+# gwf - checkout git branch/tag
+gwf() {
+  local tags
+  local branches
+  local target
+
+  tags="$(
+    git tag \
+      | awk '{print "\x1b[31;1mtag\x1b[m\t" $1}'
+  )" || return
+
+  branches="$(
+    git branch --all \
+      | grep -v HEAD \
+      | sed 's/.* //' \
+      | sed 's#remotes/[^/]*/##' \
+      | sort -u \
+      | awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}'
+  )" || return
+
+  target="$(
+    printf '%s\n%s' "$tags" "$branches" \
+      | fzf \
+          --no-hscroll \
+          --ansi \
+          +m \
+          -d '\t' \
+          -n 2 \
+          -q "$*"
+  )" || return
+
+  git checkout "$(echo "$target" | awk '{print $2}')"
+}
 
 # [G]it r[E]store [F]zf
 gef() {
