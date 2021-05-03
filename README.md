@@ -91,6 +91,9 @@ brew install grep gnu-sed gawk coreutils
 brew install git-extras coreutils gnu-sed 
 ```
 
+- `gsha` : return commits
+- `gck` : git checkout [commits]
+- `gwf` : git checkout [branch or tag]
 - `gef` : git restore
 - `ges` : git restore --staged
 - `gea` : git resore --staged --worktree
