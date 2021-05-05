@@ -113,23 +113,21 @@ gsmi() {
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'")
 
   if [[ $module ]]; then
-    subcmd=$(echo "remove\ninit\ndeinit\nupdate-init\nupdate-remote" |
+    subcmd=$(echo "delete\ninit\ndeinit\nupdate-init\nupdate-remote" |
       eval "fzf --header='[git submodule: subcmd]'")
 
     for i in $(echo "$module"); do
       prog="$(git rev-parse --show-toplevel)"/$i
       case $subcmd in
-      remove)
+      delete)
         git delete-submodule --force "$prog"
         ;;
       update-remote)
-        (cd "$prog" && git switch "$(
-          git config -f $toplevel/.gitmodules submodule.$name.branch ||
-            git_main_branch
-        )")
+        echo "$i ..."
         git submodule update --remote "$prog"
         ;;
       update-init)
+        echo "$i ..."
         git submodule update --init "$prog"
         ;;
       deinit)
