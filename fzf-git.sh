@@ -30,28 +30,28 @@ gwf() {
   local target
 
   tags="$(
-    git tag \
-      | awk '{print "\x1b[31;1mtag\x1b[m\t" $1}'
+    git tag |
+      awk '{print "\x1b[31;1mtag\x1b[m\t" $1}'
   )" || return
 
   branches="$(
-    git branch --all \
-      | grep -v HEAD \
-      | sed 's/.* //' \
-      | sed 's#remotes/[^/]*/##' \
-      | sort -u \
-      | awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}'
+    git branch --all |
+      grep -v HEAD |
+      sed 's/.* //' |
+      sed 's#remotes/[^/]*/##' |
+      sort -u |
+      awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}'
   )" || return
 
   target="$(
-    printf '%s\n%s' "$tags" "$branches" \
-      | fzf \
-          --no-hscroll \
-          --ansi \
-          +m \
-          -d '\t' \
-          -n 2 \
-          -q "$*"
+    printf '%s\n%s' "$tags" "$branches" |
+      fzf \
+        --no-hscroll \
+        --ansi \
+        +m \
+        -d '\t' \
+        -n 2 \
+        -q "$*"
   )" || return
 
   git checkout "$(echo "$target" | awk '{print $2}')"
@@ -113,6 +113,7 @@ gsmi() {
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'")
 
   if [[ $module ]]; then
+    # shellcheck disable=SC2028
     subcmd=$(echo "delete\ninit\ndeinit\nupdate-init\nupdate-remote" |
       eval "fzf --header='[git submodule: subcmd]'")
 
@@ -151,6 +152,7 @@ gsti() {
   if [[ $inst ]]; then
     local subcmd
 
+    # shellcheck disable=SC2028
     subcmd=$(echo "pop\nbranch\ndrop\napply" | eval "fzf --header='[git stash: subcmd]'")
 
     if [ "$subcmd" = "branch" ]; then
