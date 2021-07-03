@@ -101,7 +101,7 @@ gea() {
   fi
 }
 
-# [G]it [S]ub[M]odule [R]emove
+# [G]it [S]ub[M]odule [I]nteractive
 #  HACK @https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
 gsmi() {
   local module
