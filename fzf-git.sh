@@ -122,7 +122,7 @@ gsmi() {
       case $subcmd in
       browse)
         # HACK see@https://stackoverflow.com/a/786515/13194984
-        (cd "$prog" && exec hub browse)
+        (cd "$prog" && exec gh browse)
         ;;
       delete)
         git delete-submodule --force "$prog"

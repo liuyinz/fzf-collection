@@ -88,7 +88,7 @@ brew install grep gnu-sed gawk coreutils
 
 ```sh
 # dependency
-brew install git-extras coreutils gnu-sed 
+brew install git-extras coreutils gnu-sed gh 
 ```
 
 - `gsha` : return commits
