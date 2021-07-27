@@ -36,7 +36,6 @@ join("/") } | .path + "/" + .name + "\t" + .url'
     xargs open &>/dev/null
 }
 
-
 # Edge
 # -----------------------
 # meh - browse Microslft Edge history for MacOs

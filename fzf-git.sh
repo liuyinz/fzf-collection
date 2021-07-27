@@ -71,10 +71,10 @@ gef() {
 }
 
 # [G]it r[E]store [S]taged
-#  HACK @https://www.javaer101.com/en/article/16751334.html
 ges() {
   local inst
   inst=$(git diff --name-only --cached |
+    # SEE https://www.javaer101.com/en/article/16751334.html
     xargs -I '{}' realpath --relative-to=. \
       "$(git rev-parse --show-toplevel)"/'{}' |
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore: --staged]'")
@@ -101,16 +101,20 @@ gea() {
   fi
 }
 
+# TODO git submodule fzf
+
 # [G]it [S]ub[M]odule [I]nteractive
-#  HACK @https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
 gsmi() {
   local module
   local subcmd
 
-  module=$(git config -z --file \
+  module=$(
+    git config -z --file
+    # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
     "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
-    gsed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'")
+      gsed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
+      eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'"
+  )
 
   if [[ $module ]]; then
     # shellcheck disable=SC2028
@@ -121,7 +125,7 @@ gsmi() {
       prog="$(git rev-parse --show-toplevel)"/$i
       case $subcmd in
       browse)
-        # HACK see@https://stackoverflow.com/a/786515/13194984
+        # SEE https://stackoverflow.com/a/786515/13194984
         (cd "$prog" && exec gh browse)
         ;;
       delete)
@@ -170,8 +174,6 @@ gsti() {
     fi
   fi
 }
-
-# TODO git submodule fzf
 
 # [G]it [I]gnore-io [F]zf
 gif() {

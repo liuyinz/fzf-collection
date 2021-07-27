@@ -1,9 +1,11 @@
 # fzf-collection
+
 [![GitHub license](https://img.shields.io/github/license/liuyinz/fzf-collection)](https://github.com/liuyinz/fzf-collection/blob/master/LICENSE)
 
 A collection of functions to enhance cmdline with [FZF](https://github.com/junegunn/fzf)
 
 <!-- markdown-toc start -->
+
 **目录**
 
 - [fzf-collection](#fzf-collection)
@@ -55,16 +57,21 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 ## fzf-default
 
+- `fp`  : find $PATH
+- `ffp` : find $FPATH
+- `kp`  : kill process
+
+## fzf-browser
+
 ```sh
 # dependency
 brew install coreutils gnu-sed gawk jq ripgrep
 ```
 
-- `b` : chrome bookmark
-- `h` : chrome history
-- `kp` : kill process
-- `fp` : find $PATH
-- `ffp` : find $FPATH
+- `gcb` : chrome bookmark
+- `gch` : chrome history
+- `meb` : edge bookmark
+- `meh` : edge history
 
 ## fzf-brew
 
@@ -88,7 +95,7 @@ brew install grep gnu-sed gawk coreutils
 
 ```sh
 # dependency
-brew install git-extras coreutils gnu-sed gh 
+brew install git-extras coreutils gnu-sed gh
 ```
 
 - `gsha` : return commits
@@ -97,7 +104,7 @@ brew install git-extras coreutils gnu-sed gh
 - `gef` : git restore
 - `ges` : git restore --staged
 - `gea` : git resore --staged --worktree
-- `gsmi` : git submodule INTERACTIVE 
+- `gsmi` : git submodule INTERACTIVE
 - `gsti` : git stash INTERACTIVE
 - `gif` : git ignore-io --append
 
@@ -105,8 +112,8 @@ brew install git-extras coreutils gnu-sed gh
 
 ## FZF_COLLECTION_OPTS
 
-Usually, `FZF_DEFAULT_OPTS` is applied if be settled. 
-Another env `FZF_COLLECTION_OPTS` is provided for users to customize. 
+Usually, `FZF_DEFAULT_OPTS` is applied if be settled.
+Another env `FZF_COLLECTION_OPTS` is provided for users to customize.
 
 ```sh
 # set options if needed, default value is as below :
@@ -118,4 +125,3 @@ export FZF_COLLECTION_OPTS=" \
     --exact \
     --info=inline"
 ```
-
