@@ -71,10 +71,10 @@ gef() {
 }
 
 # [G]it r[E]store [S]taged
+# SEE https://www.javaer101.com/en/article/16751334.html
 ges() {
   local inst
   inst=$(git diff --name-only --cached |
-    # SEE https://www.javaer101.com/en/article/16751334.html
     xargs -I '{}' realpath --relative-to=. \
       "$(git rev-parse --show-toplevel)"/'{}' |
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore: --staged]'")
@@ -108,10 +108,10 @@ gsmi() {
   local module
   local subcmd
 
+  # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
   module=$(
-    git config -z --file
-    # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
-    "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
+    git config -z --file \
+      "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
       gsed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
       eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'"
   )
