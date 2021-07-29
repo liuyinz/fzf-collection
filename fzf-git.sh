@@ -161,12 +161,15 @@ gsti() {
     local subcmd
 
     # shellcheck disable=SC2028
-    subcmd=$(echo "pop\nbranch\ndrop\napply" | eval "fzf --header='[git stash: subcmd]'")
+    subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" |
+      eval "fzf --header='[git stash: subcmd]'")
 
     if [ "$subcmd" = "branch" ]; then
       local name
       name=$(bash -c 'read -r -p "Branch name: "; echo $REPLY')
       git stash branch "$name" "$inst"
+    elif [ "$subcmd" = "show" ]; then
+      git stash show "$inst" --patch-with-stat
     else
       for prog in $(echo "$inst"); do
         git stash "$subcmd" "$prog"
