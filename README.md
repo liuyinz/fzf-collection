@@ -14,6 +14,7 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [Oh-My-Zsh](#oh-my-zsh)
 - [Commands](#commands)
   - [fzf-default](#fzf-default)
+  - [fzf-browser](#fzf-browser)
   - [fzf-brew](#fzf-brew)
   - [fzf-pip](#fzf-pip)
   - [fzf-git](#fzf-git)
@@ -57,9 +58,9 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 ## fzf-default
 
-- `fp`  : find $PATH
+- `fp` : find $PATH
 - `ffp` : find $FPATH
-- `kp`  : kill process
+- `kp` : kill process
 
 ## fzf-browser
 
