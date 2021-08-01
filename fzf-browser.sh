@@ -15,7 +15,7 @@ gch() {
      from urls order by last_visit_time desc" |
     awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
     eval "fzf $FZF_COLLECTION_OPTS --ansi --header='[Google Chrome: history]'" |
-    gsed 's#.*\(https*://\)#\1#' |
+    sed 's#.*\(https*://\)#\1#' |
     xargs open &>/dev/null
 }
 
@@ -30,7 +30,7 @@ as $in | paths(.url?) as $key | $in | getpath($key) | {name,url, path:
 join("/") } | .path + "/" + .name + "\t" + .url'
 
   jq -r "$jq_script" <"$bookmarks_path" |
-    gsed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' |
+    sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' |
     eval "fzf $FZF_COLLECTION_OPTS --ansi --no-hscroll --tiebreak=begin \
 --header='[Google Chrome: bookmark]'" | awk 'BEGIN { FS = "\t" } { print $2 }' |
     xargs open &>/dev/null
@@ -51,7 +51,7 @@ meh() {
      from urls order by last_visit_time desc" |
     awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
     eval "fzf $FZF_COLLECTION_OPTS --ansi --header='[Microsoft Edge: history]'" |
-    gsed 's#.*\(https*://\)#\1#' |
+    sed 's#.*\(https*://\)#\1#' |
     xargs open &>/dev/null
 }
 
@@ -66,7 +66,7 @@ as $in | paths(.url?) as $key | $in | getpath($key) | {name,url, path:
 join("/") } | .path + "/" + .name + "\t" + .url'
 
   jq -r "$jq_script" <"$bookmarks_path" |
-    gsed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' |
+    sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' |
     eval "fzf $FZF_COLLECTION_OPTS --ansi --no-hscroll --tiebreak=begin \
 --header='[Google Chrome: bookmark]'" | awk 'BEGIN { FS = "\t" } { print $2 }' |
     xargs open &>/dev/null

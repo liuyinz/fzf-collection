@@ -8,7 +8,7 @@
 
 fp() {
   local loc
-  loc=$(echo "$PATH" | gsed -e $'s/:/\\\n/g' |
+  loc=$(echo "$PATH" | sed -e $'s/:/\\\n/g' |
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:path]'")
 
   if [[ -d $loc ]]; then
@@ -22,7 +22,7 @@ fp() {
 # list directories in $FPATH,press [enter] on an entry to list,press [escape] to go back,[escape] twice to exit completely
 ffp() {
   local loc
-  loc=$(echo "$FPATH" | gsed -e $'s/:/\\\n/g' |
+  loc=$(echo "$FPATH" | sed -e $'s/:/\\\n/g' |
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:path]'")
 
   if [[ -d $loc ]]; then
@@ -42,7 +42,7 @@ ffp() {
 
 kp() {
   local pid
-  pid=$(ps -ef | gsed 1d |
+  pid=$(ps -ef | sed 1d |
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[kill:process]'" |
     awk '{print $2}')
 

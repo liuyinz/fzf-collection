@@ -6,7 +6,7 @@
 ppi() {
   local inst
   inst=$(curl -s "$(pip3 config get global.index-url)/" |
-    grep '</a>' | gsed 's/^.*">//g' | gsed 's/<.*$//g' |
+    grep '</a>' | sed 's/^.*">//g' | sed 's/<.*$//g' |
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:install]'")
 
   if [[ $inst ]]; then

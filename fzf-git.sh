@@ -8,7 +8,7 @@ gsha() {
 
   commit=$(git log --pretty=oneline --abbrev-commit |
     eval "fzf $FZF_COLLECTION_OPTS --header='[commits: ]'" |
-    gsed "s/ .*//")
+    sed "s/ .*//")
 
   echo "$commit"
 }
@@ -37,8 +37,8 @@ gwf() {
   branches="$(
     git branch --all |
       grep -v HEAD |
-      gsed 's/.* //' |
-      gsed 's#remotes/[^/]*/##' |
+      sed 's/.* //' |
+      sed 's#remotes/[^/]*/##' |
       sort -u |
       awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}'
   )" || return
@@ -112,7 +112,7 @@ gsmi() {
   module=$(
     git config -z --file \
       "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
-      gsed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
+      sed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
       eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'"
   )
 
@@ -181,7 +181,7 @@ gsti() {
 # [G]it [I]gnore-io [F]zf
 gif() {
   local inst
-  inst=$(git ignore-io -l | gsed -e "s/[[:space:]]\+/\n/g" |
+  inst=$(git ignore-io -l | sed -e "s/[[:space:]]\+/\n/g" |
     eval "fzf ${FZF_COLLECTION_OPTS} --header='[git ignore-io:append]'")
 
   if [[ $inst ]]; then
