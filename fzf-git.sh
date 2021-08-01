@@ -118,7 +118,7 @@ gsmi() {
 
   if [[ $module ]]; then
     # shellcheck disable=SC2028
-    subcmd=$(echo "browse\ndelete\ninit\ndeinit\nupdate-init\nupdate-remote" |
+    subcmd=$(echo "browse\ndir\ndelete\ninit\ndeinit\nupdate-init\nupdate-remote" |
       eval "fzf --header='[git submodule: subcmd]'")
 
     for i in $(echo "$module"); do
@@ -127,6 +127,9 @@ gsmi() {
       browse)
         # SEE https://stackoverflow.com/a/786515/13194984
         (cd "$prog" && exec gh browse)
+        ;;
+      dir)
+        cd "$prog" || exit
         ;;
       delete)
         git delete-submodule --force "$prog"
