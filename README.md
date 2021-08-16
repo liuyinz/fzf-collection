@@ -58,21 +58,19 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 ## fzf-default
 
-- `fp` : find $PATH
-- `ffp` : find $FPATH
-- `kp` : kill process
+- `fp`  : find `$PATH`
+- `ffp` : find `$FPATH`
+- `kp`  : kill process
 
 ## fzf-browser
 
 ```sh
 # dependency
-brew install coreutils gnu-sed gawk jq ripgrep
+brew install sqlite3 coreutils diffutils gnu-sed gawk jq ripgrep
 ```
 
-- `gcb` : chrome bookmark
-- `gch` : chrome history
-- `meb` : edge bookmark
-- `meh` : edge history
+- `bhf` : history search for `Google Chrome` `Microsoft Edge` `Mozilla Firefox` `MacOs Safari`
+- `bbf` : bookmark search for `Google Chrome` `Microsoft Edge` `Mozilla Firefox`
 
 ## fzf-brew
 
@@ -100,14 +98,14 @@ brew install git-extras coreutils gnu-sed gh
 ```
 
 - `gsha` : return commits
-- `gck` : git checkout [commits]
-- `gwf` : git checkout [branch or tag]
-- `gef` : git restore
-- `ges` : git restore --staged
-- `gea` : git resore --staged --worktree
+- `gck`  : git checkout [commits]
+- `gwf`  : git checkout [branch or tag]
+- `gef`  : git restore
+- `ges`  : git restore --staged
+- `gea`  : git resore --staged --worktree
 - `gsmi` : git submodule INTERACTIVE
 - `gsti` : git stash INTERACTIVE
-- `gif` : git ignore-io --append
+- `gif`  : git ignore-io --append
 
 # Envrionment
 
