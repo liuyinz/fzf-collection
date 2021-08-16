@@ -66,7 +66,7 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 ```sh
 # dependency
-brew install sqlite3 coreutils diffutils gnu-sed gawk jq ripgrep
+brew install sqlite3 coreutils diffutils gnu-sed gawk jq python-yq
 ```
 
 - `bhf` : history search for `Google Chrome` `Microsoft Edge` `Mozilla Firefox` `MacOs Safari`

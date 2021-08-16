@@ -60,8 +60,6 @@ history_items I on V.history_item = I.id order by visit_time desc"
 # ------------------
 # Used for firefox, microsoft edge and google chrome on MacOs
 bbf() {
-  which jq >/dev/null 2>&1 || echo "jq is not installed !!!"
-
   local prefix_path default_browser bookmark_file temp_dir
 
   prefix_path="$HOME/Library/Application Support"
@@ -88,10 +86,10 @@ bbf() {
     firefox_profile=$(grep "Default=Profiles" "$prefix_path"/Firefox/profiles.ini | cut -d'/' -f2)
     bookmark_file="$prefix_path/Firefox/Profiles/$firefox_profile/places.sqlite"
     ;;
-    #  TODO support for Sarari
-    # safari)
-    #   bookmark_file="$HOME/Library/Sarari/Bookmarks.plist"
-    #   ;;
+  safari)
+    bookmark_file="$HOME/Library/Safari/Bookmarks.plist"
+    which xq >/dev/null 2>&1 || echo "python-yq is not installed !!!"
+    ;;
   esac
 
   if ! cmp -s "$bookmark_file" "$temp_dir"/bookmark; then
@@ -100,6 +98,8 @@ bbf() {
 
   case $default_browser in
   chrome | edgemac)
+    which jq >/dev/null 2>&1 || echo "jq is not installed !!!"
+
     local jq_script='def ancestors: while(. | length >= 2; del(.[-1,-2])); .
 as $in | paths(.url?) as $key | $in | getpath($key) | {name,url, path:
  [$key[0:-2] | ancestors as $a | $in | getpath($a) | .name?] | reverse |
@@ -111,9 +111,17 @@ join("/") } | .path + "/" + .name + "\t" + .url'
 --header='bookmark : $default_browser'" | awk 'BEGIN { FS = "\t" } { print $2 }' |
       xargs open &>/dev/null
     ;;
+
+  safari)
+    which xq >/dev/null 2>&1 || echo "python-yq is not installed !!!"
+    local xq_script=
+    plutil -convert xml1 "$temp_dir"/bookmark -o - | xq -r "$xq_script"
+    ;;
+
   firefox)
     local cols=$((COLUMNS / 3))
     local sep='{::}'
+    # SEE https://apple.stackexchange.com/a/322883
     local sql="select substr(B.title, 1, $cols), P.url from moz_bookmarks B left join
 moz_places P on B.fk = P.id order by visit_count desc"
 
@@ -123,7 +131,5 @@ moz_places P on B.fk = P.id order by visit_count desc"
       sed 's#.*\(https*://\)#\1#' |
       xargs open &>/dev/null
     ;;
-    # safari)
-    #   ;;
   esac
 }
