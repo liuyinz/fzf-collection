@@ -3,68 +3,71 @@
 # BREW
 # ------------------
 
-# [B]rew [I]nstall [F]zf
-bif() {
+brew_switch() {
+  if [[ $1 ]]; then
+    # shellcheck disable=SC2028
+    subcmd=$(echo "$2" | eval "fzf --header='[Brew Formulae: subcmd]'")
+    for f in $(echo "$1"); do
+      case $subcmd in
+      cat)
+        bat "$(brew formula "$f")"
+        ;;
+      edit)
+        $EDITOR "$(brew formula "$f")"
+        ;;
+      upgrade)
+        brew upgrade --greedy "$f"
+        ;;
+      *)
+        brew "$subcmd" "$f"
+        ;;
+      esac
+      echo ""
+    done
+  fi
+}
+
+# [B]rew [S]earch [F]zf
+bsf() {
   local inst
   inst=$(
     (
       brew formulae
       brew casks
-    ) | eval "fzf ${FZF_COLLECTION_OPTS} --header='[brew install: ]'"
+    ) |
+      eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Search: ]'"
   )
 
-  if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      if brew ls --versions "$prog" &>/dev/null ||
-        brew ls --casks --versions "$prog" &>/dev/null; then
-        echo "$prog already installed."
-      else
-        brew install "$prog"
-      fi
-    done
-  fi
+  brew_switch "$inst" "install\noptions\ninfo\ndeps\nedit\ncat\nhome"
 }
 
-# [B]rew [U]ninstal [F]zf
-buf() {
-  local uninst
-  uninst=$(
+# [B]rew [M]anage [F]zf
+bmf() {
+  local inst
+  inst=$(
     (
       brew leaves
       brew list --cask
-    ) | eval "fzf ${FZF_COLLECTION_OPTS} --header='[brew uninstall: ]'"
+    ) | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
   )
 
-  if [[ $uninst ]]; then
-    for prog in $(echo "$uninst"); do
-      brew uninstall "$prog"
-    done
-  fi
+  brew_switch "$inst" "uninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
 }
 
 # [B]rew up[G]rade [F]zf
 bgf() {
   brew update
-  local upd
-  upd=$(brew outdated --greedy | eval "fzf ${FZF_COLLECTION_OPTS} \
-    --header='[brew update: ]'")
+  local inst
+  inst=$(brew outdated --greedy | eval "fzf ${FZF_COLLECTION_OPTS} \
+    --header='[Brew Upgrade: ]'")
 
-  if [[ $upd ]]; then
-    for prog in $(echo "$upd"); do
-      brew upgrade --greedy "$prog"
-    done
-  fi
+  brew_switch "$inst" "upgrade\nuninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
 }
 
-# [B]rew [U]n[T]ap
-but() {
-  local upd
-  upd=$(brew tap | eval "fzf ${FZF_COLLECTION_OPTS} \
-    --header='[brew untap:]'")
+# [B]rew [T]ap [F]zf
+btf() {
+  local inst
+  inst=$(brew tap | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Tap: ]'")
 
-  if [[ $upd ]]; then
-    for prog in $(echo "$upd"); do
-      brew untap "$prog"
-    done
-  fi
+  brew_switch "$inst" "untap\ntap-info"
 }

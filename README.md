@@ -58,9 +58,9 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 ## fzf-default
 
-- `fp`  : find `$PATH`
+- `fp` : find `$PATH`
 - `ffp` : find `$FPATH`
-- `kp`  : kill process
+- `kp` : kill process
 
 ## fzf-browser
 
@@ -74,10 +74,10 @@ brew install sqlite3 coreutils diffutils gnu-sed gawk jq python-yq
 
 ## fzf-brew
 
-- `bif` : brew install
-- `buf` : brew uninstall
+- `bsf` : brew search
+- `bmf` : brew manage
 - `bgf` : brew upgrade
-- `but` : brew untap
+- `btf` : brew tap
 
 ## fzf-pip
 
@@ -98,14 +98,14 @@ brew install git-extras coreutils gnu-sed gh
 ```
 
 - `gsha` : return commits
-- `gck`  : git checkout [commits]
-- `gwf`  : git checkout [branch or tag]
-- `gef`  : git restore
-- `ges`  : git restore --staged
-- `gea`  : git resore --staged --worktree
+- `gck` : git checkout [commits]
+- `gwf` : git checkout [branch or tag]
+- `gef` : git restore
+- `ges` : git restore --staged
+- `gea` : git resore --staged --worktree
 - `gsmi` : git submodule INTERACTIVE
 - `gsti` : git stash INTERACTIVE
-- `gif`  : git ignore-io --append
+- `gif` : git ignore-io --append
 
 # Envrionment
 
