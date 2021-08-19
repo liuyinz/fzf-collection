@@ -101,8 +101,6 @@ gea() {
   fi
 }
 
-# TODO git submodule fzf
-
 # [G]it [S]ub[M]odule [I]nteractive
 gsmi() {
   local module
@@ -118,25 +116,25 @@ gsmi() {
 
   if [[ $module ]]; then
     # shellcheck disable=SC2028
-    subcmd=$(echo "browse\ndir\ndelete\ninit\ndeinit\nupdate-init\nupdate-remote" |
+    subcmd=$(echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" |
       eval "fzf --header='[git submodule: subcmd]'")
 
     for i in $(echo "$module"); do
       prog="$(git rev-parse --show-toplevel)"/$i
       case $subcmd in
-      browse)
-        # SEE https://stackoverflow.com/a/786515/13194984
-        (cd "$prog" && exec gh browse)
-        ;;
-      dir)
-        cd "$prog" || exit
+      update-remote)
+        echo "$i ..."
+        git submodule update --remote "$prog"
         ;;
       delete)
         git delete-submodule --force "$prog"
         ;;
-      update-remote)
-        echo "$i ..."
-        git submodule update --remote "$prog"
+      browse)
+        # SEE https://stackoverflow.com/a/786515/13194984
+        (cd "$prog" && exec gh browse)
+        ;;
+      home)
+        cd "$prog" || exit
         ;;
       update-init)
         echo "$i ..."
