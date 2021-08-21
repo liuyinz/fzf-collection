@@ -4,9 +4,11 @@
 # ------------------
 
 brew_switch() {
-  if [[ $1 ]]; then
-    # shellcheck disable=SC2028
-    subcmd=$(echo "$2" | eval "fzf --header='[Brew Formulae: subcmd]'")
+  # shellcheck disable=SC2028
+  subcmd=$(echo "$2" |
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew : subcmd]'")
+
+  if [[ $subcmd ]]; then
     for f in $(echo "$1"); do
       case $subcmd in
       cat)
@@ -24,7 +26,10 @@ brew_switch() {
       esac
       echo ""
     done
+  else
+    return 0
   fi
+  brew_switch "$1" "$2"
 }
 
 # [B]rew [S]earch [F]zf
@@ -34,34 +39,55 @@ bsf() {
     (
       brew formulae
       brew casks
-    ) |
-      eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Search: ]'"
+    ) | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Search: ]'"
   )
 
-  brew_switch "$inst" "install\noptions\ninfo\ndeps\nedit\ncat\nhome"
+  if [[ $inst ]]; then
+    brew_switch "$inst" "install\noptions\ninfo\ndeps\nedit\ncat\nhome"
+  else
+    return 0
+  fi
+  bsf
 }
 
 # [B]rew [M]anage [F]zf
 bmf() {
   local inst
-  inst=$(
-    (
-      brew leaves
-      brew list --cask
-    ) | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
-  )
+  if [[ ! -e /tmp/brew ]]; then
+    inst=$(
+      (
+        brew leaves
+        brew list --cask
+      ) | tee /tmp/brew |
+        eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
+    )
+  else
+    inst=$(
+      cat </tmp/brew | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
+    )
+  fi
 
-  brew_switch "$inst" "uninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
+  if [[ $inst ]]; then
+    brew_switch "$inst" "uninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
+  else
+    rm /tmp/brew && return 0
+  fi
+  bmf
 }
 
 # [B]rew up[G]rade [F]zf
 bgf() {
   brew update
   local inst
-  inst=$(brew outdated --greedy | eval "fzf ${FZF_COLLECTION_OPTS} \
-    --header='[Brew Upgrade: ]'")
+  inst=$(brew outdated --greedy |
+    eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'")
 
-  brew_switch "$inst" "upgrade\nuninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
+  if [[ $inst ]]; then
+    brew_switch "$inst" "upgrade\nuninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
+  else
+    return 0
+  fi
+  bgf
 }
 
 # [B]rew [T]ap [F]zf
@@ -69,5 +95,10 @@ btf() {
   local inst
   inst=$(brew tap | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Tap: ]'")
 
-  brew_switch "$inst" "untap\ntap-info"
+  if [[ $inst ]]; then
+    brew_switch "$inst" "untap\ntap-info"
+  else
+    return 0
+  fi
+  btf
 }
