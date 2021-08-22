@@ -5,24 +5,24 @@
 
 brew_switch() {
   # shellcheck disable=SC2028
-  subcmd=$(echo "$2" |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew : subcmd]'")
+  subcmd=$(echo "$2" \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew : subcmd]'")
 
   if [[ $subcmd ]]; then
     for f in $(echo "$1"); do
       case $subcmd in
-      cat)
-        bat "$(brew formula "$f")"
-        ;;
-      edit)
-        $EDITOR "$(brew formula "$f")"
-        ;;
-      upgrade)
-        brew upgrade --greedy "$f"
-        ;;
-      *)
-        brew "$subcmd" "$f"
-        ;;
+        cat)
+          bat "$(brew formula "$f")"
+          ;;
+        edit)
+          $EDITOR "$(brew formula "$f")"
+          ;;
+        upgrade)
+          brew upgrade --greedy "$f"
+          ;;
+        *)
+          brew "$subcmd" "$f"
+          ;;
       esac
       echo ""
     done
@@ -36,10 +36,10 @@ brew_switch() {
 bsf() {
   local inst
   inst=$(
-    (
+    {
       brew formulae
       brew casks
-    ) | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Search: ]'"
+    } | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Search: ]'"
   )
 
   if [[ $inst ]]; then
@@ -57,11 +57,11 @@ bmf() {
   if [[ ! -e $tmpfile ]]; then
     touch $tmpfile
     inst=$(
-      (
+      {
         brew leaves
         brew list --cask
-      ) | tee $tmpfile |
-        eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
+      } | tee $tmpfile \
+        | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
     )
   else
     inst=$(
@@ -84,16 +84,12 @@ bgf() {
   if [[ ! -e $tmpfile ]]; then
     touch $tmpfile
     brew update
-    inst=$(
-      brew outdated --greedy |
-        tee $tmpfile |
-        eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'"
-    )
+    inst=$(brew outdated --greedy \
+      | tee $tmpfile \
+      | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'")
   else
-    inst=$(
-      cat <$tmpfile |
-        eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'"
-    )
+    inst=$(cat <$tmpfile \
+      | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'")
   fi
 
   if [[ $inst ]]; then

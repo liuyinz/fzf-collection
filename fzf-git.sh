@@ -6,9 +6,9 @@
 gsha() {
   local commit
 
-  commit=$(git log --pretty=oneline --abbrev-commit |
-    eval "fzf $FZF_COLLECTION_OPTS --header='[commits: ]'" |
-    sed "s/ .*//")
+  commit=$(git log --pretty=oneline --abbrev-commit \
+    | eval "fzf $FZF_COLLECTION_OPTS --header='[commits: ]'" \
+    | sed "s/ .*//")
 
   echo "$commit"
 }
@@ -30,22 +30,22 @@ gwf() {
   local target
 
   tags="$(
-    git tag |
-      awk '{print "\x1b[31;1mtag\x1b[m\t" $1}'
+    git tag \
+      | awk '{print "\x1b[31;1mtag\x1b[m\t" $1}'
   )" || return
 
   branches="$(
-    git branch --all |
-      grep -v HEAD |
-      sed 's/.* //' |
-      sed 's#remotes/[^/]*/##' |
-      sort -u |
-      awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}'
+    git branch --all \
+      | grep -v HEAD \
+      | sed 's/.* //' \
+      | sed 's#remotes/[^/]*/##' \
+      | sort -u \
+      | awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}'
   )" || return
 
   target="$(
-    printf '%s\n%s' "$tags" "$branches" |
-      fzf \
+    printf '%s\n%s' "$tags" "$branches" \
+      | fzf \
         --no-hscroll \
         --ansi \
         +m \
@@ -60,8 +60,8 @@ gwf() {
 # [G]it r[E]store [F]zf
 gef() {
   local inst
-  inst=$(git ls-files -m --exclude-standard |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore:]'")
+  inst=$(git ls-files -m --exclude-standard \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore:]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -74,10 +74,10 @@ gef() {
 # SEE https://www.javaer101.com/en/article/16751334.html
 ges() {
   local inst
-  inst=$(git diff --name-only --cached |
-    xargs -I '{}' realpath --relative-to=. \
-      "$(git rev-parse --show-toplevel)"/'{}' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore: --staged]'")
+  inst=$(git diff --name-only --cached \
+    | xargs -I '{}' realpath --relative-to=. \
+      "$(git rev-parse --show-toplevel)"/'{}' \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore: --staged]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -89,10 +89,10 @@ ges() {
 # [G]it r[E]store [A]ll
 gea() {
   local inst
-  inst=$(git diff --name-only HEAD |
-    xargs -I '{}' realpath --relative-to=. \
-      "$(git rev-parse --show-toplevel)"/'{}' |
-    eval "fzf ${FZF_COLLECTIONOPTS} --header='[git restore: --staged --worktree]'")
+  inst=$(git diff --name-only HEAD \
+    | xargs -I '{}' realpath --relative-to=. \
+      "$(git rev-parse --show-toplevel)"/'{}' \
+    | eval "fzf ${FZF_COLLECTIONOPTS} --header='[git restore: --staged --worktree]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -109,43 +109,44 @@ gsmi() {
   # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
   module=$(
     git config -z --file \
-      "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' |
-      sed -nz 's/^[^\n]*\n//p' | tr '\0' '\n' |
-      eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'"
+      "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' \
+      | sed -nz 's/^[^\n]*\n//p' \
+      | tr '\0' '\n' \
+      | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'"
   )
 
   if [[ $module ]]; then
     # shellcheck disable=SC2028
-    subcmd=$(echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" |
-      eval "fzf --header='[git submodule: subcmd]'")
+    subcmd=$(echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" \
+      | eval "fzf --header='[git submodule: subcmd]'")
 
     for i in $(echo "$module"); do
       prog="$(git rev-parse --show-toplevel)"/$i
       case $subcmd in
-      update-remote)
-        echo "$i ..."
-        git submodule update --remote "$prog"
-        ;;
-      delete)
-        git delete-submodule --force "$prog"
-        ;;
-      browse)
-        # SEE https://stackoverflow.com/a/786515/13194984
-        (cd "$prog" && exec gh browse)
-        ;;
-      home)
-        cd "$prog" || exit
-        ;;
-      update-init)
-        echo "$i ..."
-        git submodule update --init "$prog"
-        ;;
-      deinit)
-        git submodule deinit --force "$prog"
-        ;;
-      init)
-        git submodule init "$prog"
-        ;;
+        update-remote)
+          echo "$i ..."
+          git submodule update --remote "$prog"
+          ;;
+        delete)
+          git delete-submodule --force "$prog"
+          ;;
+        browse)
+          # SEE https://stackoverflow.com/a/786515/13194984
+          (cd "$prog" && exec gh browse)
+          ;;
+        home)
+          cd "$prog" || exit
+          ;;
+        update-init)
+          echo "$i ..."
+          git submodule update --init "$prog"
+          ;;
+        deinit)
+          git submodule deinit --force "$prog"
+          ;;
+        init)
+          git submodule init "$prog"
+          ;;
       esac
     done
   fi
@@ -154,16 +155,17 @@ gsmi() {
 # [G]it [ST]ash [I]nteractive
 gsti() {
   local inst
-  inst=$(git stash list |
-    eval "fzf $FZF_COLLECTION_OPTS --header='[git stash: pop]'" |
-    awk 'BEGIN { FS = ":" } { print $1 }' | tac)
+  inst=$(git stash list \
+    | eval "fzf $FZF_COLLECTION_OPTS --header='[git stash: pop]'" \
+    | awk 'BEGIN { FS = ":" } { print $1 }' \
+    | tac)
 
   if [[ $inst ]]; then
     local subcmd
 
     # shellcheck disable=SC2028
-    subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" |
-      eval "fzf --header='[git stash: subcmd]'")
+    subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" \
+      | eval "fzf --header='[git stash: subcmd]'")
 
     if [ "$subcmd" = "branch" ]; then
       local name
@@ -182,8 +184,9 @@ gsti() {
 # [G]it [I]gnore-io [F]zf
 gif() {
   local inst
-  inst=$(git ignore-io -l | sed -e "s/[[:space:]]\+/\n/g" |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[git ignore-io:append]'")
+  inst=$(git ignore-io -l \
+    | sed -e "s/[[:space:]]\+/\n/g" \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git ignore-io:append]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do

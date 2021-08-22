@@ -5,9 +5,11 @@
 # [P]ip [I]nstall
 ppi() {
   local inst
-  inst=$(curl -s "$(pip3 config get global.index-url)/" |
-    grep '</a>' | sed 's/^.*">//g' | sed 's/<.*$//g' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:install]'")
+  inst=$(curl -s "$(pip3 config get global.index-url)/" \
+    | grep '</a>' \
+    | sed 's/^.*">//g' \
+    | sed 's/<.*$//g' \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:install]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -19,8 +21,10 @@ ppi() {
 # [P]ip up[G]rade
 ppg() {
   local inst
-  inst=$(pip3 list --outdated | tail -n +3 | awk '{print $1}' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:upgrade]'")
+  inst=$(pip3 list --outdated \
+    | tail -n +3 \
+    | awk '{print $1}' \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:upgrade]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do
@@ -32,8 +36,10 @@ ppg() {
 # [P]ip [U]ninstall
 ppu() {
   local inst
-  inst=$(pip3 list | tail -n +3 | awk '{print $1}' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:uninstall]'")
+  inst=$(pip3 list \
+    | tail -n +3 \
+    | awk '{print $1}' \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[pip:uninstall]'")
 
   if [[ $inst ]]; then
     for prog in $(echo "$inst"); do

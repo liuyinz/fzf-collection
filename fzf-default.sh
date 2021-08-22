@@ -8,12 +8,15 @@
 
 fp() {
   local loc
-  loc=$(echo "$PATH" | sed -e $'s/:/\\\n/g' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:path]'")
+  loc=$(echo "$PATH" | sed -e $'s/:/\\\n/g' \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:path]'")
 
   if [[ -d $loc ]]; then
-    rg --files "$loc" | rev | cut -d"/" -f1 | rev |
-      eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:exe] => ${loc}' >/dev/null"
+    rg --files "$loc" \
+      | rev \
+      | cut -d"/" -f1 \
+      | rev \
+      | eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:exe] => ${loc}' >/dev/null"
     fp
   fi
 }
@@ -22,12 +25,15 @@ fp() {
 # list directories in $FPATH,press [enter] on an entry to list,press [escape] to go back,[escape] twice to exit completely
 ffp() {
   local loc
-  loc=$(echo "$FPATH" | sed -e $'s/:/\\\n/g' |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:path]'")
+  loc=$(echo "$FPATH" | sed -e $'s/:/\\\n/g' \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:path]'")
 
   if [[ -d $loc ]]; then
-    rg --files "$loc" | rev | cut -d"/" -f1 | rev | eval \
-      "fzf ${FZF_COLLECTION_OPTS} --header='[find:exe] => ${loc}' \
+    rg --files "$loc" \
+      | rev \
+      | cut -d"/" -f1 \
+      | rev \
+      | eval "fzf ${FZF_COLLECTION_OPTS} --header='[find:exe] => ${loc}' \
       >/dev/null"
     fp
   fi
@@ -42,9 +48,10 @@ ffp() {
 
 kp() {
   local pid
-  pid=$(ps -ef | sed 1d |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[kill:process]'" |
-    awk '{print $2}')
+  pid=$(ps -ef \
+    | sed 1d \
+    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[kill:process]'" \
+    | awk '{print $2}')
 
   if [ "x$pid" != "x" ]; then
     echo "$pid" | xargs kill -"${1:-9}"
