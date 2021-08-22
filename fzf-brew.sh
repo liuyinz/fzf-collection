@@ -52,40 +52,54 @@ bsf() {
 
 # [B]rew [M]anage [F]zf
 bmf() {
-  local inst
-  if [[ ! -e /tmp/brew ]]; then
+  local tmpfile inst
+  tmpfile=/tmp/bmf
+  if [[ ! -e $tmpfile ]]; then
+    touch $tmpfile
     inst=$(
       (
         brew leaves
         brew list --cask
-      ) | tee /tmp/brew |
+      ) | tee $tmpfile |
         eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
     )
   else
     inst=$(
-      cat </tmp/brew | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
+      cat <$tmpfile | eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Manage: ]'"
     )
   fi
 
   if [[ $inst ]]; then
     brew_switch "$inst" "uninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
   else
-    rm /tmp/brew && return 0
+    rm -f $tmpfile && return 0
   fi
   bmf
 }
 
 # [B]rew up[G]rade [F]zf
 bgf() {
-  brew update
-  local inst
-  inst=$(brew outdated --greedy |
-    eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'")
+  local tmpfile inst
+  tmpfile=/tmp/bgf
+  if [[ ! -e $tmpfile ]]; then
+    touch $tmpfile
+    brew update
+    inst=$(
+      brew outdated --greedy |
+        tee $tmpfile |
+        eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'"
+    )
+  else
+    inst=$(
+      cat <$tmpfile |
+        eval "fzf ${FZF_COLLECTION_OPTS} --header='[Brew Upgrade: ]'"
+    )
+  fi
 
   if [[ $inst ]]; then
     brew_switch "$inst" "upgrade\nuninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
   else
-    return 0
+    rm -f $tmpfile && return 0
   fi
   bgf
 }
