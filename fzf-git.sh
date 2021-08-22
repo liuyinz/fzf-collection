@@ -7,7 +7,7 @@ gsha() {
   local commit
 
   commit=$(git log --pretty=oneline --abbrev-commit \
-    | eval "fzf $FZF_COLLECTION_OPTS --header='[commits: ]'" \
+    | fzf "${fzf_opts[@]}" --header='[commits: ]' \
     | sed "s/ .*//")
 
   echo "$commit"
@@ -61,11 +61,11 @@ gwf() {
 gef() {
   local inst
   inst=$(git ls-files -m --exclude-standard \
-    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore:]'")
+    | fzf "${fzf_opts[@]}" --header='[git restore:]')
 
   if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      git restore "$prog"
+    for f in $(echo "$inst"); do
+      git restore "$f"
     done
   fi
 }
@@ -75,13 +75,12 @@ gef() {
 ges() {
   local inst
   inst=$(git diff --name-only --cached \
-    | xargs -I '{}' realpath --relative-to=. \
-      "$(git rev-parse --show-toplevel)"/'{}' \
-    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git restore: --staged]'")
+    | xargs -I '{}' realpath --relative-to=. "$(git rev-parse --show-toplevel)"/'{}' \
+    | fzf "${fzf_opts[@]}" --header='[git restore: --staged]')
 
   if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      git restore --staged "$prog"
+    for f in $(echo "$inst"); do
+      git restore --staged "$f"
     done
   fi
 }
@@ -90,13 +89,12 @@ ges() {
 gea() {
   local inst
   inst=$(git diff --name-only HEAD \
-    | xargs -I '{}' realpath --relative-to=. \
-      "$(git rev-parse --show-toplevel)"/'{}' \
-    | eval "fzf ${FZF_COLLECTIONOPTS} --header='[git restore: --staged --worktree]'")
+    | xargs -I '{}' realpath --relative-to=. "$(git rev-parse --show-toplevel)"/'{}' \
+    | fzf "${fzf_opts[@]}" --header='[git restore: --staged --worktree]')
 
   if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      git restore --staged --worktree "$prog"
+    for f in $(echo "$inst"); do
+      git restore --staged --worktree "$f"
     done
   fi
 }
@@ -112,40 +110,40 @@ gsmi() {
       "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' \
       | sed -nz 's/^[^\n]*\n//p' \
       | tr '\0' '\n' \
-      | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git submodule: ]'"
+      | fzf "${fzf_opts[@]}" --header='[git submodule: ]'
   )
 
   if [[ $module ]]; then
     # shellcheck disable=SC2028
     subcmd=$(echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" \
-      | eval "fzf --header='[git submodule: subcmd]'")
+      | fzf "${fzf_opts[@]}" --header='[git submodule: subcmd]')
 
     for i in $(echo "$module"); do
-      prog="$(git rev-parse --show-toplevel)"/$i
+      f="$(git rev-parse --show-toplevel)"/$i
       case $subcmd in
         update-remote)
           echo "$i ..."
-          git submodule update --remote "$prog"
+          git submodule update --remote "$f"
           ;;
         delete)
-          git delete-submodule --force "$prog"
+          git delete-submodule --force "$f"
           ;;
         browse)
           # SEE https://stackoverflow.com/a/786515/13194984
-          (cd "$prog" && exec gh browse)
+          (cd "$f" && exec gh browse)
           ;;
         home)
-          cd "$prog" || exit
+          cd "$f" || exit
           ;;
         update-init)
           echo "$i ..."
-          git submodule update --init "$prog"
+          git submodule update --init "$f"
           ;;
         deinit)
-          git submodule deinit --force "$prog"
+          git submodule deinit --force "$f"
           ;;
         init)
-          git submodule init "$prog"
+          git submodule init "$f"
           ;;
       esac
     done
@@ -156,7 +154,7 @@ gsmi() {
 gsti() {
   local inst
   inst=$(git stash list \
-    | eval "fzf $FZF_COLLECTION_OPTS --header='[git stash: pop]'" \
+    | fzf "${fzf_opts[@]}" --header='[git stash: pop]' \
     | awk 'BEGIN { FS = ":" } { print $1 }' \
     | tac)
 
@@ -165,7 +163,7 @@ gsti() {
 
     # shellcheck disable=SC2028
     subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" \
-      | eval "fzf --header='[git stash: subcmd]'")
+      | fzf "${fzf_opts[@]}" --header='[git stash: subcmd]')
 
     if [ "$subcmd" = "branch" ]; then
       local name
@@ -174,8 +172,8 @@ gsti() {
     elif [ "$subcmd" = "show" ]; then
       git stash show "$inst" --patch-with-stat
     else
-      for prog in $(echo "$inst"); do
-        git stash "$subcmd" "$prog"
+      for f in $(echo "$inst"); do
+        git stash "$subcmd" "$f"
       done
     fi
   fi
@@ -186,11 +184,11 @@ gif() {
   local inst
   inst=$(git ignore-io -l \
     | sed -e "s/[[:space:]]\+/\n/g" \
-    | eval "fzf ${FZF_COLLECTION_OPTS} --header='[git ignore-io:append]'")
+    | fzf "${fzf_opts[@]}" --header='[git ignore-io:append]')
 
   if [[ $inst ]]; then
-    for prog in $(echo "$inst"); do
-      git ignore-io --append "$prog"
+    for f in $(echo "$inst"); do
+      git ignore-io --append "$f"
     done
   fi
 }

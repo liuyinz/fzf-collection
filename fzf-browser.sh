@@ -51,7 +51,7 @@ history_items I on V.history_item = I.id order by visit_time desc"
 
   sqlite3 -separator $sep "$temp_dir"/history "$sql" \
     | awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' \
-    | eval "fzf $FZF_COLLECTION_OPTS --ansi --header='history : [$default_browser]'" \
+    | fzf "${fzf_opts[@]}" --ansi --header="history : [$default_browser]" \
     | sed 's#.*\(https*://\)#\1#' \
     | xargs open &>/dev/null
 }
@@ -107,8 +107,8 @@ join("/") } | .path + "/" + .name + "\t" + .url'
 
       jq -r "$jq_script" <"$temp_dir"/bookmark \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
-        | eval "fzf $FZF_COLLECTION_OPTS --ansi --no-hscroll --tiebreak=begin \
---header='bookmark : $default_browser'" \
+        | fzf "${fzf_opts[@]}" --ansi --no-hscroll --tiebreak=begin \
+          --header="bookmark : $default_browser" \
         | awk 'BEGIN { FS = "\t" } { print $2 }' \
         | xargs open &>/dev/null
       ;;
@@ -128,7 +128,7 @@ moz_places P on B.fk = P.id order by visit_count desc"
 
       sqlite3 -separator $sep "$temp_dir"/bookmark "$sql" \
         | awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' \
-        | eval "fzf $FZF_COLLECTION_OPTS --ansi --header='bookmark : [$default_browser]'" \
+        | fzf "${fzf_opts[@]}" --ansi --header="bookmark : [$default_browser]" \
         | sed 's#.*\(https*://\)#\1#' \
         | xargs open &>/dev/null
       ;;
