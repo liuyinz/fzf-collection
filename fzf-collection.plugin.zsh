@@ -1,10 +1,25 @@
 # set options if not defined
 if [[ -z "$FZF_COLLECTION_OPTS" ]]; then
-  export FZF_COLLECTION_OPTS="--reverse --cycle --multi --sort --exact --info=inline"
+  FZF_COLLECTION_OPTS="
+  --reverse
+  --cycle
+  --multi
+  --sort
+  --exact
+  --info=inline"
 fi
 
-fzf_opts=($(echo ${FZF_COLLECTION_OPTS}))
+fzf_opts=($(echo "${FZF_COLLECTION_OPTS}"))
 
-for f in "${0:h:A}"/fzf-*.sh; do
-  source $f
+if [[ -z "$FZF_COLLECTION_MODULES" ]]; then
+  FZF_COLLECTION_MODULES=(
+    fzf-default
+    fzf-browser
+    fzf-brew
+    fzf-git
+    fzf-pip)
+fi
+
+for f in "${FZF_COLLECTION_MODULES[@]}"; do
+  source "${0:h:A}/$f.sh"
 done
