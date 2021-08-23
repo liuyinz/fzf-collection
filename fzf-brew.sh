@@ -19,21 +19,21 @@ brew_switch() {
           ;;
         install)
           brew "$subcmd" "$f"
-          set -- "$1" "${@:3}"
           ;;
         upgrade | uninstall)
           brew "$subcmd" "$f"
           #  SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
           sed -i "/^${f}$/d" "$tmpfile"
           #  SEE https://stackoverflow.com/a/4827707
-          set -- "$1" "${@:7}"
           ;;
-        *)
-          brew "$subcmd" "$f"
-          ;;
+        *) brew "$subcmd" "$f" ;;
       esac
       echo ""
     done
+    case $subcmd in
+      install) set -- "$1" "${@:3}" ;;
+      upgrade | uninstall) set -- "$1" "${@:7}" ;;
+    esac
   else
     return 0
   fi
