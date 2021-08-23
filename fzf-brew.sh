@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
+#  SEE https://gist.github.com/steakknife/8294792
+
 # BREW
 # ------------------
 
 brew_switch() {
-  # shellcheck disable=SC2028
-  subcmd=$(echo "$2" | fzf "${fzf_opts[@]}")
+  subcmd=$(echo "${@:2}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
 
   if [[ $subcmd ]]; then
     for f in $(echo "$1"); do
@@ -16,10 +17,16 @@ brew_switch() {
         edit)
           $EDITOR "$(brew formula "$f")"
           ;;
-        upgrade|uninstall)
+        install)
           brew "$subcmd" "$f"
-          # SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
+          set -- "$1" "${@:3}"
+          ;;
+        upgrade | uninstall)
+          brew "$subcmd" "$f"
+          #  SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
           sed -i "/^${f}$/d" "$tmpfile"
+          #  SEE https://stackoverflow.com/a/4827707
+          set -- "$1" "${@:7}"
           ;;
         *)
           brew "$subcmd" "$f"
@@ -30,12 +37,12 @@ brew_switch() {
   else
     return 0
   fi
-  brew_switch "$1" "$2"
+  brew_switch "$@"
 }
 
 # [B]rew [S]earch [F]zf
 bsf() {
-  local inst
+  local inst opt
   inst=$(
     {
       brew formulae
@@ -43,8 +50,9 @@ bsf() {
     } | fzf "${fzf_opts[@]}" --header='[Brew Search: ]'
   )
 
+  opt=("install" "options" "info" "deps" "edit" "cat" "home" "uninstall" "link" "unlink" "pin" "unpin")
   if [[ $inst ]]; then
-    brew_switch "$inst" "install\noptions\ninfo\ndeps\nedit\ncat\nhome"
+    brew_switch "$inst" "${opt[@]}"
   else
     return 0
   fi
@@ -53,7 +61,7 @@ bsf() {
 
 # [B]rew [M]anage [F]zf
 bmf() {
-  local tmpfile inst
+  local tmpfile inst opt
   tmpfile=/tmp/bmf
   if [[ ! -e $tmpfile ]]; then
     touch $tmpfile
@@ -70,8 +78,11 @@ bmf() {
     )
   fi
 
+  opt=("uninstall" "link" "unlink" "pin" "unpin"
+    "options" "info" "deps" "edit" "cat" "home")
+
   if [[ $inst ]]; then
-    brew_switch "$inst" "uninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
+    brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
@@ -80,7 +91,7 @@ bmf() {
 
 # [B]rew up[G]rade [F]zf
 bgf() {
-  local tmpfile inst
+  local tmpfile inst opt
   tmpfile=/tmp/bgf
   if [[ ! -e $tmpfile ]]; then
     touch $tmpfile
@@ -93,8 +104,11 @@ bgf() {
       | fzf "${fzf_opts[@]}" --header='[Brew Upgrade: ]')
   fi
 
+  opt=("upgrade" "link" "unlink" "pin" "unpin"
+    "uninstall" "options" "info" "deps" "edit" "cat" "home")
+
   if [[ $inst ]]; then
-    brew_switch "$inst" "upgrade\nuninstall\noptions\ninfo\ndeps\nedit\ncat\nhome\nlink\nunlink\npin\nunpin\n"
+    brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
