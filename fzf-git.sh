@@ -107,7 +107,7 @@ gsmi() {
   # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
   module=$(
     git config -z --file \
-      "$(git rev-parse --show-toplevel)"/.gitmodules --get-regexp '\.path$' \
+      "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
       | sed -nz 's/^[^\n]*\n//p' \
       | tr '\0' '\n' \
       | fzf "${fzf_opts[@]}" --header='[git submodule: ]'

@@ -21,6 +21,7 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
 - [Envrionment](#envrionment)
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
+  - [FZF_COLLECTION_BROWSER](#fzf_collection_browser)
 
 <!-- markdown-toc end -->
 
@@ -140,6 +141,14 @@ FZF_COLLECTION_MODULES=(
   fzf-pip)
 ```
 
+## FZF_COLLECTION_BROWSER
+
+Settng `FZF_COLLECTION_BROWSER` to open url, use default browser if not set.
+
+```sh
+# choose from "chorme" "edgemac" "firefox" "safari"
+FZF_COLLECTION_BROWSER="chrome"
+```
 
 
 
