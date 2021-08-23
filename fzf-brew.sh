@@ -16,8 +16,10 @@ brew_switch() {
         edit)
           $EDITOR "$(brew formula "$f")"
           ;;
-        upgrade)
-          brew upgrade --greedy "$f"
+        upgrade|uninstall)
+          brew "$subcmd" "$f"
+          # SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
+          sed -i "/^${f}$/d" "$tmpfile"
           ;;
         *)
           brew "$subcmd" "$f"
