@@ -20,18 +20,19 @@ brew_switch() {
         install)
           brew "$subcmd" "$f"
           ;;
-        upgrade | uninstall)
+        upgrade | uninstall | untap)
           brew "$subcmd" "$f"
           #  SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
-          sed -i "/^${f}$/d" "$tmpfile"
-          #  SEE https://stackoverflow.com/a/4827707
+          #  SEE https://stackoverflow.com/a/17273270 , escape '/' in path
+          sed -i "/^$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
           ;;
         *) brew "$subcmd" "$f" ;;
       esac
       echo ""
     done
     case $subcmd in
-      install) set -- "$1" "${@:3}" ;;
+      #  SEE https://stackoverflow.com/a/4827707
+      install | untap) set -- "$1" "${@:3}" ;;
       upgrade | uninstall) set -- "$1" "${@:7}" ;;
     esac
   else
@@ -50,7 +51,8 @@ bsf() {
     } | fzf "${fzf_opts[@]}" --header='[Brew Search: ]'
   )
 
-  opt=("install" "options" "info" "deps" "edit" "cat" "home" "uninstall" "link" "unlink" "pin" "unpin")
+  opt=("install" "options" "info" "deps" "edit" "cat"
+    "home" "uninstall" "link" "unlink" "pin" "unpin")
   if [[ $inst ]]; then
     brew_switch "$inst" "${opt[@]}"
   else
@@ -117,13 +119,22 @@ bgf() {
 
 # [B]rew [T]ap [F]zf
 btf() {
-  local inst
-  inst=$(brew tap | fzf "${fzf_opts[@]}" --header='[Brew Tap: ]')
-
-  if [[ $inst ]]; then
-    brew_switch "$inst" "untap\ntap-info"
+  local tmpfile inst opt
+  tmpfile=/tmp/btf
+  if [[ ! -e $tmpfile ]]; then
+    touch $tmpfile
+    inst=$(brew tap \
+      | tee $tmpfile \
+      | fzf "${fzf_opts[@]}" --header='[Brew Tap: ]')
   else
-    return 0
+    inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header='[Brew Tap: ]')
+  fi
+
+  opt=("untap" "tap-info")
+  if [[ $inst ]]; then
+    brew_switch "$inst" "${opt[@]}"
+  else
+    rm -f $tmpfile && return 0
   fi
   btf
 }
