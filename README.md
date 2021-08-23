@@ -20,6 +20,7 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [fzf-git](#fzf-git)
 - [Envrionment](#envrionment)
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
+  - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
 
 <!-- markdown-toc end -->
 
@@ -116,7 +117,7 @@ Another env `FZF_COLLECTION_OPTS` is provided for users to customize.
 
 ```sh
 # set options if needed, default value is as below :
-export FZF_COLLECTION_OPTS=" \
+FZF_COLLECTION_OPTS=" \
     --reverse \
     --cycle \
     --multi \
@@ -124,3 +125,21 @@ export FZF_COLLECTION_OPTS=" \
     --exact \
     --info=inline"
 ```
+
+## FZF_COLLECTION_MODULES
+
+Settng `FZF_COLLECTION_MODULES` to load modules.
+By default, all modules are loaded.
+
+```sh
+FZF_COLLECTION_MODULES=(
+  fzf-default
+  fzf-browser
+  fzf-brew
+  fzf-git
+  fzf-pip)
+```
+
+
+
+
