@@ -52,8 +52,7 @@ bhf() {
       ;;
     firefox)
       # SEE https://www.foxtonforensics.com/browser-history-examiner/firefox-history-location
-      firefox_profile=$(grep "Default=Profiles" "$prefix_path/Firefox/profiles.ini" \
-        | cut -d'/' -f2)
+      firefox_profile=$(grep "Default=Profiles" "$prefix_path/Firefox/profiles.ini" | cut -d'/' -f2)
       history_file="$prefix_path/Firefox/Profiles/$firefox_profile/places.sqlite"
       sql="select substr(title, 1, $cols), url from moz_places order by last_visit_date desc"
       ;;
@@ -84,7 +83,6 @@ bbf() {
   local prefix_path bookmark_file temp_dir
 
   prefix_path="$HOME/Library/Application Support"
-
   temp_dir="/tmp/$FZF_COLLECTION_BROWSER"
   mkdir -p "$temp_dir"
 
@@ -113,10 +111,16 @@ bbf() {
     chrome | edgemac)
       which jq >/dev/null 2>&1 || echo "jq is not installed !!!"
 
-      local jq_script='def ancestors: while(. | length >= 2; del(.[-1,-2])); .
-as $in | paths(.url?) as $key | $in | getpath($key) | {name,url, path:
- [$key[0:-2] | ancestors as $a | $in | getpath($a) | .name?] | reverse |
-join("/") } | .path + "/" + .name + "\t" + .url'
+      local jq_script='
+def ancestors: while(. | length >= 2; del(.[-1,-2]));
+. as $in |
+paths(.url?) as $key |
+$in |
+getpath($key) |
+{name,url, path: [$key[0:-2] | ancestors as $a | $in | getpath($a) | .name?] |
+reverse |
+join("/") } |
+ .path + "/" + .name + "\t" + .url'
 
       jq -r "$jq_script" <"$temp_dir/bookmark" \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
@@ -127,9 +131,28 @@ join("/") } | .path + "/" + .name + "\t" + .url'
       ;;
 
     safari)
-      which xq >/dev/null 2>&1 || echo "python-yq is not installed !!!"
-      local xq_script=
-      plutil -convert xml1 "$temp_dir/bookmark" -o - | xq -r "$xq_script"
+      local jq_script='
+def ancestors: while(. | length >= 3; del(.[-1,-2,-3]));
+. as $in |
+paths(.string?) | select(.[-2:]==["dict",3] and .[-5:-3]==["array","dict"]) |
+del(.[-1,-2]) |
+. as $key |
+$in |
+getpath($key) |
+{name: .dict[3].string,
+url: .string[0],
+path: [$key | ancestors as $a | $in | getpath($a) | .string[0]?]
+| del(.[0]) |
+reverse |
+join("/")} |
+.path + "/" + .name + "\t" + .url'
+
+      plutil -convert xml1 "$temp_dir/bookmark" -o - | xq -r "$jq_script" \
+        | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
+        | fzf "${fzf_opts[@]}" --ansi --no-hscroll --tiebreak=begin \
+          --header="bookmark : $FZF_COLLECTION_BROWSER" \
+        | awk 'BEGIN { FS = "\t" } { print $2 }' \
+        | xargs open -a "$(open_app)" &>/dev/null
       ;;
 
     firefox)
@@ -147,3 +170,5 @@ moz_places P on B.fk = P.id order by visit_count desc"
       ;;
   esac
 }
+
+unset -f open_app
