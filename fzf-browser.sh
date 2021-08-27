@@ -69,7 +69,7 @@ bhf() {
 
   # SEE https://superuser.com/a/555520
   sqlite3 -separator $sep "${browser_arg[tmp]}/history" "${browser_arg[history_sql]}" \
-    | awk -F $sep '{printf "%-'$((COLUMNS / 3))'s  \x1b[36m%s\x1b[m\n", $1, $2}' \
+    | awk -F $sep '{printf "\x1b[36m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $1, $2}' \
     | uniq -u \
     | fzf "${fzf_opts[@]}" --ansi --header="history : [$FZF_COLLECTION_BROWSER]" \
     | sed 's#.*\(https*://\)#\1#' \
