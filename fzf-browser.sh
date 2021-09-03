@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-if [[ -z "$FZF_COLLECTION_BROWSER" ]]; then
+if [ -z "$FZF_COLLECTION_BROWSER" ]; then
   # SEE https://stackoverflow.com/a/66026925/13194984
   FZF_COLLECTION_BROWSER=$(plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
     | grep 'https' -b3 \

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # PIP
 # -----------------------
@@ -11,7 +11,7 @@ ppi() {
     | sed 's/<.*$//g' \
     | fzf "${fzf_opts[@]}" --header='[pip:install]')
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
       pip3 install --user "$f"
     done
@@ -26,7 +26,7 @@ ppg() {
     | awk '{print $1}' \
     | fzf "${fzf_opts[@]}" --header='[pip:upgrade]')
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
       pip3 install --user --upgrade "$f"
     done
@@ -41,7 +41,7 @@ ppu() {
     | awk '{print $1}' \
     | fzf "${fzf_opts[@]}" --header='[pip:uninstall]')
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
       pip3 uninstall --yes "$f"
     done

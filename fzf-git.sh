@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /usr/bin/env sh
 
 # GIT
 # ------------------
@@ -18,7 +18,7 @@ gck() {
   local commit
   commit=$(gsha)
 
-  if [[ $commit ]]; then
+  if [ -n "$commit" ]; then
     git checkout "$commit"
   fi
 }
@@ -63,7 +63,7 @@ gef() {
   inst=$(git ls-files -m --exclude-standard \
     | fzf "${fzf_opts[@]}" --header='[git restore:]')
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
       git restore "$f"
     done
@@ -78,7 +78,7 @@ ges() {
     | xargs -I '{}' realpath --relative-to=. "$(git rev-parse --show-toplevel)"/'{}' \
     | fzf "${fzf_opts[@]}" --header='[git restore: --staged]')
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
       git restore --staged "$f"
     done
@@ -92,7 +92,7 @@ gea() {
     | xargs -I '{}' realpath --relative-to=. "$(git rev-parse --show-toplevel)"/'{}' \
     | fzf "${fzf_opts[@]}" --header='[git restore: --staged --worktree]')
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
       git restore --staged --worktree "$f"
     done
@@ -113,7 +113,7 @@ gsmi() {
       | fzf "${fzf_opts[@]}" --header='[git submodule: ]'
   )
 
-  if [[ $module ]]; then
+  if [ -n "$module" ]; then
     # shellcheck disable=SC2028
     subcmd=$(echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" \
       | fzf "${fzf_opts[@]}" --header='[git submodule: subcmd]')
@@ -158,7 +158,7 @@ gsti() {
     | awk 'BEGIN { FS = ":" } { print $1 }' \
     | tac)
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     local subcmd
 
     # shellcheck disable=SC2028
@@ -186,7 +186,7 @@ gif() {
     | sed -e "s/[[:space:]]\+/\n/g" \
     | fzf "${fzf_opts[@]}" --header='[git ignore-io:append]')
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
       git ignore-io --append "$f"
     done

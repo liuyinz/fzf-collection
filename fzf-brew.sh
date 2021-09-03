@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 #  SEE https://gist.github.com/steakknife/8294792
 
@@ -8,7 +8,7 @@
 brew_switch() {
   subcmd=$(echo "${@:2}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
 
-  if [[ $subcmd ]]; then
+  if [ -n "$subcmd" ]; then
     for f in $(echo "$1"); do
       case $subcmd in
         cat)
@@ -54,7 +54,7 @@ bsf() {
 
   opt=("install" "options" "info" "deps" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     brew_switch "$inst" "${opt[@]}"
   else
     return 0
@@ -66,7 +66,7 @@ bsf() {
 bmf() {
   local tmpfile inst opt
   tmpfile=/tmp/bmf
-  if [[ ! -e $tmpfile ]]; then
+  if [ ! -e $tmpfile ]; then
     touch $tmpfile
     inst=$(
       {
@@ -84,7 +84,7 @@ bmf() {
   opt=("uninstall" "link" "unlink" "pin" "unpin"
     "options" "info" "deps" "edit" "cat" "home")
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
@@ -96,7 +96,7 @@ bmf() {
 bgf() {
   local tmpfile inst opt
   tmpfile=/tmp/bgf
-  if [[ ! -e $tmpfile ]]; then
+  if [ ! -e $tmpfile ]; then
     touch $tmpfile
     brew update
     inst=$(brew outdated --greedy \
@@ -110,7 +110,7 @@ bgf() {
   opt=("upgrade" "link" "unlink" "pin" "unpin"
     "uninstall" "options" "info" "deps" "edit" "cat" "home")
 
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
@@ -122,7 +122,7 @@ bgf() {
 btf() {
   local tmpfile inst opt
   tmpfile=/tmp/btf
-  if [[ ! -e $tmpfile ]]; then
+  if [ ! -e $tmpfile ]; then
     touch $tmpfile
     inst=$(brew tap \
       | tee $tmpfile \
@@ -132,7 +132,7 @@ btf() {
   fi
 
   opt=("untap" "tap-info")
-  if [[ $inst ]]; then
+  if [ -n "$inst" ]; then
     brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0

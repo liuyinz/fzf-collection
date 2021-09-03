@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /usr/bin/env sh
 
 # PATH
 # ------------------
@@ -11,7 +11,7 @@ fp() {
   loc=$(echo "$PATH" | sed -e $'s/:/\\\n/g' \
     | fzf "${fzf_opts[@]}" --header='[find:path]')
 
-  if [[ -d $loc ]]; then
+  if [ -d "$loc" ]; then
     rg --files "$loc" \
       | rev \
       | cut -d"/" -f1 \
@@ -28,7 +28,7 @@ ffp() {
   loc=$(echo "$FPATH" | sed -e $'s/:/\\\n/g' \
     | fzf "${fzf_opts[@]}" --header='[find:path]')
 
-  if [[ -d $loc ]]; then
+  if [ -d "$loc" ]; then
     rg --files "$loc" \
       | rev \
       | cut -d"/" -f1 \
