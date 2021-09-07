@@ -16,8 +16,10 @@ if [ -z "$FZF_COLLECTION_MODULES" ]; then
     fzf-default
     fzf-browser
     fzf-brew
+    fzf-pip
     fzf-git
-    fzf-pip)
+    fzf-gh
+  )
 fi
 
 for f in "${FZF_COLLECTION_MODULES[@]}"; do

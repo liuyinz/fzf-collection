@@ -18,6 +18,7 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [fzf-brew](#fzf-brew)
   - [fzf-pip](#fzf-pip)
   - [fzf-git](#fzf-git)
+  - [fzf-gh](#fzf-gh)
 - [Envrionment](#envrionment)
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
@@ -108,6 +109,14 @@ brew install git-extras coreutils gnu-sed gh
 - `gsmi` : git submodule INTERACTIVE
 - `gsti` : git stash INTERACTIVE
 - `gif` : git ignore-io --append
+
+## fzf-gh
+
+```sh
+brew install gh jq
+```
+
+- `ghf` : manage user/repos
 
 # Envrionment
 
