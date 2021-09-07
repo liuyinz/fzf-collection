@@ -2,10 +2,10 @@
 
 ghf() {
   local tmpfile user
-  user=$(gh api user --jq '.login')
 
   tmpfile=/tmp/ghf
   if [ ! -e $tmpfile ]; then
+    user=$(gh api user --jq '.login')
     touch $tmpfile
     inst=$(
       gh api users/"$user"/repos --paginate --jq '.[].name' \
