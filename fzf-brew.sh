@@ -36,7 +36,7 @@ _brewf_switch() {
   else
     return 0
   fi
-  _brew_switch "$@"
+  _brewf_switch "$@"
 }
 
 brewf-search() {
@@ -51,16 +51,16 @@ brewf-search() {
   opt=("install" "options" "info" "deps" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
   if [ -n "$inst" ]; then
-    _brew_switch "$inst" "${opt[@]}"
+    _brewf_switch "$inst" "${opt[@]}"
   else
     return 0
   fi
-  bsf
+  brewf-search
 }
 
 brewf-manage() {
   local tmpfile inst opt
-  tmpfile=/tmp/bmf
+  tmpfile=/tmp/brewf-manage
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     inst=$(
@@ -80,16 +80,16 @@ brewf-manage() {
     "options" "info" "deps" "edit" "cat" "home")
 
   if [ -n "$inst" ]; then
-    _brew_switch "$inst" "${opt[@]}"
+    _brewf_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
-  bmf
+  brewf-manage
 }
 
 brewf-upgrade() {
   local tmpfile inst opt
-  tmpfile=/tmp/bgf
+  tmpfile=/tmp/brewf-upgrade
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     brew update
@@ -105,11 +105,11 @@ brewf-upgrade() {
     "uninstall" "options" "info" "deps" "edit" "cat" "home")
 
   if [ -n "$inst" ]; then
-    _brew_switch "$inst" "${opt[@]}"
+    _brewf_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
-  bgf
+  brewf-upgrade
 }
 
 brewf-tap() {
@@ -126,7 +126,7 @@ brewf-tap() {
 
   opt=("untap" "tap-info")
   if [ -n "$inst" ]; then
-    _brew_switch "$inst" "${opt[@]}"
+    _brewf_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
