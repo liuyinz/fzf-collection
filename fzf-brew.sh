@@ -135,13 +135,13 @@ brewf-tap() {
 
 brewf() {
   local cmd select
-  cmd=("search" "manage" "upgrade" "tap")
+  cmd=("upgrade" "search" "manage" "tap")
   select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
   if [ -n "$select" ]; then
     case $select in
+      upgrade) brewf-upgrade ;;
       search) brewf-search ;;
       manage) brewf-manage ;;
-      upgrade) brewf-upgrade ;;
       tap) brewf-tap ;;
     esac
   fi
