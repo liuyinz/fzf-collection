@@ -2,10 +2,7 @@
 
 #  SEE https://gist.github.com/steakknife/8294792
 
-# BREW
-# ------------------
-
-brew_switch() {
+_brewf_switch() {
   subcmd=$(echo "${@:2}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
 
   if [ -n "$subcmd" ]; then
@@ -39,11 +36,10 @@ brew_switch() {
   else
     return 0
   fi
-  brew_switch "$@"
+  _brew_switch "$@"
 }
 
-# [B]rew [S]earch [F]zf
-bsf() {
+brewf-search() {
   local inst opt
   inst=$(
     {
@@ -55,15 +51,14 @@ bsf() {
   opt=("install" "options" "info" "deps" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
   if [ -n "$inst" ]; then
-    brew_switch "$inst" "${opt[@]}"
+    _brew_switch "$inst" "${opt[@]}"
   else
     return 0
   fi
   bsf
 }
 
-# [B]rew [M]anage [F]zf
-bmf() {
+brewf-manage() {
   local tmpfile inst opt
   tmpfile=/tmp/bmf
   if [ ! -e $tmpfile ]; then
@@ -85,15 +80,14 @@ bmf() {
     "options" "info" "deps" "edit" "cat" "home")
 
   if [ -n "$inst" ]; then
-    brew_switch "$inst" "${opt[@]}"
+    _brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
   bmf
 }
 
-# [B]rew up[G]rade [F]zf
-bgf() {
+brewf-upgrade() {
   local tmpfile inst opt
   tmpfile=/tmp/bgf
   if [ ! -e $tmpfile ]; then
@@ -111,15 +105,14 @@ bgf() {
     "uninstall" "options" "info" "deps" "edit" "cat" "home")
 
   if [ -n "$inst" ]; then
-    brew_switch "$inst" "${opt[@]}"
+    _brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
   bgf
 }
 
-# [B]rew [T]ap [F]zf
-btf() {
+brewf-tap() {
   local tmpfile inst opt
   tmpfile=/tmp/btf
   if [ ! -e $tmpfile ]; then
@@ -133,9 +126,23 @@ btf() {
 
   opt=("untap" "tap-info")
   if [ -n "$inst" ]; then
-    brew_switch "$inst" "${opt[@]}"
+    _brew_switch "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
   btf
+}
+
+brewf() {
+  local cmd select
+  cmd=("search" "manage" "upgrade" "tap")
+  select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
+  if [ -n "$select" ]; then
+    case $select in
+      search) brewf-search ;;
+      manage) brewf-manage ;;
+      upgrade) brewf-upgrade ;;
+      tap) brewf-tap ;;
+    esac
+  fi
 }

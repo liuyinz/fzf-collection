@@ -1,9 +1,6 @@
 #! /usr/bin/env sh
 
-# GIT
-# ------------------
-# gsha - get git commit sha
-gsha() {
+_gitf_sha() {
   local commit
 
   commit=$(git log --pretty=oneline --abbrev-commit \
@@ -13,18 +10,16 @@ gsha() {
   echo "$commit"
 }
 
-# gck - checkout git commit
-gck() {
+gitf-commit() {
   local commit
-  commit=$(gsha)
+  commit=$(_gitf_sha)
 
   if [ -n "$commit" ]; then
     git checkout "$commit"
   fi
 }
 
-# gwf - checkout git branch/tag
-gwf() {
+gitf-branch() {
   local tags
   local branches
   local target
@@ -57,50 +52,7 @@ gwf() {
   git checkout "$(echo "$target" | awk '{print $2}')"
 }
 
-# [G]it r[E]store [F]zf
-gef() {
-  local inst
-  inst=$(git ls-files -m --exclude-standard \
-    | fzf "${fzf_opts[@]}" --header='[git restore:]')
-
-  if [ -n "$inst" ]; then
-    for f in $(echo "$inst"); do
-      git restore "$f"
-    done
-  fi
-}
-
-# [G]it r[E]store [S]taged
-# SEE https://www.javaer101.com/en/article/16751334.html
-ges() {
-  local inst
-  inst=$(git diff --name-only --cached \
-    | xargs -I '{}' realpath --relative-to=. "$(git rev-parse --show-toplevel)"/'{}' \
-    | fzf "${fzf_opts[@]}" --header='[git restore: --staged]')
-
-  if [ -n "$inst" ]; then
-    for f in $(echo "$inst"); do
-      git restore --staged "$f"
-    done
-  fi
-}
-
-# [G]it r[E]store [A]ll
-gea() {
-  local inst
-  inst=$(git diff --name-only HEAD \
-    | xargs -I '{}' realpath --relative-to=. "$(git rev-parse --show-toplevel)"/'{}' \
-    | fzf "${fzf_opts[@]}" --header='[git restore: --staged --worktree]')
-
-  if [ -n "$inst" ]; then
-    for f in $(echo "$inst"); do
-      git restore --staged --worktree "$f"
-    done
-  fi
-}
-
-# [G]it [S]ub[M]odule [I]nteractive
-gsmi() {
+gitf-submodule() {
   local module
   local subcmd
 
@@ -150,11 +102,10 @@ gsmi() {
   fi
 }
 
-# [G]it [ST]ash [I]nteractive
-gsti() {
+gitf-stash() {
   local inst
   inst=$(git stash list \
-    | fzf "${fzf_opts[@]}" --header='[git stash: pop]' \
+    | fzf "${fzf_opts[@]}" --header='[git stash: ]' \
     | awk 'BEGIN { FS = ":" } { print $1 }' \
     | tac)
 
@@ -179,8 +130,7 @@ gsti() {
   fi
 }
 
-# [G]it [I]gnore-io [F]zf
-gif() {
+gitf-ignoreio() {
   local inst
   inst=$(git ignore-io -l \
     | sed -e "s/[[:space:]]\+/\n/g" \
@@ -190,5 +140,20 @@ gif() {
     for f in $(echo "$inst"); do
       git ignore-io --append "$f"
     done
+  fi
+}
+
+gitf() {
+  local cmd select
+  cmd=("submodule" "branch" "commit" "ignoreio" "stash")
+  select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
+  if [ -n "$select" ]; then
+    case $select in
+      submodule) gitf-submodule ;;
+      branch) gitf-branch ;;
+      commit) gitf-commit ;;
+      ignoreio) gitf-ignoreio ;;
+      stash) gitf-stash ;;
+    esac
   fi
 }

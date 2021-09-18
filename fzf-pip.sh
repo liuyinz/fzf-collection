@@ -1,9 +1,6 @@
 #!/usr/bin/env sh
 
-# PIP
-# -----------------------
-# [P]ip [I]nstall
-ppi() {
+pipf-install() {
   local inst
   inst=$(curl -s "$(pip3 config get global.index-url)/" \
     | grep '</a>' \
@@ -18,8 +15,21 @@ ppi() {
   fi
 }
 
-# [P]ip up[G]rade
-ppg() {
+pipf-uninstall() {
+  local inst
+  inst=$(pip3 list \
+    | tail -n +3 \
+    | awk '{print $1}' \
+    | fzf "${fzf_opts[@]}" --header='[pip:uninstall]')
+
+  if [ -n "$inst" ]; then
+    for f in $(echo "$inst"); do
+      pip3 uninstall --yes "$f"
+    done
+  fi
+}
+
+pipf-upgrade() {
   local inst
   inst=$(pip3 list --outdated \
     | tail -n +3 \
@@ -33,17 +43,15 @@ ppg() {
   fi
 }
 
-# [P]ip [U]ninstall
-ppu() {
-  local inst
-  inst=$(pip3 list \
-    | tail -n +3 \
-    | awk '{print $1}' \
-    | fzf "${fzf_opts[@]}" --header='[pip:uninstall]')
-
-  if [ -n "$inst" ]; then
-    for f in $(echo "$inst"); do
-      pip3 uninstall --yes "$f"
-    done
+pipf() {
+  local cmd select
+  cmd=("install" "uninstall" "upgrade")
+  select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
+  if [ -n "$select" ]; then
+    case $select in
+      install) pipf-install ;;
+      uninstall) pipf-uninstall ;;
+      upgrade) pipf-upgrade ;;
+    esac
   fi
 }
