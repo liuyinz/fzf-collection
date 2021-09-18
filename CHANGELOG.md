@@ -1,0 +1,51 @@
+# Changelog
+
+## v0.1.0 (2021-09-18) 
+
+### New Features
+
+ - add fzf-gh to manage user/repos (227aa9f)
+ - implement safari bookmark search (deace75)
+ - add env $FZF_COLLECTION_BROWSER (b68a5ea)
+ - add cd dir option (035f823)
+ - add show option for gsmi (ef5c536)
+ - add meh meb (d0e8606)
+ - add submodule browse option (e94c2a9)
+ - add gsha,gck,gwf (c68d04c)
+ - add function gstp (920885e)
+ - add env FZF_COLLECTION_OPTS (cd29dbc)
+ - add git ignore-io fzf->gif (2ab9bd5)
+ - add fzf-git.sh (c8958a5)
+ - add README and LICENSE (f436b42)
+ - add functions (40ec534)
+
+### Bug Fixes
+
+ - fit in with sh (76a7840)
+ - show url first in history search (bddf67f)
+ - add ref links (2f076da)
+ - escape tap path '/' before when using sed (ee36fcc)
+ - multi formulae install/uninstall/upgrade options broken (13c7372)
+ - change file mode bits (2c0a5b9)
+ - update optiosn according to formulae status (cf6b6e6)
+ - remove outdated or uninstalled formulae dynamiclly (9ae6248)
+ - bgf() stuck in infinite loop when no formulae outdated (0ccede1)
+ - gsmi (8878662)
+ - typos (48d6b4f)
+ - revert to sed (8b90154)
+ - typos (b00099c)
+ - udpate sed with gsed (db7956e)
+ - replace hub with gh (9b370bc)
+ - rename gch gcb (ba74b80)
+ - typos (be80ccf)
+ - bugs in update-remote (70b8830)
+ - remove gaf gap (a50f811)
+ - path parse in gsmi (d63f2cd)
+ - path parse error in gsmr (ac3377e)
+ - rename commands (ddd26ef)
+ - remove redundent code (7ee206f)
+ - regexp bugs in gsmr (afb1b3b)
+ - zsh plugin (31921df)
+ - remove fzf-git.sh (a87998b)
+ - typos (c60e19a)
+
