@@ -19,8 +19,8 @@ pipf-uninstall() {
   local inst
   inst=$(pip3 list \
     | tail -n +3 \
-    | awk '{print $1}' \
-    | fzf "${fzf_opts[@]}" --header='[pip:uninstall]')
+    | fzf "${fzf_opts[@]}" --header='[pip:uninstall]' \
+    | awk '{print $1}')
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
@@ -33,8 +33,8 @@ pipf-upgrade() {
   local inst
   inst=$(pip3 list --outdated \
     | tail -n +3 \
-    | awk '{print $1}' \
-    | fzf "${fzf_opts[@]}" --header='[pip:upgrade]')
+    | fzf "${fzf_opts[@]}" --header='[pip:upgrade]' \
+    | awk '{print $1}')
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
@@ -45,13 +45,13 @@ pipf-upgrade() {
 
 pipf() {
   local cmd select
-  cmd=("install" "uninstall" "upgrade")
+  cmd=("upgrade" "install" "uninstall")
   select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
   if [ -n "$select" ]; then
     case $select in
+      upgrade) pipf-upgrade ;;
       install) pipf-install ;;
       uninstall) pipf-uninstall ;;
-      upgrade) pipf-upgrade ;;
     esac
   fi
 }
