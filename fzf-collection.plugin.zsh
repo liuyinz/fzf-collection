@@ -13,15 +13,15 @@ fzf_opts=($(echo "${FZF_COLLECTION_OPTS}"))
 
 if [ -z "$FZF_COLLECTION_MODULES" ]; then
   FZF_COLLECTION_MODULES=(
-    fzf-default
-    fzf-browser
-    fzf-brew
-    fzf-pip
-    fzf-git
-    fzf-gh
+    default
+    browser
+    brew
+    pip
+    git
+    gh
   )
 fi
 
 for f in "${FZF_COLLECTION_MODULES[@]}"; do
-  source "${0:h:A}/$f.sh"
+  source "${0:h:A}/fzf-${f}.sh"
 done
