@@ -130,7 +130,7 @@ brewf-tap() {
   else
     rm -f $tmpfile && return 0
   fi
-  btf
+  brewf-tap
 }
 
 brewf() {
