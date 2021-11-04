@@ -6,7 +6,7 @@ pipf-install() {
     | grep '</a>' \
     | sed 's/^.*">//g' \
     | sed 's/<.*$//g' \
-    | fzf "${fzf_opts[@]}" --header='[pip:install]')
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Install")")
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
@@ -19,7 +19,7 @@ pipf-uninstall() {
   local inst
   inst=$(pip3 list \
     | tail -n +3 \
-    | fzf "${fzf_opts[@]}" --header='[pip:uninstall]' \
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Uninstall")" \
     | awk '{print $1}')
 
   if [ -n "$inst" ]; then
@@ -33,7 +33,7 @@ pipf-upgrade() {
   local inst
   inst=$(pip3 list --outdated \
     | tail -n +3 \
-    | fzf "${fzf_opts[@]}" --header='[pip:upgrade]' \
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Upgrade")" \
     | awk '{print $1}')
 
   if [ -n "$inst" ]; then

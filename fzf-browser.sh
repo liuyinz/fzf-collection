@@ -71,7 +71,7 @@ bhf() {
   sqlite3 -separator $sep "${browser_arg[tmp]}/history" "${browser_arg[history_sql]}" \
     | awk -F $sep '{printf "\x1b[36m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $1, $2}' \
     | uniq -u \
-    | fzf "${fzf_opts[@]}" --ansi --header="history : [$FZF_COLLECTION_BROWSER]" \
+    | fzf "${fzf_opts[@]}" --ansi --header "$(headerf "History: $FZF_COLLECTION_BROWSER")" \
     | sed 's#.*\(https*://\)#\1#' \
     | xargs -r open -a "${browser_arg[name]}" &>/dev/null
 }
@@ -103,7 +103,7 @@ join("/") } |
       jq -r "$jq_script" <"${browser_arg[tmp]}/bookmark" \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
         | fzf "${fzf_opts[@]}" --ansi --no-hscroll --tiebreak=begin \
-          --header="bookmark : $FZF_COLLECTION_BROWSER" \
+          --header "$(headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | awk 'BEGIN { FS = "\t" } { print $2 }' \
         | xargs -r open -a "${browser_arg[name]}" &>/dev/null
       ;;
@@ -128,7 +128,7 @@ join("/")} |
       plutil -convert xml1 "${browser_arg[tmp]}/bookmark" -o - | xq -r "$jq_script" \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
         | fzf "${fzf_opts[@]}" --ansi --no-hscroll --tiebreak=begin \
-          --header="bookmark : $FZF_COLLECTION_BROWSER" \
+          --header "$(headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | awk 'BEGIN { FS = "\t" } { print $2 }' \
         | xargs -r open -a "${browser_arg[name]}" &>/dev/null
       ;;
@@ -142,7 +142,8 @@ join("/")} |
 moz_places P on B.fk = P.id order by visit_count desc"
       sqlite3 -separator $sep "${browser_arg[tmp]}/bookmark" "$sql" \
         | awk -F $sep '{printf "%-'"$cols"'s  \x1b[36m%s\x1b[m\n", $1, $2}' \
-        | fzf "${fzf_opts[@]}" --ansi --header="bookmark : [$FZF_COLLECTION_BROWSER]" \
+        | fzf "${fzf_opts[@]}" --ansi \
+          --header "$(headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | sed 's#.*\(https*://\)#\1#' \
         | xargs -r open -a "${browser_arg[name]}" &>/dev/null
       ;;

@@ -9,14 +9,14 @@
 fp() {
   local loc
   loc=$(echo "$PATH" | sed -e $'s/:/\\\n/g' \
-    | fzf "${fzf_opts[@]}" --header='[find:path]')
+    | fzf "${fzf_opts[@]}" --header "$(headerf "find path")")
 
   if [ -d "$loc" ]; then
     rg --files "$loc" \
       | rev \
       | cut -d"/" -f1 \
       | rev \
-      | fzf "${fzf_opts[@]}" --header="[find:exe] => ${loc}" >/dev/null
+      | fzf "${fzf_opts[@]}" --header "$(headerf "find exe => ${loc}")" >/dev/null
     fp
   fi
 }
@@ -26,14 +26,14 @@ fp() {
 ffp() {
   local loc
   loc=$(echo "$FPATH" | sed -e $'s/:/\\\n/g' \
-    | fzf "${fzf_opts[@]}" --header='[find:path]')
+    | fzf "${fzf_opts[@]}" --header "$(headerf "find path")")
 
   if [ -d "$loc" ]; then
     rg --files "$loc" \
       | rev \
       | cut -d"/" -f1 \
       | rev \
-      | fzf "${fzf_opts[@]}" --header="[find:exe] => ${loc}" >/dev/null
+      | fzf "${fzf_opts[@]}" --header "$(headerf "find exe => ${loc}")" >/dev/null
     fp
   fi
 }
@@ -49,7 +49,7 @@ kp() {
   local pid
   pid=$(ps -ef \
     | sed 1d \
-    | fzf "${fzf_opts[@]}" --header='[kill:process]' \
+    | fzf "${fzf_opts[@]}" --header "$(headerf "kill process")" \
     | awk '{print $2}')
 
   if [ "x$pid" != "x" ]; then

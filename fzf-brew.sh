@@ -48,7 +48,7 @@ brewf-search() {
     {
       brew formulae
       brew casks
-    } | fzf "${fzf_opts[@]}" --header='[Brew Search: ]'
+    } | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Search")"
   )
 
   opt=("install" "options" "info" "deps" "edit" "cat"
@@ -71,11 +71,11 @@ brewf-manage() {
         brew leaves
         brew list --cask
       } | tee $tmpfile \
-        | fzf "${fzf_opts[@]}" --header='[Brew Manage: ]'
+        | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Manage")"
     )
   else
     inst=$(
-      cat <$tmpfile | fzf "${fzf_opts[@]}" --header='[Brew Manage: ]'
+      cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Manage")"
     )
   fi
 
@@ -98,10 +98,10 @@ brewf-upgrade() {
     brew update
     inst=$(brew outdated --greedy \
       | tee $tmpfile \
-      | fzf "${fzf_opts[@]}" --header='[Brew Upgrade: ]')
+      | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Upgrade")")
   else
     inst=$(cat <$tmpfile \
-      | fzf "${fzf_opts[@]}" --header='[Brew Upgrade: ]')
+      | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Upgrade")")
   fi
 
   opt=("upgrade" "link" "unlink" "pin" "unpin"
@@ -122,9 +122,9 @@ brewf-tap() {
     touch $tmpfile
     inst=$(brew tap \
       | tee $tmpfile \
-      | fzf "${fzf_opts[@]}" --header='[Brew Tap: ]')
+      | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Tap")")
   else
-    inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header='[Brew Tap: ]')
+    inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Tap")")
   fi
 
   opt=("untap" "tap-info")
@@ -141,7 +141,7 @@ brewf-downgrade() {
   f="$1".rb
   path=$(find "$(brew --repository)" -name "$f")
   hash=$(brew log "$1" \
-    | fzf "${fzf_opts[@]}" --header='[Brew Downgrade: ]' \
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Downgrade")" \
     | awk '{ print $1 }')
   if [ -n "$hash" ] && [ -n "$path" ]; then
     dir=$(dirname "$path")
@@ -156,7 +156,9 @@ brewf-downgrade() {
 brewf() {
   local cmd select
   cmd=("upgrade" "search" "manage" "tap")
-  select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
+  select=$(echo "${cmd[@]}" \
+    | tr ' ' '\n' \
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew: Fzf")")
   if [ -n "$select" ]; then
     case $select in
       upgrade) brewf-upgrade ;;
