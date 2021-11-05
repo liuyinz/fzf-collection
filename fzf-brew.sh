@@ -96,7 +96,7 @@ brewf-upgrade() {
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     brew update
-    inst=$(brew outdated --greedy \
+    inst=$(brew outdated \
       | tee $tmpfile \
       | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Upgrade")")
   else
