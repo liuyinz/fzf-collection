@@ -12,6 +12,8 @@ pipf-install() {
     for f in $(echo "$inst"); do
       pip3 install --user "$f"
     done
+  else
+    return 0
   fi
 }
 
@@ -26,6 +28,8 @@ pipf-uninstall() {
     for f in $(echo "$inst"); do
       pip3 uninstall --yes "$f"
     done
+  else
+    return 0
   fi
 }
 
@@ -40,18 +44,24 @@ pipf-upgrade() {
     for f in $(echo "$inst"); do
       pip3 install --user --upgrade "$f"
     done
+  else
+    return 0
   fi
 }
 
 pipf() {
   local cmd select
   cmd=("upgrade" "install" "uninstall")
-  select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
+  select=$(echo "${cmd[@]}" \
+    | tr ' ' '\n' \
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Fzf")")
   if [ -n "$select" ]; then
     case $select in
       upgrade) pipf-upgrade ;;
       install) pipf-install ;;
       uninstall) pipf-uninstall ;;
     esac
+  else
+    return 0
   fi
 }

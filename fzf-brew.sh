@@ -158,7 +158,7 @@ brewf() {
   cmd=("upgrade" "search" "manage" "tap")
   select=$(echo "${cmd[@]}" \
     | tr ' ' '\n' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew: Fzf")")
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Fzf")")
   if [ -n "$select" ]; then
     case $select in
       upgrade) brewf-upgrade ;;
