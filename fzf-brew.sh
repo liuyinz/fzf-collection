@@ -115,6 +115,23 @@ brewf-upgrade() {
   brewf-upgrade
 }
 
+brewf-downgrade() {
+  local f path hash
+  f="$1".rb
+  path=$(find "$(brew --repository)" -name "$f")
+  hash=$(brew log "$1" \
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Downgrade")" \
+    | awk '{ print $1 }')
+  if [ -n "$hash" ] && [ -n "$path" ]; then
+    dir=$(dirname "$path")
+    git -C "$dir" checkout "$hash" "$f"
+    (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
+    git -C "$dir" checkout HEAD "$f"
+  else
+    return 0
+  fi
+}
+
 brewf-tap() {
   local tmpfile inst opt
   tmpfile=/tmp/btf
@@ -134,23 +151,6 @@ brewf-tap() {
     rm -f $tmpfile && return 0
   fi
   brewf-tap
-}
-
-brewf-downgrade() {
-  local f path hash
-  f="$1".rb
-  path=$(find "$(brew --repository)" -name "$f")
-  hash=$(brew log "$1" \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Downgrade")" \
-    | awk '{ print $1 }')
-  if [ -n "$hash" ] && [ -n "$path" ]; then
-    dir=$(dirname "$path")
-    git -C "$dir" checkout "$hash" "$f"
-    (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
-    git -C "$dir" checkout HEAD "$f"
-  else
-    return 0
-  fi
 }
 
 brewf() {
