@@ -78,7 +78,7 @@ gitf-submodule() {
           git submodule update --remote "$f"
           ;;
         delete)
-          git delete-submodule --force "$f"
+          git delete-submodule --force "$f" >/dev/null 2>&1
           ;;
         browse)
           # SEE https://stackoverflow.com/a/786515/13194984
