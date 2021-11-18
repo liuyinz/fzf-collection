@@ -18,11 +18,12 @@ _brewf_switch() {
           brew "$subcmd" "$f"
           ;;
         upgrade | uninstall | untap)
-          brew "$subcmd" "$f"
-          #  SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
-          #  SEE https://stackoverflow.com/a/17273270 , escape '/' in path
-          #  SEE https://unix.stackexchange.com/a/33005
-          sed -i "/^$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
+          if brew "$subcmd" "$f"; then
+            #  SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
+            #  SEE https://stackoverflow.com/a/17273270 , escape '/' in path
+            #  SEE https://unix.stackexchange.com/a/33005
+            sed -i "/^$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
+          fi
           ;;
         downgrade)
           brewf-downgrade "$f"
