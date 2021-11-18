@@ -101,13 +101,9 @@ brewf-manage() {
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
-    inst=$(
-      {
-        brew leaves
-        brew list --cask
-      } | tee $tmpfile \
-        | fzf "${fzf_opts[@]}" --header "$(headerf)"
-    )
+    inst=$(brew list -1t \
+      | tee $tmpfile \
+      | fzf "${fzf_opts[@]}" --header "$(headerf)")
   else
     inst=$(
       cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$header"
