@@ -1,12 +1,13 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 pipf-install() {
   local inst
+
   inst=$(curl -s "$(pip3 config get global.index-url)/" \
     | grep '</a>' \
     | sed 's/^.*">//g' \
     | sed 's/<.*$//g' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Install")")
+    | fzf "${fzf_opts[@]}" --header "$(headerf)")
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
@@ -15,13 +16,15 @@ pipf-install() {
   else
     return 0
   fi
+
 }
 
 pipf-uninstall() {
   local inst
+
   inst=$(pip3 list \
     | tail -n +3 \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Uninstall")" \
+    | fzf "${fzf_opts[@]}" --header "$(headerf)" \
     | awk '{print $1}')
 
   if [ -n "$inst" ]; then
@@ -31,13 +34,15 @@ pipf-uninstall() {
   else
     return 0
   fi
+
 }
 
 pipf-upgrade() {
   local inst
+
   inst=$(pip3 list --outdated \
     | tail -n +3 \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Upgrade")" \
+    | fzf "${fzf_opts[@]}" --header "$(headerf)" \
     | awk '{print $1}')
 
   if [ -n "$inst" ]; then
@@ -47,14 +52,17 @@ pipf-upgrade() {
   else
     return 0
   fi
+
 }
 
 pipf() {
   local cmd select
+
   cmd=("upgrade" "install" "uninstall")
   select=$(echo "${cmd[@]}" \
     | tr ' ' '\n' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Pip Fzf")")
+    | fzf "${fzf_opts[@]}" --header "$(headerf)")
+
   if [ -n "$select" ]; then
     case $select in
       upgrade) pipf-upgrade ;;
@@ -64,4 +72,5 @@ pipf() {
   else
     return 0
   fi
+
 }
