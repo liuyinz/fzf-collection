@@ -1,12 +1,13 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 #  SEE https://gist.github.com/steakknife/8294792
 
 _brewf_switch() {
-  subcmd=$(echo "${@:2}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
+
+  subcmd=$(echo "${@:3}" | tr ' ' '\n' | fzf "${fzf_opts[@]}" --header "$(headerf "$1: $2")")
 
   if [ -n "$subcmd" ]; then
-    for f in $(echo "$1"); do
+    for f in $(echo "$2"); do
       case $subcmd in
         cat)
           bat "$(brew formula "$f")"
@@ -43,16 +44,20 @@ _brewf_switch() {
   else
     return 0
   fi
+
   _brewf_switch "$@"
+
 }
 
 brewf-rollback() {
   local f dir hash
+
   f="$1.rb"
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
   hash=$(git -C "$dir" log --color=always -- "$f" \
-    | fzf "${fzf_opts[@]}" --ansi --header "$(headerf "Brew Downgrade")" \
+    | fzf "${fzf_opts[@]}" --ansi --header "$(headerf)" \
     | awk '{ print $1 }')
+
   if [ -n "$hash" ] && [ -n "$dir" ]; then
     git -C "$dir" checkout "$hash" "$f"
     (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
@@ -60,30 +65,40 @@ brewf-rollback() {
   else
     return 0
   fi
+
 }
 
 brewf-search() {
   local inst opt
+
   inst=$(
     {
       brew formulae
       brew casks
-    } | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Search")"
+    } | fzf "${fzf_opts[@]}" --header "$(headerf)"
   )
 
   opt=("install" "rollback" "options" "info" "deps" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
+
   if [ -n "$inst" ]; then
-    _brewf_switch "$inst" "${opt[@]}"
+    _brewf_switch "$(brewf_header)" "$inst" "${opt[@]}"
   else
     return 0
   fi
+
   brewf-search
+
 }
 
 brewf-manage() {
   local tmpfile inst opt
+
   tmpfile=/tmp/brewf-manage
+
+  opt=("uninstall" "rollback" "link" "unlink" "pin" "unpin"
+    "options" "info" "deps" "edit" "cat" "home")
+
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     inst=$(
@@ -91,77 +106,87 @@ brewf-manage() {
         brew leaves
         brew list --cask
       } | tee $tmpfile \
-        | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Manage")"
+        | fzf "${fzf_opts[@]}" --header "$(headerf)"
     )
   else
     inst=$(
-      cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Manage")"
+      cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$header"
     )
   fi
 
-  opt=("uninstall" "rollback" "link" "unlink" "pin" "unpin"
-    "options" "info" "deps" "edit" "cat" "home")
-
   if [ -n "$inst" ]; then
-    _brewf_switch "$inst" "${opt[@]}"
+    _brewf_switch "$(brewf_header)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
+
   brewf-manage
+
 }
 
 brewf-upgrade() {
   local tmpfile inst opt
+
   tmpfile=/tmp/brewf-upgrade
+
+  opt=("upgrade" "link" "unlink" "pin" "unpin"
+    "uninstall" "options" "info" "deps" "edit" "cat" "home")
+
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     brew update
     inst=$(brew outdated \
       | tee $tmpfile \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Upgrade")")
+      | fzf "${fzf_opts[@]}" --header "$(headerf)")
   else
     inst=$(cat <$tmpfile \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Upgrade")")
+      | fzf "${fzf_opts[@]}" --header "$(headerf)")
   fi
 
-  opt=("upgrade" "link" "unlink" "pin" "unpin"
-    "uninstall" "options" "info" "deps" "edit" "cat" "home")
-
   if [ -n "$inst" ]; then
-    _brewf_switch "$inst" "${opt[@]}"
+    _brewf_switch "$(brewf_header)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
+
   brewf-upgrade
+
 }
 
 brewf-tap() {
   local tmpfile inst opt
+
   tmpfile=/tmp/btf
+
+  opt=("untap" "tap-info")
+
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     inst=$(brew tap \
       | tee $tmpfile \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Tap")")
+      | fzf "${fzf_opts[@]}" --header "$(headerf)")
   else
-    inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Tap")")
+    inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf)")
   fi
 
-  opt=("untap" "tap-info")
   if [ -n "$inst" ]; then
-    _brewf_switch "$inst" "${opt[@]}"
+    _brewf_switch "$(brewf_header)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
+
   brewf-tap
+
 }
 
 brewf() {
   local cmd select
+
   cmd=("upgrade" "search" "manage" "tap")
   select=$(echo "${cmd[@]}" \
     | tr ' ' '\n' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Fzf")")
+    | fzf "${fzf_opts[@]}" --header "$(headerf "Brewf Fzf")")
+
   if [ -n "$select" ]; then
     case $select in
       upgrade) brewf-upgrade ;;
@@ -170,4 +195,5 @@ brewf() {
       tap) brewf-tap ;;
     esac
   fi
+
 }
