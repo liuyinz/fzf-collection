@@ -12,7 +12,7 @@ underline_string() {
 }
 
 #  SEE https://stackoverflow.com/a/31426948
-brewf_header() {
+_brewf_header() {
   printf '%s' "${funcstack[2]//f-/ }"
 }
 
