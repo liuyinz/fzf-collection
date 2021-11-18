@@ -17,6 +17,9 @@ _brewf_switch() {
         install)
           brew "$subcmd" "$f"
           ;;
+        rollback)
+          brewf-rollback "$f"
+          ;;
         upgrade | uninstall | untap)
           if brew "$subcmd" "$f"; then
             #  SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
@@ -43,6 +46,22 @@ _brewf_switch() {
   _brewf_switch "$@"
 }
 
+brewf-rollback() {
+  local f dir hash
+  f="$1.rb"
+  dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
+  hash=$(git -C "$dir" log --color=always -- "$f" \
+    | fzf "${fzf_opts[@]}" --ansi --header "$(headerf "Brew Downgrade")" \
+    | awk '{ print $1 }')
+  if [ -n "$hash" ] && [ -n "$dir" ]; then
+    git -C "$dir" checkout "$hash" "$f"
+    (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
+    git -C "$dir" checkout HEAD "$f"
+  else
+    return 0
+  fi
+}
+
 brewf-search() {
   local inst opt
   inst=$(
@@ -52,7 +71,7 @@ brewf-search() {
     } | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Search")"
   )
 
-  opt=("install" "options" "info" "deps" "edit" "cat"
+  opt=("install" "rollback" "options" "info" "deps" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
   if [ -n "$inst" ]; then
     _brewf_switch "$inst" "${opt[@]}"
@@ -80,7 +99,7 @@ brewf-manage() {
     )
   fi
 
-  opt=("uninstall" "downgrade" "link" "unlink" "pin" "unpin"
+  opt=("uninstall" "rollback" "link" "unlink" "pin" "unpin"
     "options" "info" "deps" "edit" "cat" "home")
 
   if [ -n "$inst" ]; then
@@ -114,23 +133,6 @@ brewf-upgrade() {
     rm -f $tmpfile && return 0
   fi
   brewf-upgrade
-}
-
-brewf-downgrade() {
-  local f path hash
-  f="$1".rb
-  path=$(find "$(brew --repository)" -name "$f")
-  hash=$(brew log "$1" \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Brew Downgrade")" \
-    | awk '{ print $1 }')
-  if [ -n "$hash" ] && [ -n "$path" ]; then
-    dir=$(dirname "$path")
-    git -C "$dir" checkout "$hash" "$f"
-    (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
-    git -C "$dir" checkout HEAD "$f"
-  else
-    return 0
-  fi
 }
 
 brewf-tap() {
