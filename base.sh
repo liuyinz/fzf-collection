@@ -11,11 +11,6 @@ underline_string() {
   printf '%*s' ${#1} ' ' | sed 's/ /▔/g'
 }
 
-#  SEE https://stackoverflow.com/a/31426948
-_brewf_header() {
-  printf '%s' "${funcstack[2]//f-/ }"
-}
-
 ## return brewf-* header
 headerf() {
   underline_string "$(capitalize-first "${1:-${funcstack[2]//f-/ }}")"

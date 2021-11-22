@@ -4,7 +4,7 @@
 
 _brewf_switch() {
 
-  subcmd=$(echo "${@:3}" | tr ' ' '\n' | fzf "${fzf_opts[@]}" --header "$(headerf "$1: $2")")
+  subcmd=$(echo "${@:3}" | tr ' ' '\n' | fzf "${fzf_opts[@]}" --header "$1")
 
   if [ -n "$subcmd" ]; then
     for f in $(echo "$2"); do
@@ -82,7 +82,7 @@ brewf-search() {
     "home" "uninstall" "link" "unlink" "pin" "unpin")
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(_brewf_header)" "$inst" "${opt[@]}"
+    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
   else
     return 0
   fi
@@ -109,7 +109,7 @@ brewf-manage() {
   fi
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(_brewf_header)" "$inst" "${opt[@]}"
+    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
@@ -138,7 +138,7 @@ brewf-upgrade() {
   fi
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(_brewf_header)" "$inst" "${opt[@]}"
+    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
@@ -164,7 +164,7 @@ brewf-tap() {
   fi
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(_brewf_header)" "$inst" "${opt[@]}"
+    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
