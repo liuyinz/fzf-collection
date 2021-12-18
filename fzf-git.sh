@@ -3,9 +3,11 @@
 _gitf_sha() {
   local commit
 
-  commit=$(git log --pretty=oneline --abbrev-commit \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Git Commit")" \
-    | sed "s/ .*//")
+  commit=$(
+    git log --pretty=oneline --abbrev-commit \
+      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Commit")" \
+      | sed "s/ .*//"
+  )
 
   echo "$commit"
 }
@@ -104,10 +106,12 @@ gitf-submodule() {
 
 gitf-stash() {
   local inst
-  inst=$(git stash list \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Git Stash")" \
-    | awk 'BEGIN { FS = ":" } { print $1 }' \
-    | tac)
+  inst=$(
+    git stash list \
+      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Stash")" \
+      | awk 'BEGIN { FS = ":" } { print $1 }' \
+      | tac
+  )
 
   if [ -n "$inst" ]; then
     local subcmd
@@ -132,9 +136,11 @@ gitf-stash() {
 
 gitf-ignoreio() {
   local inst
-  inst=$(git ignore-io -l \
-    | sed -e "s/[[:space:]]\+/\n/g" \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Git Ignore-io")")
+  inst=$(
+    git ignore-io -l \
+      | sed -e "s/[[:space:]]\+/\n/g" \
+      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Ignore-io")"
+  )
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do

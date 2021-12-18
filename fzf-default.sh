@@ -47,10 +47,12 @@ ffp() {
 
 kp() {
   local pid
-  pid=$(ps -ef \
-    | sed 1d \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "kill process")" \
-    | awk '{print $2}')
+  pid=$(
+    ps -ef \
+      | sed 1d \
+      | fzf "${fzf_opts[@]}" --header "$(headerf "kill process")" \
+      | awk '{print $2}'
+  )
 
   if [ "x$pid" != "x" ]; then
     echo "$pid" | xargs kill -"${1:-9}"

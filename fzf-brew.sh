@@ -54,9 +54,11 @@ brewf-rollback() {
 
   f="$1.rb"
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
-  hash=$(git -C "$dir" log --color=always -- "$f" \
-    | fzf "${fzf_opts[@]}" --ansi --header "$(headerf)" \
-    | awk '{ print $1 }')
+  hash=$(
+    git -C "$dir" log --color=always -- "$f" \
+      | fzf "${fzf_opts[@]}" --ansi --header "$(headerf)" \
+      | awk '{ print $1 }'
+  )
 
   if [ -n "$hash" ] && [ -n "$dir" ]; then
     git -C "$dir" checkout "$hash" "$f"
@@ -101,11 +103,13 @@ brewf-manage() {
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
-    inst=$(brew list -1t \
-      | tee $tmpfile \
-      | fzf "${fzf_opts[@]}" --header "$(headerf)")
+    inst=$(
+      brew list -1t \
+        | tee $tmpfile \
+        | fzf-multi --header "$(headerf)"
+    )
   else
-    inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf)")
+    inst=$(cat <$tmpfile | fzf-multi --header "$(headerf)")
   fi
 
   if [ -n "$inst" ]; then
@@ -129,9 +133,11 @@ brewf-upgrade() {
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     brew update
-    inst=$(brew outdated \
-      | tee $tmpfile \
-      | fzf "${fzf_opts[@]}" --header "$(headerf)")
+    inst=$(
+      brew outdated \
+        | tee $tmpfile \
+        | fzf "${fzf_opts[@]}" --header "$(headerf)"
+    )
   else
     inst=$(cat <$tmpfile \
       | fzf "${fzf_opts[@]}" --header "$(headerf)")
@@ -156,9 +162,11 @@ brewf-tap() {
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
-    inst=$(brew tap \
-      | tee $tmpfile \
-      | fzf "${fzf_opts[@]}" --header "$(headerf)")
+    inst=$(
+      brew tap \
+        | tee $tmpfile \
+        | fzf "${fzf_opts[@]}" --header "$(headerf)"
+    )
   else
     inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf)")
   fi
@@ -177,9 +185,11 @@ brewf() {
   local cmd select
 
   cmd=("upgrade" "search" "manage" "tap")
-  select=$(echo "${cmd[@]}" \
-    | tr ' ' '\n' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "Brewf Fzf")")
+  select=$(
+    echo "${cmd[@]}" \
+      | tr ' ' '\n' \
+      | fzf "${fzf_opts[@]}" --header "$(headerf "Brewf Fzf")"
+  )
 
   if [ -n "$select" ]; then
     case $select in

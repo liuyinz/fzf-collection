@@ -2,10 +2,12 @@
 
 if [ -z "$FZF_COLLECTION_BROWSER" ]; then
   # SEE https://stackoverflow.com/a/66026925/13194984
-  FZF_COLLECTION_BROWSER=$(plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
-    | grep 'https' -b3 \
-    | awk 'NR==3 {split($4, arr, "\""); print arr[2]}' \
-    | cut -d'.' -f3)
+  FZF_COLLECTION_BROWSER=$(
+    plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
+      | grep 'https' -b3 \
+      | awk 'NR==3 {split($4, arr, "\""); print arr[2]}' \
+      | cut -d'.' -f3
+  )
 fi
 
 prefix_path="$HOME/Library/Application Support"
