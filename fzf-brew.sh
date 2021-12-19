@@ -53,7 +53,7 @@ brewf-rollback() {
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
   hash=$(
     git -C "$dir" log --color=always -- "$f" \
-      | _fzf_multi_header --ansi \
+      | _fzf_multi_header \
       | awk '{ print $1 }'
   )
 

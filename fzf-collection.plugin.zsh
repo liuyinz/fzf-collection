@@ -2,6 +2,7 @@
 if [ -z "$FZF_COLLECTION_OPTS" ]; then
   FZF_COLLECTION_OPTS="
   --header-first
+  --ansi
   --reverse
   --cycle
   --no-multi
