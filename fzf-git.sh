@@ -5,7 +5,7 @@ _gitf_sha() {
 
   commit=$(
     git log --pretty=oneline --abbrev-commit \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Commit")" \
+      | _fzf_single_header \
       | sed "s/ .*//"
   )
 
@@ -64,13 +64,13 @@ gitf-submodule() {
       "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
       | sed -nz 's/^[^\n]*\n//p' \
       | tr '\0' '\n' \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Submodule")"
+      | _fzf_multi_header
   )
 
   if [ -n "$module" ]; then
     # shellcheck disable=SC2028
     subcmd=$(echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Submodule: Option")")
+      | _fzf_single --header "$(_headerf "Git Submodule: Option")")
 
     for i in $(echo "$module"); do
       f="$(git rev-parse --show-toplevel)"/$i
@@ -108,7 +108,7 @@ gitf-stash() {
   local inst
   inst=$(
     git stash list \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Stash")" \
+      | _fzf_single_header \
       | awk 'BEGIN { FS = ":" } { print $1 }' \
       | tac
   )
@@ -118,7 +118,7 @@ gitf-stash() {
 
     # shellcheck disable=SC2028
     subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Stash: Option")")
+      | _fzf_single --header "$(_headerf "Git Stash: Option")")
 
     if [ "$subcmd" = "branch" ]; then
       local name
@@ -139,7 +139,7 @@ gitf-ignoreio() {
   inst=$(
     git ignore-io -l \
       | sed -e "s/[[:space:]]\+/\n/g" \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Git Ignore-io")"
+      | _fzf_multi_header
   )
 
   if [ -n "$inst" ]; then
@@ -152,7 +152,11 @@ gitf-ignoreio() {
 gitf() {
   local cmd select
   cmd=("submodule" "branch" "commit" "ignoreio" "stash")
-  select=$(echo "${cmd[@]}" | tr ' ' '\n' | fzf "${fzf_opts[@]}")
+  select=$(
+    echo "${cmd[@]}" \
+      | tr ' ' '\n' \
+      | _fzf_single --header "$(_headerf "Git Fzf")"
+  )
   if [ -n "$select" ]; then
     case $select in
       submodule) gitf-submodule ;;

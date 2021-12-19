@@ -3,11 +3,13 @@
 pipf-install() {
   local inst
 
-  inst=$(curl -s "$(pip3 config get global.index-url)/" \
-    | grep '</a>' \
-    | sed 's/^.*">//g' \
-    | sed 's/<.*$//g' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf)")
+  inst=$(
+    curl -s "$(pip3 config get global.index-url)/" \
+      | grep '</a>' \
+      | sed 's/^.*">//g' \
+      | sed 's/<.*$//g' \
+      | _fzf_multi_header
+  )
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
@@ -22,10 +24,12 @@ pipf-install() {
 pipf-uninstall() {
   local inst
 
-  inst=$(pip3 list \
-    | tail -n +3 \
-    | fzf "${fzf_opts[@]}" --header "$(headerf)" \
-    | awk '{print $1}')
+  inst=$(
+    pip3 list \
+      | tail -n +3 \
+      | _fzf_multi_header \
+      | awk '{print $1}'
+  )
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
@@ -40,10 +44,12 @@ pipf-uninstall() {
 pipf-upgrade() {
   local inst
 
-  inst=$(pip3 list --outdated \
-    | tail -n +3 \
-    | fzf "${fzf_opts[@]}" --header "$(headerf)" \
-    | awk '{print $1}')
+  inst=$(
+    pip3 list --outdated \
+      | tail -n +3 \
+      | _fzf_multi_header \
+      | awk '{print $1}'
+  )
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
@@ -59,9 +65,11 @@ pipf() {
   local cmd select
 
   cmd=("upgrade" "install" "uninstall")
-  select=$(echo "${cmd[@]}" \
-    | tr ' ' '\n' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf)")
+  select=$(
+    echo "${cmd[@]}" \
+      | tr ' ' '\n' \
+      | _fzf_single_header
+  )
 
   if [ -n "$select" ]; then
     case $select in

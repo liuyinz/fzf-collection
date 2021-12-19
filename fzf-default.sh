@@ -8,15 +8,18 @@
 
 fp() {
   local loc
-  loc=$(echo "$PATH" | sed -e $'s/:/\\\n/g' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "find path")")
+  loc=$(
+    echo "$PATH" \
+      | sed -e $'s/:/\\\n/g' \
+      | _fzf_single --header "$(_headerf "find path")"
+  )
 
   if [ -d "$loc" ]; then
     rg --files "$loc" \
       | rev \
       | cut -d"/" -f1 \
       | rev \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "find exe => ${loc}")" >/dev/null
+      | _fzf_single --header "$(_headerf "find exe => ${loc}")" >/dev/null
     fp
   fi
 }
@@ -25,15 +28,18 @@ fp() {
 # list directories in $FPATH,press [enter] on an entry to list,press [escape] to go back,[escape] twice to exit completely
 ffp() {
   local loc
-  loc=$(echo "$FPATH" | sed -e $'s/:/\\\n/g' \
-    | fzf "${fzf_opts[@]}" --header "$(headerf "find path")")
+  loc=$(
+    echo "$FPATH" \
+      | sed -e $'s/:/\\\n/g' \
+      | _fzf_single --header "$(_headerf "find path")"
+  )
 
   if [ -d "$loc" ]; then
     rg --files "$loc" \
       | rev \
       | cut -d"/" -f1 \
       | rev \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "find exe => ${loc}")" >/dev/null
+      | _fzf_single --header "$(_headerf "find exe => ${loc}")" >/dev/null
     fp
   fi
 }
@@ -50,7 +56,7 @@ kp() {
   pid=$(
     ps -ef \
       | sed 1d \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "kill process")" \
+      | _fzf_single --header "$(_headerf "kill process")" \
       | awk '{print $2}'
   )
 

@@ -4,7 +4,7 @@ if [ -z "$FZF_COLLECTION_OPTS" ]; then
   --header-first
   --reverse
   --cycle
-  --multi
+  --no-multi
   --sort
   --exact
   --info=inline"

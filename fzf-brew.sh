@@ -4,7 +4,7 @@
 
 _brewf_switch() {
 
-  subcmd=$(echo "${@:3}" | tr ' ' '\n' | fzf "${fzf_opts[@]}" --header "$1")
+  subcmd=$(echo "${@:3}" | tr ' ' '\n' | _fzf_single --header "$1")
 
   if [ -n "$subcmd" ]; then
     for f in $(echo "$2"); do
@@ -28,9 +28,6 @@ _brewf_switch() {
             #  SEE https://unix.stackexchange.com/a/33005
             sed -i "/^$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
           fi
-          ;;
-        downgrade)
-          brewf-downgrade "$f"
           ;;
         *) brew "$subcmd" "$f" ;;
       esac
@@ -56,7 +53,7 @@ brewf-rollback() {
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
   hash=$(
     git -C "$dir" log --color=always -- "$f" \
-      | fzf "${fzf_opts[@]}" --ansi --header "$(headerf)" \
+      | _fzf_multi_header --ansi \
       | awk '{ print $1 }'
   )
 
@@ -77,14 +74,14 @@ brewf-search() {
     {
       brew formulae
       brew casks
-    } | fzf "${fzf_opts[@]}" --header "$(headerf)"
+    } | _fzf_multi_header
   )
 
   opt=("install" "rollback" "options" "info" "deps" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
+    _brewf_switch "$(_headerf)" "$inst" "${opt[@]}"
   else
     return 0
   fi
@@ -103,17 +100,13 @@ brewf-manage() {
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
-    inst=$(
-      brew list -1t \
-        | tee $tmpfile \
-        | fzf-multi --header "$(headerf)"
-    )
+    inst=$(brew list -1t | tee $tmpfile | _fzf_multi_header)
   else
-    inst=$(cat <$tmpfile | fzf-multi --header "$(headerf)")
+    inst=$(cat <$tmpfile | _fzf_multi_header)
   fi
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
+    _brewf_switch "$(_headerf)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
@@ -133,18 +126,13 @@ brewf-upgrade() {
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     brew update
-    inst=$(
-      brew outdated \
-        | tee $tmpfile \
-        | fzf "${fzf_opts[@]}" --header "$(headerf)"
-    )
+    inst=$(brew outdated | tee $tmpfile | _fzf_multi_header)
   else
-    inst=$(cat <$tmpfile \
-      | fzf "${fzf_opts[@]}" --header "$(headerf)")
+    inst=$(cat <$tmpfile | _fzf_multi_header)
   fi
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
+    _brewf_switch "$(_headerf)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
@@ -162,17 +150,13 @@ brewf-tap() {
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
-    inst=$(
-      brew tap \
-        | tee $tmpfile \
-        | fzf "${fzf_opts[@]}" --header "$(headerf)"
-    )
+    inst=$(brew tap | tee $tmpfile | _fzf_multi_header)
   else
-    inst=$(cat <$tmpfile | fzf "${fzf_opts[@]}" --header "$(headerf)")
+    inst=$(cat <$tmpfile | _fzf_multi_header)
   fi
 
   if [ -n "$inst" ]; then
-    _brewf_switch "$(headerf)" "$inst" "${opt[@]}"
+    _brewf_switch "$(_headerf)" "$inst" "${opt[@]}"
   else
     rm -f $tmpfile && return 0
   fi
@@ -188,7 +172,7 @@ brewf() {
   select=$(
     echo "${cmd[@]}" \
       | tr ' ' '\n' \
-      | fzf "${fzf_opts[@]}" --header "$(headerf "Brewf Fzf")"
+      | _fzf_single --header "$(_headerf "Brewf Fzf")"
   )
 
   if [ -n "$select" ]; then
