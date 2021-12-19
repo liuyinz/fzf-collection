@@ -12,11 +12,11 @@ fi
 
 prefix_path="$HOME/Library/Application Support"
 
-declare -A browser_arg
+declare -A asso_browser
 
 case $FZF_COLLECTION_BROWSER in
   chrome)
-    browser_arg=(
+    asso_browser=(
       [name]="Google Chrome"
       [tmp]="/tmp/chrome"
       [history]="$prefix_path/Google/Chrome/Default/History"
@@ -25,7 +25,7 @@ case $FZF_COLLECTION_BROWSER in
     )
     ;;
   edgemac)
-    browser_arg=(
+    asso_browser=(
       [name]="Microsoft Edge"
       [tmp]="/tmp/edgemac"
       [history]="$prefix_path/Microsoft Edge/Default/History"
@@ -36,7 +36,7 @@ case $FZF_COLLECTION_BROWSER in
   firefox)
     # SEE https://www.foxtonforensics.com/browser-history-examiner/firefox-history-location
     _profile=$(grep "Default=Profiles" "$prefix_path/Firefox/profiles.ini" | cut -d'/' -f2)
-    browser_arg=(
+    asso_browser=(
       [name]="Firefox"
       [tmp]="/tmp/firefox"
       [history]="$prefix_path/Firefox/Profiles/$_profile/places.sqlite"
@@ -45,7 +45,7 @@ case $FZF_COLLECTION_BROWSER in
     )
     ;;
   safari)
-    browser_arg=(
+    asso_browser=(
       [name]="Safari"
       [tmp]="/tmp/safari"
       [history]="$HOME/Library/Safari/History.db"
@@ -55,7 +55,7 @@ case $FZF_COLLECTION_BROWSER in
     ;;
 esac
 
-mkdir -p "${browser_arg[tmp]}"
+mkdir -p "${asso_browser[tmp]}"
 
 # [B]rowser [H]isroty [F]zf
 # ------------------
@@ -65,17 +65,17 @@ bhf() {
   local sep
   sep='::'
 
-  if ! cmp -s "${browser_arg[history]}" "${browser_arg[tmp]}/history"; then
-    cp -f "${browser_arg[history]}" "${browser_arg[tmp]}/history"
+  if ! cmp -s "${asso_browser[history]}" "${asso_browser[tmp]}/history"; then
+    cp -f "${asso_browser[history]}" "${asso_browser[tmp]}/history"
   fi
 
   # SEE https://superuser.com/a/555520
-  sqlite3 -separator $sep "${browser_arg[tmp]}/history" "${browser_arg[history_sql]}" \
+  sqlite3 -separator $sep "${asso_browser[tmp]}/history" "${asso_browser[history_sql]}" \
     | awk -F $sep '{printf "\x1b[36m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $1, $2}' \
     | uniq -u \
     | _fzf_multi --ansi --header "$(_headerf "History: $FZF_COLLECTION_BROWSER")" \
     | sed 's#.*\(https*://\)#\1#' \
-    | xargs -r open -a "${browser_arg[name]}" &>/dev/null
+    | xargs -r open -a "${asso_browser[name]}" &>/dev/null
 }
 
 # [B]rowser [B]ookmark [F]zf
@@ -83,8 +83,8 @@ bhf() {
 # Used for firefox, microsoft edge and google chrome on MacOs
 bbf() {
 
-  if ! cmp -s "${browser_arg[bookmark]}" "${browser_arg[tmp]}/bookmark"; then
-    cp -f "${browser_arg[bookmark]}" "${browser_arg[tmp]}/bookmark"
+  if ! cmp -s "${asso_browser[bookmark]}" "${asso_browser[tmp]}/bookmark"; then
+    cp -f "${asso_browser[bookmark]}" "${asso_browser[tmp]}/bookmark"
   fi
 
   case $FZF_COLLECTION_BROWSER in
@@ -102,12 +102,12 @@ reverse |
 join("/") } |
  .path + "/" + .name + "\t" + .url'
 
-      jq -r "$jq_script" <"${browser_arg[tmp]}/bookmark" \
+      jq -r "$jq_script" <"${asso_browser[tmp]}/bookmark" \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
         | _fzf_multi --ansi --no-hscroll --tiebreak=begin \
           --header "$(_headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | awk 'BEGIN { FS = "\t" } { print $2 }' \
-        | xargs -r open -a "${browser_arg[name]}" &>/dev/null
+        | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
 
     safari)
@@ -127,12 +127,12 @@ reverse |
 join("/")} |
 .path + "/" + .name + "\t" + .url'
 
-      plutil -convert xml1 "${browser_arg[tmp]}/bookmark" -o - | xq -r "$jq_script" \
+      plutil -convert xml1 "${asso_browser[tmp]}/bookmark" -o - | xq -r "$jq_script" \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
         | _fzf_multi --ansi --no-hscroll --tiebreak=begin \
           --header "$(_headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | awk 'BEGIN { FS = "\t" } { print $2 }' \
-        | xargs -r open -a "${browser_arg[name]}" &>/dev/null
+        | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
 
     firefox)
@@ -142,12 +142,12 @@ join("/")} |
       # SEE https://apple.stackexchange.com/a/322883
       local sql="select substr(B.title, 1, $cols), P.url from moz_bookmarks B left join
 moz_places P on B.fk = P.id order by visit_count desc"
-      sqlite3 -separator $sep "${browser_arg[tmp]}/bookmark" "$sql" \
+      sqlite3 -separator $sep "${asso_browser[tmp]}/bookmark" "$sql" \
         | awk -F $sep '{printf "%-'"$cols"'s  \x1b[36m%s\x1b[m\n", $1, $2}' \
         | _fzf_multi --ansi \
           --header "$(_headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | sed 's#.*\(https*://\)#\1#' \
-        | xargs -r open -a "${browser_arg[name]}" &>/dev/null
+        | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
   esac
 }
