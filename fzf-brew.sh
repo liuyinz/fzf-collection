@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 
+# SEE https://www.linuxquestions.org/questions/programming-9/passing-a-shell-variable-into-awk-syntax-for-correct-interpretation-562973/#post2793088
+# SEE https://stackoverflow.com/a/56762028/13194984
+
+_brewf_list_format() {
+  local input="$([[ -p /dev/stdin ]] && cat - || return)"
+  if [[ -n "$input" ]]; then
+    case $1 in
+      --formulae | --formula)
+        echo "$input" | awk '{print "\x1b[33mf  \x1b[0m" $0}'
+        ;;
+      --cask | --casks)
+        echo "$input" | awk '{print "\x1b[36mc  \x1b[0m" $0}'
+        ;;
+      *) return ;;
+    esac
+  fi
+}
+
 #  SEE https://gist.github.com/steakknife/8294792
 
 _brewf_switch() {
@@ -26,7 +44,8 @@ _brewf_switch() {
             #  SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
             #  SEE https://stackoverflow.com/a/17273270 , escape '/' in path
             #  SEE https://unix.stackexchange.com/a/33005
-            sed -i "/^$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
+            #  FIXME whether delete succeed?
+            sed -i "/$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
           fi
           ;;
         *) brew "$subcmd" "$f" ;;
@@ -72,9 +91,11 @@ brewf-search() {
 
   inst=$(
     {
-      brew formulae
-      brew casks
-    } | _fzf_multi_header
+      brew formulae | _brewf_list_format --formulae
+      brew casks | _brewf_list_format --cask
+    } \
+      | _fzf_multi_header \
+      | awk '{print $2}'
   )
 
   opt=("install" "rollback" "options" "info" "deps" "edit" "cat"
@@ -100,9 +121,19 @@ brewf-manage() {
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
-    inst=$(brew list -1t | tee $tmpfile | _fzf_multi_header)
+
+    inst=$(
+      {
+        brew list -1t --formulae | _brewf_list_format --formulae
+        brew list -1t --cask | _brewf_list_format --cask
+      } \
+        | tee $tmpfile \
+        | _fzf_multi_header \
+        | awk '{print $2}'
+    )
+
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header)
+    inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $2}')
   fi
 
   if [ -n "$inst" ]; then
@@ -126,9 +157,27 @@ brewf-upgrade() {
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
     brew update
-    inst=$(brew outdated | tee $tmpfile | _fzf_multi_header)
+
+    outdate_list=$({
+      brew outdated --formula | _brewf_list_format --formula
+      brew outdated --cask | _brewf_list_format --cask
+    })
+
+    if [[ -n $outdate_list ]]; then
+
+      inst=$(
+        echo $outdate_list \
+          | tee $tmpfile \
+          | _fzf_multi_header \
+          | awk '{print $2}'
+      )
+
+    else
+      return 0
+    fi
+
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header)
+    inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $2}')
   fi
 
   if [ -n "$inst" ]; then
@@ -150,7 +199,14 @@ brewf-tap() {
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
-    inst=$(brew tap | tee $tmpfile | _fzf_multi_header)
+    tap_list=$(brew tap)
+
+    if [[ -n $tap_list ]]; then
+      inst=$(echo $tap_list | tee $tmpfile | _fzf_multi_header)
+    else
+      return 0
+    fi
+
   else
     inst=$(cat <$tmpfile | _fzf_multi_header)
   fi
@@ -168,11 +224,11 @@ brewf-tap() {
 brewf() {
   local cmd select
 
-  cmd=("upgrade" "search" "manage" "tap")
+  opt=("upgrade" "search" "manage" "tap")
   select=$(
-    echo "${cmd[@]}" \
+    echo "${opt[@]}" \
       | tr ' ' '\n' \
-      | _fzf_single --header "$(_headerf "Brewf Fzf")"
+      | _fzf_single --header "$(_headerf "Brew Fzf")"
   )
 
   if [ -n "$select" ]; then
