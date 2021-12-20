@@ -71,7 +71,7 @@ bhf() {
 
   # SEE https://superuser.com/a/555520
   sqlite3 -separator $sep "${asso_browser[tmp]}/history" "${asso_browser[history_sql]}" \
-    | awk -F $sep '{printf "\x1b[36m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $1, $2}' \
+    | awk -F $sep '{printf "\x1b[33m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $1, $2}' \
     | uniq -u \
     | _fzf_multi --header "$(_headerf "History: $FZF_COLLECTION_BROWSER")" \
     | sed 's#.*\(https*://\)#\1#' \
@@ -103,7 +103,7 @@ join("/") } |
  .path + "/" + .name + "\t" + .url'
 
       jq -r "$jq_script" <"${asso_browser[tmp]}/bookmark" \
-        | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
+        | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[33m\\2\x1b[m/g' \
         | _fzf_multi --no-hscroll --tiebreak=begin \
           --header "$(_headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | awk 'BEGIN { FS = "\t" } { print $2 }' \
@@ -128,7 +128,7 @@ join("/")} |
 .path + "/" + .name + "\t" + .url'
 
       plutil -convert xml1 "${asso_browser[tmp]}/bookmark" -o - | xq -r "$jq_script" \
-        | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
+        | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[33m\\2\x1b[m/g' \
         | _fzf_multi --no-hscroll --tiebreak=begin \
           --header "$(_headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | awk 'BEGIN { FS = "\t" } { print $2 }' \
@@ -143,7 +143,7 @@ join("/")} |
       local sql="select substr(B.title, 1, $cols), P.url from moz_bookmarks B left join
 moz_places P on B.fk = P.id order by visit_count desc"
       sqlite3 -separator $sep "${asso_browser[tmp]}/bookmark" "$sql" \
-        | awk -F $sep '{printf "%-'"$cols"'s  \x1b[36m%s\x1b[m\n", $1, $2}' \
+        | awk -F $sep '{printf "%-'"$cols"'s  \x1b[33m%s\x1b[m\n", $1, $2}' \
         | _fzf_multi --header "$(_headerf "Bookmark: $FZF_COLLECTION_BROWSER")" \
         | sed 's#.*\(https*://\)#\1#' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
