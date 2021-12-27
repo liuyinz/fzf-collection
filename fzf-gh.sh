@@ -1,11 +1,10 @@
 ##!/usr/bin/env bash
 
 ghf() {
-  local tmpfile user head
+  local tmpfile user header
 
+  header="Gh Fzf"
   tmpfile=/tmp/ghf
-
-  head=$(_headerf "Gh Fzf")
 
   if [ ! -e $tmpfile ]; then
     user=$(gh api user --jq '.login')
@@ -13,14 +12,14 @@ ghf() {
     inst=$(
       gh api users/"$user"/repos --paginate --jq '.[].name' \
         | tee $tmpfile \
-        | _fzf_multi --header "$head"
+        | _fzf_multi_header
     )
   else
-    inst=$(cat <$tmpfile | _fzf_multi --header "$head")
+    inst=$(cat <$tmpfile | _fzf_multi_header)
   fi
 
   if [ -n "$inst" ]; then
-    subcmd=$(echo "delete-repo\nbrowse" | _fzf_single --header "$head")
+    subcmd=$(echo "delete-repo\nbrowse" | _fzf_single_header)
     if [ -n "$subcmd" ]; then
       for f in $(echo "$inst"); do
         case $subcmd in

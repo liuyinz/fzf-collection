@@ -55,9 +55,9 @@ gitf-branch() {
 }
 
 gitf-submodule() {
-  local module
-  local subcmd
+  local module subcmd header
 
+  header="Git Submodule"
   # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
   module=$(
     git config -z --file \
@@ -69,8 +69,10 @@ gitf-submodule() {
 
   if [ -n "$module" ]; then
     # shellcheck disable=SC2028
-    subcmd=$(echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" \
-      | _fzf_single --header "$(_headerf "Git Submodule: Option")")
+    subcmd=$(
+      echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" \
+        | _fzf_single_header
+    )
 
     for i in $(echo "$module"); do
       f="$(git rev-parse --show-toplevel)"/$i
@@ -105,7 +107,8 @@ gitf-submodule() {
 }
 
 gitf-stash() {
-  local inst
+  local inst header
+  header="Git Stash"
   inst=$(
     git stash list \
       | _fzf_single_header \
@@ -118,7 +121,7 @@ gitf-stash() {
 
     # shellcheck disable=SC2028
     subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" \
-      | _fzf_single --header "$(_headerf "Git Stash: Option")")
+      | _fzf_single_header)
 
     if [ "$subcmd" = "branch" ]; then
       local name
@@ -150,13 +153,16 @@ gitf-ignoreio() {
 }
 
 gitf() {
-  local cmd select
+  local cmd select header
+
+  header="Git Fzf"
   cmd=("submodule" "branch" "commit" "ignoreio" "stash")
   select=$(
     echo "${cmd[@]}" \
       | tr ' ' '\n' \
-      | _fzf_single --header "$(_headerf "Git Fzf")"
+      | _fzf_single_header
   )
+
   if [ -n "$select" ]; then
     case $select in
       submodule) gitf-submodule ;;

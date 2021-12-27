@@ -13,7 +13,7 @@ __underline_string() {
 
 ## return brewf-* header
 _headerf() {
-  __underline_string "$(__capitalize_first "${1:-${funcstack[2]//f-/ }}")"
+  __underline_string "${1:-$header}"
 }
 
 _fzf_single() {
@@ -28,7 +28,7 @@ _fzf_single_header() {
   fzf \
     "${fzf_opts[@]}" \
     --header \
-    "$(__underline_string $(__capitalize_first ${1:-${funcstack[2]//f-/ }}))" \
+    "$(__underline_string "$header")" \
     "$@"
 }
 
@@ -37,6 +37,6 @@ _fzf_multi_header() {
     "${fzf_opts[@]}" \
     --multi \
     --header \
-    "$(__underline_string $(__capitalize_first ${1:-${funcstack[2]//f-/ }}))" \
+    "$(__underline_string "$header")" \
     "$@"
 }

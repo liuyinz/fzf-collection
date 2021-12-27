@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 pipf-install() {
-  local inst
+  local inst header
 
+  header="Pip Install"
   inst=$(
     curl -s "$(pip3 config get global.index-url)/" \
       | grep '</a>' \
@@ -22,8 +23,9 @@ pipf-install() {
 }
 
 pipf-uninstall() {
-  local inst
+  local inst header
 
+  header="Pip Uninstall"
   inst=$(
     pip3 list \
       | tail -n +3 \
@@ -42,8 +44,9 @@ pipf-uninstall() {
 }
 
 pipf-upgrade() {
-  local inst
+  local inst header
 
+  header="Pip Upgrade"
   inst=$(
     pip3 list --outdated \
       | tail -n +3 \
@@ -62,8 +65,9 @@ pipf-upgrade() {
 }
 
 pipf() {
-  local cmd select
+  local cmd select header
 
+  header="Pip Fzf"
   cmd=("upgrade" "install" "uninstall")
   select=$(
     echo "${cmd[@]}" \
