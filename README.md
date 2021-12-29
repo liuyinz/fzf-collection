@@ -6,7 +6,7 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
 
 <!-- markdown-toc start -->
 
-**目录**
+**Table of Contents**
 
 - [fzf-collection](#fzf-collection)
 - [Install](#install)
@@ -23,6 +23,7 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
   - [FZF_COLLECTION_BROWSER](#fzf_collection_browser)
+  - [TODO](#todo)
 
 <!-- markdown-toc end -->
 
@@ -128,9 +129,11 @@ Another env `FZF_COLLECTION_OPTS` is provided for users to customize.
 ```sh
 # set options if needed, default value is as below :
 FZF_COLLECTION_OPTS=" \
+    --header-first \
+    --ansi \
     --reverse \
     --cycle \
-    --multi \
+    --no-multi \
     --sort \
     --exact \
     --info=inline"
@@ -143,11 +146,12 @@ By default, all modules are loaded.
 
 ```sh
 FZF_COLLECTION_MODULES=(
-  fzf-default
-  fzf-browser
-  fzf-brew
-  fzf-git
-  fzf-pip)
+  default
+  browser
+  brew
+  pip
+  git
+  gh)
 ```
 
 ## FZF_COLLECTION_BROWSER
@@ -159,5 +163,8 @@ Settng `FZF_COLLECTION_BROWSER` to open url, use default browser if not set.
 FZF_COLLECTION_BROWSER="chrome"
 ```
 
+## TODO
 
-
+- [x] brew sign: formulae or cask brew info --formula/--cask
+- [ ] fzf: proxy gem
+- [ ] fbrew-rollback: inhibit reinstall same commit

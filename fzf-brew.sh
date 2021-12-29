@@ -6,6 +6,7 @@
 _brewf_list_format() {
   local input
   input="$([[ -p /dev/stdin ]] && cat - || return)"
+
   if [[ -n "$input" ]]; then
     case $1 in
       --formulae | --formula)
@@ -62,21 +63,33 @@ _brewf_switch() {
 }
 
 brewf-rollback() {
-  local f dir hash header
+  local f dir sha header
 
   header="Brew Rollback"
   f="$1.rb"
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
-  hash=$(
-    git -C "$dir" log --color=always -- "$f" \
-      | _fzf_multi_header \
-      | awk '{ print $1 }'
-  )
 
-  if [ -n "$hash" ] && [ -n "$dir" ]; then
-    git -C "$dir" checkout "$hash" "$f"
-    (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
-    git -C "$dir" checkout HEAD "$f"
+  if [ -n "$dir" ]; then
+    sha=$(
+      git -C "$dir" log --color=always -- "$f" \
+        | _fzf_single_header --tiebreak=index --query="update $1" \
+        | awk '{ print $1 }'
+    )
+
+    if [ -n "$sha" ]; then
+      brew unpin "$1" &>/dev/null
+
+      git -C "$dir" checkout "$sha" "$f"
+      (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
+      git -C "$dir" checkout HEAD "$f"
+
+      if ! brew outdated "$1" &>/dev/null; then
+        brew pin "$1" &>/dev/null
+      fi
+
+    else
+      return 0
+    fi
   else
     return 0
   fi
@@ -123,8 +136,8 @@ brewf-manage() {
 
     inst=$(
       {
-        brew list -1t --formulae | _brewf_list_format --formulae
-        brew list -1t --cask | _brewf_list_format --cask
+        brew list --formulae --versions | _brewf_list_format --formulae
+        brew list --cask --versions | _brewf_list_format --cask
       } \
         | tee $tmpfile \
         | _fzf_multi_header \
@@ -155,10 +168,13 @@ brewf-outdated() {
   if [ ! -e $tmpfile ]; then
     brew update
 
-    outdate_list=$({
-      brew outdated --formula | _brewf_list_format --formula
-      brew outdated --cask | _brewf_list_format --cask
-    })
+    outdate_list=$(
+      {
+        brew outdated --formula --verbose | _brewf_list_format --formula
+        brew outdated --cask --greedy --verbose | _brewf_list_format --cask
+      } \
+        | grep -Fv "pinned at"
+    )
 
     if [[ -n $outdate_list ]]; then
       touch $tmpfile
