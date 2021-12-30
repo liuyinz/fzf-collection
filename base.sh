@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-## Uppercase every first letter and downcase other letter in every word in string.
-__capitalize_first() {
-  sed -E 's/(\w)(\w*)/\U\1\L\2/g' <<<"$1"
-}
-
 ## Add underline
 __underline_string() {
   printf '%s\n' "$1"
