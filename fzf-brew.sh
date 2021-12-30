@@ -41,7 +41,7 @@ _brewf_switch() {
             # SEE https://stackoverflow.com/a/17273270 , escape '/' in path
             # SEE https://unix.stackexchange.com/a/33005
             # FIXME whether delete succeed?
-            sed -i "/$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
+            sed -i "/$(sed 's/\//\\&/g' <<<"$f")/d" "$tmpfile"
           fi
           ;;
         *) brew "$subcmd" "$f" ;;
