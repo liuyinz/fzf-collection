@@ -23,7 +23,7 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
   - [FZF_COLLECTION_BROWSER](#fzf_collection_browser)
-  - [TODO](#todo)
+  - [todo](#todo)
 
 <!-- markdown-toc end -->
 
@@ -78,10 +78,7 @@ brew install sqlite3 coreutils diffutils gnu-sed gawk jq python-yq
 
 ## fzf-brew
 
-- `bsf` : brew search
-- `bmf` : brew manage
-- `bgf` : brew upgrade
-- `btf` : brew tap
+- `brewf` : brew [package]
 
 ## fzf-pip
 
@@ -90,9 +87,7 @@ brew install sqlite3 coreutils diffutils gnu-sed gawk jq python-yq
 brew install grep gnu-sed gawk coreutils
 ```
 
-- `ppi` : pip3 install [package]
-- `ppc` : pip3 uninstall [package]
-- `ppg` : pip3 upgrade [package]
+- `pipf` : pip3 [package]
 
 ## fzf-git
 
@@ -101,15 +96,7 @@ brew install grep gnu-sed gawk coreutils
 brew install git-extras coreutils gnu-sed gh
 ```
 
-- `gsha` : return commits
-- `gck` : git checkout [commits]
-- `gwf` : git checkout [branch or tag]
-- `gef` : git restore
-- `ges` : git restore --staged
-- `gea` : git resore --staged --worktree
-- `gsmi` : git submodule INTERACTIVE
-- `gsti` : git stash INTERACTIVE
-- `gif` : git ignore-io --append
+- `gitf` : git [package]
 
 ## fzf-gh
 
@@ -163,8 +150,8 @@ Settng `FZF_COLLECTION_BROWSER` to open url, use default browser if not set.
 FZF_COLLECTION_BROWSER="chrome"
 ```
 
-## TODO
+## todo
 
 - [x] brew sign: formulae or cask brew info --formula/--cask
-- [ ] fzf: proxy gem
-- [ ] fbrew-rollback: inhibit reinstall same commit
+- [ ] fzf: proxy gem npm
+- [x] brewf-rollback: inhibit reinstall same commit
