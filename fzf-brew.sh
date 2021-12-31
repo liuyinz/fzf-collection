@@ -136,9 +136,14 @@ brewf-manage() {
 
     inst=$(
       {
-        brew list --formulae --versions | _brewf_list_format --formulae
-        brew list --cask --versions | _brewf_list_format --cask
+        brew list --formulae --versions \
+          | sed 's/ /|/2g' \
+          | _brewf_list_format --formulae
+        brew list --cask --versions \
+          | sed 's/ /|/2g' \
+          | _brewf_list_format --cask
       } \
+        | column -t -s ' ' \
         | tee $tmpfile \
         | _fzf_multi_header \
         | awk '{print $2}'
