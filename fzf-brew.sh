@@ -10,10 +10,10 @@ _brewf_list_format() {
   if [[ -n "$input" ]]; then
     case $1 in
       --formulae | --formula)
-        echo "$input" | awk '{print "\x1b[33mf  \x1b[0m" $0}'
+        echo "$input" | awk '{print $0 " \x1b[33mformula\x1b[0m"}'
         ;;
       --cask | --casks)
-        echo "$input" | awk '{print "\x1b[36mc  \x1b[0m" $0}'
+        echo "$input" | awk '{print $0 " \x1b[36mcask\x1b[0m"}'
         ;;
       *) return 0 ;;
     esac
@@ -72,7 +72,7 @@ brewf-rollback() {
   if [ -n "$dir" ]; then
     sha=$(
       git -C "$dir" log --color=always -- "$f" \
-        | _fzf_single_header --tiebreak=index --query="update $1" \
+        | _fzf_single_header --tiebreak=index --query="$1 update" \
         | awk '{ print $1 }'
     )
 
@@ -105,8 +105,9 @@ brewf-search() {
       brew formulae | _brewf_list_format --formulae
       brew casks | _brewf_list_format --cask
     } \
+      | column -t -s ' ' \
       | _fzf_multi_header \
-      | awk '{print $2}'
+      | awk '{print $1}'
   )
 
   opt=("install" "rollback" "options" "info" "deps" "edit" "cat"
@@ -146,11 +147,11 @@ brewf-manage() {
         | column -t -s ' ' \
         | tee $tmpfile \
         | _fzf_multi_header \
-        | awk '{print $2}'
+        | awk '{print $1}'
     )
 
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $2}')
+    inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $1}')
   fi
 
   if [ -n "$inst" ]; then
@@ -185,9 +186,10 @@ brewf-outdated() {
       touch $tmpfile
       inst=$(
         echo "$outdate_list" \
+          | column -t -s ' ' \
           | tee $tmpfile \
           | _fzf_multi_header \
-          | awk '{print $2}'
+          | awk '{print $1}'
       )
     else
       echo "No updates within installed formulae or cask."
@@ -197,7 +199,7 @@ brewf-outdated() {
   else
 
     if [ -s $tmpfile ]; then
-      inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $2}')
+      inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $1}')
     else
       echo "Upgrade finished."
       rm -f $tmpfile && return 0
