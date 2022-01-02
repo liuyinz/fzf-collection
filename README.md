@@ -13,15 +13,15 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [Manual](#manual)
   - [Oh-My-Zsh](#oh-my-zsh)
 - [Commands](#commands)
-  - [fzf-default](#fzf-default)
+  - [fzf-other](#fzf-other)
   - [fzf-browser](#fzf-browser)
   - [fzf-brew](#fzf-brew)
   - [fzf-pip](#fzf-pip)
   - [fzf-git](#fzf-git)
   - [fzf-gh](#fzf-gh)
 - [Envrionment](#envrionment)
-  - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
+  - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
   - [FZF_COLLECTION_BROWSER](#fzf_collection_browser)
   - [todo](#todo)
 
@@ -60,7 +60,7 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 # Commands
 
-## fzf-default
+## fzf-other
 
 - `fp` : find `$PATH`
 - `ffp` : find `$FPATH`
@@ -108,24 +108,6 @@ brew install gh jq
 
 # Envrionment
 
-## FZF_COLLECTION_OPTS
-
-Usually, `FZF_DEFAULT_OPTS` is applied if be settled.
-Another env `FZF_COLLECTION_OPTS` is provided for users to customize.
-
-```sh
-# set options if needed, default value is as below :
-FZF_COLLECTION_OPTS=" \
-    --header-first \
-    --ansi \
-    --reverse \
-    --cycle \
-    --no-multi \
-    --sort \
-    --exact \
-    --info=inline"
-```
-
 ## FZF_COLLECTION_MODULES
 
 Settng `FZF_COLLECTION_MODULES` to load modules.
@@ -141,6 +123,25 @@ FZF_COLLECTION_MODULES=(
   gh)
 ```
 
+## FZF_COLLECTION_OPTS
+
+Setting `FZF_COLLECTION_OPTS` to customize fzf options.
+
+```sh
+# set options if needed, default value is as below :
+  FZF_COLLECTION_OPTS="
+  --header-first
+  --ansi
+  --reverse
+  --cycle
+  --no-multi
+  --sort
+  --exact
+  --info=inline
+  --bind=change:first,btab:up+toggle,ctrl-n:down,ctrl-p:up
+  --bind=ctrl-u:cancel,ctrl-l:jump,ctrl-t:toggle-all,ctrl-v:clear-selection"
+```
+
 ## FZF_COLLECTION_BROWSER
 
 Settng `FZF_COLLECTION_BROWSER` to open url, use default browser if not set.
@@ -153,5 +154,5 @@ FZF_COLLECTION_BROWSER="chrome"
 ## todo
 
 - [x] brew sign: formulae or cask brew info --formula/--cask
-- [ ] fzf: proxy gem npm
+- [ ] fzf: proxy gem npm cargo
 - [x] brewf-rollback: inhibit reinstall same commit

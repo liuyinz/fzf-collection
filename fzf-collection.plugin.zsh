@@ -17,12 +17,12 @@ fzf_opts=($(echo "${FZF_COLLECTION_OPTS}"))
 
 if [ -z "$FZF_COLLECTION_MODULES" ]; then
   FZF_COLLECTION_MODULES=(
-    default
     browser
     brew
     pip
     git
     gh
+    other
   )
 fi
 
