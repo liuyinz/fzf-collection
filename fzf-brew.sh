@@ -10,10 +10,10 @@ _brewf_list_format() {
   if [[ -n "$input" ]]; then
     case $1 in
       --formulae | --formula)
-        echo "$input" | awk '{print $0 " \x1b[33mformula\x1b[0m"}'
+        echo "$input" | awk '{print $1 " \x1b[34m" $2 " \x1b[33mformula\x1b[0m"}'
         ;;
       --cask | --casks)
-        echo "$input" | awk '{print $0 " \x1b[36mcask\x1b[0m"}'
+        echo "$input" | awk '{print $1 " \x1b[34m" $2" \x1b[31mcask\x1b[0m"}'
         ;;
       *) return 0 ;;
     esac
