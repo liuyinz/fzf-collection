@@ -14,7 +14,7 @@ fp() {
     fi
 
   done \
-    | awk '{printf "%s \x1b[33m%s\x1b[0m\n", $1, $2}' \
+    | perl -lane 'printf "%s \x1b[33m%s\x1b[0m\n", $F[0], $F[1]' \
     | uniq \
     | column -t -s ' ' \
     | _fzf_single_header --tiebreak=index

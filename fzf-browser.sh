@@ -4,8 +4,9 @@ if [ -z "$FZF_COLLECTION_BROWSER" ]; then
   # SEE https://stackoverflow.com/a/66026925/13194984
   FZF_COLLECTION_BROWSER=$(
     plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
-      | grep 'https' -b3 \
-      | awk 'NR==3 {split($4, arr, "\""); print arr[2]}' \
+      | grep 'https' -b1 \
+      | head -1 \
+      | perl -F'"' -le 'print $F[-1]' \
       | cut -d'.' -f3
   )
 fi
@@ -73,7 +74,7 @@ bhf() {
 
   # SEE https://superuser.com/a/555520
   sqlite3 -separator $sep "${asso_browser[tmp]}/history" "${asso_browser[history_sql]}" \
-    | awk -F $sep '{printf "\x1b[33m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $1, $2}' \
+    | perl -F$sep -lne 'printf "\x1b[33m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $F[0], $F[1]' \
     | uniq -u \
     | _fzf_multi_header \
     | sed 's#.*\(https*://\)#\1#' \
@@ -110,7 +111,7 @@ join("/") } |
       jq -r "$jq_script" <"${asso_browser[tmp]}/bookmark" \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[33m\\2\x1b[m/g' \
         | _fzf_multi_header --no-hscroll --tiebreak=begin \
-        | awk 'BEGIN { FS = "\t" } { print $2 }' \
+        | perl -F'\t' -lne 'print $F[1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
 
@@ -134,7 +135,7 @@ join("/")} |
       plutil -convert xml1 "${asso_browser[tmp]}/bookmark" -o - | xq -r "$jq_script" \
         | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[33m\\2\x1b[m/g' \
         | _fzf_multi_header --no-hscroll --tiebreak=begin \
-        | awk 'BEGIN { FS = "\t" } { print $2 }' \
+        | perl -F'\t' -lne 'print $F[1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
 
@@ -146,7 +147,7 @@ join("/")} |
       local sql="select substr(B.title, 1, $cols), P.url from moz_bookmarks B left join
 moz_places P on B.fk = P.id order by visit_count desc"
       sqlite3 -separator $sep "${asso_browser[tmp]}/bookmark" "$sql" \
-        | awk -F $sep '{printf "%-'"$cols"'s  \x1b[33m%s\x1b[m\n", $1, $2}' \
+        | perl -F$sep -lne 'printf "%-'"$cols"'s  \x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
         | _fzf_multi_header \
         | sed 's#.*\(https*://\)#\1#' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null

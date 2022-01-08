@@ -26,10 +26,7 @@ gitf-branch() {
   local branches
   local target
 
-  tags="$(
-    git tag \
-      | awk '{print "\x1b[31;1mtag\x1b[m\t" $1}'
-  )" || return
+  tags="$(git tag | perl -lane 'printf "\x1b[31;1mtag\x1b[m\t%s", $F[0]')" || return
 
   branches="$(
     git branch --all \
@@ -37,7 +34,7 @@ gitf-branch() {
       | sed 's/.* //' \
       | sed 's#remotes/[^/]*/##' \
       | sort -u \
-      | awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}'
+      | perl -lane '{printf "\x1b[34;1mbranch\x1b[m\t%s", $F[0]}'
   )" || return
 
   target="$(
@@ -51,7 +48,7 @@ gitf-branch() {
         -q "$*"
   )" || return
 
-  git checkout "$(echo "$target" | awk '{print $2}')"
+  git checkout "$(echo "$target" | perl -lane 'print $F[1]')"
 }
 
 gitf-submodule() {
@@ -112,7 +109,7 @@ gitf-stash() {
   inst=$(
     git stash list \
       | _fzf_single_header \
-      | awk 'BEGIN { FS = ":" } { print $1 }' \
+      | perl -F':' -lne 'print $F[1]' \
       | tac
   )
 

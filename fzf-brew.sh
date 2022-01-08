@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# SEE https://www.linuxquestions.org/questions/programming-9/passing-a-shell-variable-into-awk-syntax-for-correct-interpretation-562973/#post2793088
-# SEE https://stackoverflow.com/a/56762028/13194984
 
 _brewf_list_format() {
   local input
@@ -74,7 +72,7 @@ brewf-rollback() {
     sha=$(
       git -C "$dir" log --color=always -- "$f" \
         | _fzf_single_header --tiebreak=index --query="$1 update" \
-        | awk '{ print $1 }'
+        | perl -lane 'print $F[0]'
     )
 
     if [ -n "$sha" ]; then
@@ -108,7 +106,7 @@ brewf-search() {
     } \
       | column -t -s ' ' \
       | _fzf_multi_header \
-      | awk '{print $1}'
+      | perl -lane 'print $F[0]'
   )
 
   opt=("install" "rollback" "options" "info" "deps" "uses" "edit" "cat"
@@ -148,11 +146,11 @@ brewf-manage() {
         | column -t -s ' ' \
         | tee $tmpfile \
         | _fzf_multi_header \
-        | awk '{print $1}'
+        | perl -lane 'print $F[0]'
     )
 
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $1}')
+    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
   fi
 
   if [ -n "$inst" ]; then
@@ -190,7 +188,7 @@ brewf-outdated() {
           | column -t -s ' ' \
           | tee $tmpfile \
           | _fzf_multi_header \
-          | awk '{print $1}'
+          | perl -lane 'print $F[0]'
       )
     else
       echo "No updates within installed formulae or cask."
@@ -200,7 +198,7 @@ brewf-outdated() {
   else
 
     if [ -s $tmpfile ]; then
-      inst=$(cat <$tmpfile | _fzf_multi_header | awk '{print $1}')
+      inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
     else
       echo "Upgrade finished."
       rm -f $tmpfile && return 0
