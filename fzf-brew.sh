@@ -10,10 +10,11 @@ _brewf_list_format() {
   if [[ -n "$input" ]]; then
     case $1 in
       --formulae | --formula)
-        echo "$input" | awk '{print $1 " \x1b[34m" $2 " \x1b[33mformula\x1b[0m"}'
+        # SEE https://stackoverflow.com/a/2024750/13194984
+        echo "$input" | perl -lane 'printf "%s \x1b[34m%s \x1b[33mformula\x1b[0m\n", $F[0], join" ",@F[1 .. $#F]'
         ;;
       --cask | --casks)
-        echo "$input" | awk '{print $1 " \x1b[34m" $2" \x1b[31mcask\x1b[0m"}'
+        echo "$input" | perl -lane 'printf "%s \x1b[34m%s \x1b[31mcask\x1b[0m\n", $F[0], join" ",@F[1 .. $#F]'
         ;;
       *) return 0 ;;
     esac
@@ -110,7 +111,7 @@ brewf-search() {
       | awk '{print $1}'
   )
 
-  opt=("install" "rollback" "options" "info" "deps" "edit" "cat"
+  opt=("install" "rollback" "options" "info" "deps" "uses" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
 
   if [ -n "$inst" ]; then
@@ -130,7 +131,7 @@ brewf-manage() {
   tmpfile=/tmp/brewf-manage
 
   opt=("uninstall" "rollback" "link" "unlink" "pin" "unpin"
-    "options" "info" "deps" "edit" "cat" "home")
+    "options" "info" "deps" "uses" "edit" "cat" "home")
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
