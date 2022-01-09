@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 _brewf_list_format() {
   local input
   input="$([[ -p /dev/stdin ]] && cat - || return)"
@@ -175,8 +174,14 @@ brewf-outdated() {
 
     outdate_list=$(
       {
-        brew outdated --formula --verbose | _brewf_list_format --formula
-        brew outdated --cask --greedy --verbose | _brewf_list_format --cask
+        brew outdated --formula --verbose \
+          | sed 's/, /|/g' \
+          | tr -d '()' \
+          | _brewf_list_format --formula
+        brew outdated --cask --greedy --verbose \
+          | sed 's/, /|/g' \
+          | tr -d '()' \
+          | _brewf_list_format --cask
       } \
         | grep -Fv "pinned at"
     )
