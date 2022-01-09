@@ -5,16 +5,14 @@ _brewf_list_format() {
   input="$([[ -p /dev/stdin ]] && cat - || return)"
 
   if [[ -n "$input" ]]; then
-    case $1 in
-      --formulae | --formula)
-        # SEE https://stackoverflow.com/a/2024750/13194984
-        echo "$input" | perl -lane 'printf "%s \x1b[34m%s \x1b[33mformula\x1b[0m\n", $F[0], join" ",@F[1 .. $#F]'
-        ;;
-      --cask | --casks)
-        echo "$input" | perl -lane 'printf "%s \x1b[34m%s \x1b[31mcask\x1b[0m\n", $F[0], join" ",@F[1 .. $#F]'
-        ;;
-      *) return 0 ;;
-    esac
+    export formula="$(brew formulae | tr '\n' ' ')"
+    echo "$input" \
+      | perl -lane '
+$sign = ($ENV{formula} =~ /$F[0]/ ? "\x1b[33mformula" : "\x1b[31mcask" );
+printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' \
+      | column -t -s ' '
+
+    export formula=
   fi
 }
 
@@ -100,10 +98,10 @@ brewf-search() {
   header="Brew Search"
   inst=$(
     {
-      brew formulae | _brewf_list_format --formulae
-      brew casks | _brewf_list_format --cask
+      brew formulae
+      brew casks
     } \
-      | column -t -s ' ' \
+      | _brewf_list_format \
       | _fzf_multi_header \
       | perl -lane 'print $F[0]'
   )
@@ -135,14 +133,11 @@ brewf-manage() {
 
     inst=$(
       {
-        brew list --formulae --versions \
-          | sed 's/ /|/2g' \
-          | _brewf_list_format --formulae
-        brew list --cask --versions \
-          | sed 's/ /|/2g' \
-          | _brewf_list_format --cask
+        brew list --formulae --versions
+        brew list --cask --versions
       } \
-        | column -t -s ' ' \
+        | sed 's/ /|/2g' \
+        | _brewf_list_format \
         | tee $tmpfile \
         | _fzf_multi_header \
         | perl -lane 'print $F[0]'
@@ -174,15 +169,12 @@ brewf-outdated() {
 
     outdate_list=$(
       {
-        brew outdated --formula --verbose \
-          | sed 's/, /|/g' \
-          | tr -d '()' \
-          | _brewf_list_format --formula
-        brew outdated --cask --greedy --verbose \
-          | sed 's/, /|/g' \
-          | tr -d '()' \
-          | _brewf_list_format --cask
+        brew outdated --formula --verbose
+        brew outdated --cask --greedy --verbose
       } \
+        | sed 's/, /|/g' \
+        | tr -d '()' \
+        | _brewf_list_format \
         | grep -Fv "pinned at"
     )
 
@@ -190,7 +182,6 @@ brewf-outdated() {
       touch $tmpfile
       inst=$(
         echo "$outdate_list" \
-          | column -t -s ' ' \
           | tee $tmpfile \
           | _fzf_multi_header \
           | perl -lane 'print $F[0]'

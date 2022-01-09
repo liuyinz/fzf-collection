@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 
+_pipf_list_format() {
+  local input
+
+  input="$([[ -p /dev/stdin ]] && cat - || return)"
+
+  if [[ -n "$input" ]]; then
+    export install=$(pip3 list --not-required | tail -n +3 | awk '{print $1}')
+
+    echo "$input" \
+      | perl -lane '
+$sign = ($ENV{install}=~ /$F[0]/ ? "\x1b[33minstall" : "\x1b[31mdepend");
+printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' \
+      | column -s ' ' -t
+
+    export install=
+  fi
+}
+
+_pipf_list() {
+  pip3 list --version "$@" | tail -n +3
+}
+
 pipf-install() {
   local inst header
 
@@ -27,10 +49,11 @@ pipf-uninstall() {
 
   header="Pip Uninstall"
   inst=$(
-    pip3 list \
-      | tail -n +3 \
+    _pipf_list \
+      | perl -lane 'print join" ",@F[0..$#F]' \
+      | _pipf_list_format \
       | _fzf_multi_header \
-      | awk '{print $1}'
+      | perl -lane 'print $F[0]'
   )
 
   if [ -n "$inst" ]; then
@@ -48,10 +71,11 @@ pipf-upgrade() {
 
   header="Pip Upgrade"
   inst=$(
-    pip3 list --outdated \
-      | tail -n +3 \
+    _pipf_list --outdated \
+      | perl -lane 'printf "%s %s -> %s\n", $F[0], $F[1], $F[2]' \
+      | _pipf_list_format \
       | _fzf_multi_header \
-      | awk '{print $1}'
+      | perl -lane 'print $F[0]'
   )
 
   if [ -n "$inst" ]; then
