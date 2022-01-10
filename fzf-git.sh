@@ -60,7 +60,7 @@ gitf-submodule() {
     git config -z --file \
       "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
       | sed -nz 's/^[^\n]*\n//p' \
-      | tr '\0' '\n' \
+      | perl -pe 's/\0/\n/g' \
       | _fzf_multi_header
   )
 
@@ -156,7 +156,7 @@ gitf() {
   cmd=("submodule" "branch" "commit" "ignoreio" "stash")
   select=$(
     echo "${cmd[@]}" \
-      | tr ' ' '\n' \
+      | perl -pe 's/ /\n/g' \
       | _fzf_single_header
   )
 

@@ -25,7 +25,7 @@ ghf() {
         case $subcmd in
           delete-repo)
             gh "$subcmd" "$user/$f"
-            sed -i "/^$(sed 's/\//\\&/g' <<<"$f")$/d" "$tmpfile"
+            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
             ;;
           browse)
             gh browse --repo "$user/$f"

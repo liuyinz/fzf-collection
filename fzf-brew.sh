@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
 _brewf_list_format() {
-  local input
+  local input pkg
   input="$([[ -p /dev/stdin ]] && cat - || return)"
 
   if [[ -n "$input" ]]; then
-    export formula="$(brew formulae | tr '\n' ' ')"
-    echo "$input" \
-      | perl -lane '
-$sign = ($ENV{formula} =~ /$F[0]/ ? "\x1b[33mformula" : "\x1b[31mcask" );
-printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' \
-      | column -t -s ' '
+    pkg="$(brew formulae | perl -pe 's/\r?\n/ /g')"
 
-    export formula=
+    # SEE https://stackoverflow.com/a/3322211/13194984
+    echo "$input" \
+      | perl -slane '
+$sign = ($i =~ /$F[0]/ ? "\x1b[33mformula" : "\x1b[31mcask" );
+printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' -- -i="$pkg" \
+      | column -t -s ' '
   fi
 }
 
@@ -20,7 +20,7 @@ printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' \
 
 _brewf_switch() {
 
-  subcmd=$(echo "${@:2}" | tr ' ' '\n' | _fzf_single_header)
+  subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single_header)
 
   if [ -n "$subcmd" ]; then
     for f in $(echo "$1"); do
@@ -33,11 +33,8 @@ _brewf_switch() {
           ;;
         upgrade | uninstall | untap)
           if brew "$subcmd" "$f"; then
-            # SEE https://stackoverflow.com/questions/5410757/how-to-delete-from-a-text-file-all-lines-that-contain-a-specific-string
-            # SEE https://stackoverflow.com/a/17273270 , escape '/' in path
-            # SEE https://unix.stackexchange.com/a/33005
-            # FIXME whether delete succeed?
-            sed -i "/$(sed 's/\//\\&/g' <<<"$f")/d" "$tmpfile"
+            # SEE https://stackoverflow.com/a/24493085/13194984
+            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
           fi
           ;;
         *) brew "$subcmd" "$f" ;;
@@ -172,8 +169,7 @@ brewf-outdated() {
         brew outdated --formula --verbose
         brew outdated --cask --greedy --verbose
       } \
-        | sed 's/, /|/g' \
-        | tr -d '()' \
+        | perl -pe 's/, /|/g; tr/()//d' \
         | _brewf_list_format \
         | grep -Fv "pinned at"
     )
@@ -258,7 +254,7 @@ brewf() {
   opt=("outdated" "search" "manage" "tap")
   select=$(
     echo "${opt[@]}" \
-      | tr ' ' '\n' \
+      | perl -pe 's/ /\n/g' \
       | _fzf_single_header
   )
 

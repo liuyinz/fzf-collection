@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
 
 _pipf_list_format() {
-  local input
+  local input pkg
 
   input="$([[ -p /dev/stdin ]] && cat - || return)"
 
   if [[ -n "$input" ]]; then
-    export install=$(pip3 list --not-required | tail -n +3 | awk '{print $1}')
+    pkg=$(pip3 list --not-required | tail -n +3 | perl -lane 'print $F[0]')
 
     echo "$input" \
-      | perl -lane '
-$sign = ($ENV{install}=~ /$F[0]/ ? "\x1b[33minstall" : "\x1b[31mdepend");
-printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' \
+      | perl -slane '
+$sign = ($i =~ /$F[0]/ ? "\x1b[33minstall" : "\x1b[31mdepend");
+printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' -- -i="$pkg" \
       | column -s ' ' -t
-
-    export install=
   fi
 }
 
@@ -28,9 +26,7 @@ pipf-install() {
   header="Pip Install"
   inst=$(
     curl -s "$(pip3 config get global.index-url)/" \
-      | grep '</a>' \
-      | sed 's/^.*">//g' \
-      | sed 's/<.*$//g' \
+      | perl -lne '/">(.*?)<\/a>/ && print $1' \
       | _fzf_multi_header
   )
 
@@ -95,7 +91,7 @@ pipf() {
   cmd=("upgrade" "install" "uninstall")
   select=$(
     echo "${cmd[@]}" \
-      | tr ' ' '\n' \
+      | perl -pe 's/ /\n/g' \
       | _fzf_single_header
   )
 

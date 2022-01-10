@@ -26,7 +26,7 @@ ffp() {
   local loc
   loc=$(
     echo "$FPATH" \
-      | sed -e $'s/:/\\\n/g' \
+      | perl -pe 's/:/\n/g' \
       | _fzf_single --header "$(_headerf "Find Fpath")"
   )
 

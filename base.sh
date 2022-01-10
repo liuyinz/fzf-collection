@@ -3,7 +3,7 @@
 ## Add underline
 __underline_string() {
   printf '%s\n' "$1"
-  printf '%*s' ${#1} ' ' | sed 's/ /▔/g'
+  printf '%*s' ${#1} ' ' | perl -pe 's/ /▔/g'
 }
 
 ## return brewf-* header
