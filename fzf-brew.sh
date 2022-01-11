@@ -2,9 +2,10 @@
 
 _brewf_list_format() {
   local input pkg
+
   input="$([[ -p /dev/stdin ]] && cat - || return)"
 
-  if [[ -n "$input" ]]; then
+  if [ -n "$input" ]; then
     pkg="$(brew formulae | perl -pe 's/\r?\n/ /g')"
 
     # SEE https://stackoverflow.com/a/3322211/13194984
@@ -26,7 +27,7 @@ _brewf_switch() {
     for f in $(echo "$1"); do
       case $subcmd in
         rollback)
-          brewf-rollback "$f"
+          _brew_rollback "$f"
           ;;
         edit)
           $EDITOR "$(brew formula "$f")"
@@ -43,8 +44,7 @@ _brewf_switch() {
     done
 
     case $subcmd in
-      # SEE https://stackoverflow.com/a/4827707
-      upgrade | uninstall | untap) return 0 ;;
+      upgrade | uninstall | untap| rollback) return 0 ;;
     esac
 
   else
@@ -55,7 +55,7 @@ _brewf_switch() {
 
 }
 
-brewf-rollback() {
+_brewf_rollback() {
   local f dir sha header
 
   header="Brew Rollback"
@@ -81,35 +81,46 @@ brewf-rollback() {
       fi
 
     else
-      return 0
+      echo "No commit selected." && return 0
     fi
+
   else
-    return 0
+    echo "No formulae or cask exists." && return 0
   fi
 
 }
 
 brewf-search() {
-  local inst opt header
+  local tmpfile inst opt header
 
   header="Brew Search"
-  inst=$(
-    {
-      brew formulae
-      brew casks
-    } \
-      | _brewf_list_format \
-      | _fzf_multi_header \
-      | perl -lane 'print $F[0]'
-  )
+  tmpfile=/tmp/brewf-search
 
   opt=("install" "rollback" "options" "info" "deps" "uses" "edit" "cat"
     "home" "uninstall" "link" "unlink" "pin" "unpin")
 
+  if [ ! -e $tmpfile ]; then
+    touch $tmpfile
+
+    inst=$(
+      {
+        brew formulae
+        brew casks
+      } \
+        | _brewf_list_format \
+        | tee $tmpfile \
+        | _fzf_multi_header \
+        | perl -lane 'print $F[0]'
+    )
+
+  else
+    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+  fi
+
   if [ -n "$inst" ]; then
     _brewf_switch "$inst" "${opt[@]}"
   else
-    return 0
+    rm -f $tmpfile && return 0
   fi
 
   brewf-search
@@ -159,7 +170,7 @@ brewf-outdated() {
 
   header="Brew Outdated"
   tmpfile=/tmp/brewf-outdated
-  opt=("upgrade" "uninstall" "options" "info" "deps" "edit" "cat" "home")
+  opt=("upgrade" "uninstall" "rollback" "options" "info" "deps" "edit" "cat" "home")
 
   if [ ! -e $tmpfile ]; then
     brew update
@@ -174,7 +185,7 @@ brewf-outdated() {
         | grep -Fv "pinned at"
     )
 
-    if [[ -n $outdate_list ]]; then
+    if [ -n "$outdate_list" ]; then
       touch $tmpfile
       inst=$(
         echo "$outdate_list" \
@@ -198,7 +209,7 @@ brewf-outdated() {
 
   fi
 
-  if [[ -n "$inst" ]]; then
+  if [ -n "$inst" ]; then
     _brewf_switch "$inst" "${opt[@]}"
   else
     echo "Upgrade cancel."
@@ -218,7 +229,7 @@ brewf-tap() {
   if [ ! -e $tmpfile ]; then
     tap_list=$(brew tap)
 
-    if [[ -n $tap_list ]]; then
+    if [ -n "$tap_list" ]; then
       touch $tmpfile
       inst=$(echo "$tap_list" | tee $tmpfile | _fzf_multi_header)
     else
@@ -236,7 +247,7 @@ brewf-tap() {
     fi
   fi
 
-  if [[ -n "$inst" ]]; then
+  if [ -n "$inst" ]; then
     _brewf_switch "$inst" "${opt[@]}"
   else
     echo "Tap cancel."
