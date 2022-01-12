@@ -1,94 +1,218 @@
 #!/usr/bin/env bash
 
-_pipf_list_format() {
-  local input pkg
-
-  input="$([[ -p /dev/stdin ]] && cat - || return)"
-
-  if [[ -n "$input" ]]; then
-    pkg=$(pip3 list --not-required | tail -n +3 | perl -lane 'print $F[0]')
-
-    echo "$input" \
-      | perl -slane '
-$sign = ($i =~ /$F[0]/ ? "\x1b[33minstall" : "\x1b[31mdepend");
-printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' -- -i="$pkg" \
-      | column -s ' ' -t
-  fi
-}
-
 _pipf_list() {
   pip3 list --version "$@" | tail -n +3
 }
 
-pipf-install() {
-  local inst header
+_pipf_list_format() {
+  local input pkg all
 
-  header="Pip Install"
-  inst=$(
-    curl -s "$(pip3 config get global.index-url)/" \
-      | perl -lne '/">(.*?)<\/a>/ && print $1' \
-      | _fzf_multi_header
-  )
+  input="$([[ -p /dev/stdin ]] && cat - || return)"
 
-  if [ -n "$inst" ]; then
-    for f in $(echo "$inst"); do
-      pip3 install --user "$f"
+  if [[ -n "$input" ]]; then
+
+    all=$(pip3 list | tail -n +3 | perl -lane 'print $F[0]')
+    pkg=$(pip3 list --not-required | tail -n +3 | perl -lane 'print $F[0]')
+
+    echo "$input" \
+      | perl -sane '
+$sign = "";$re = qr/^\Q$F[0]\E$/im;
+if ($all =~ $re) { $sign = ($pkg =~ $re ? "\x1b[33mpkg" : "\x1b[31mdep") }
+printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;
+' -- -all="$all" -pkg="$pkg" \
+      | column -s ' ' -t
+  fi
+}
+
+_pipf_switch() {
+
+  subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single_header)
+
+  if [ -n "$subcmd" ]; then
+    for f in $(echo "$1"); do
+      case $subcmd in
+        upgrade)
+          if pip3 install --user --upgrade "$f"; then
+            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
+          fi
+          ;;
+        uninstall)
+          if pip3 uninstall --yes "$f"; then
+            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
+          fi
+          ;;
+        install)
+          pip3 install --user "$f"
+          ;;
+        rollback)
+          _pipf_rollback "$f"
+          ;;
+        info)
+          pip3 show "$f"
+          ;;
+        *) pip3 "$subcmd" "$f" ;;
+      esac
+      echo ""
     done
+
+    case $subcmd in
+      upgrade | uninstall | rollback) return 0 ;;
+    esac
+
   else
     return 0
   fi
+
+  _pipf_switch "$@"
 
 }
 
-pipf-uninstall() {
-  local inst header
+_pipf_rollback() {
+  local version_list version header
 
-  header="Pip Uninstall"
-  inst=$(
-    _pipf_list \
-      | perl -lane 'print join" ",@F[0..$#F]' \
-      | _pipf_list_format \
-      | _fzf_multi_header \
-      | perl -lane 'print $F[0]'
+  header="Pip Rollback"
+  version_list=$(
+    pip3 index versions --pre "$1" 2>/dev/null \
+      | perl -lne '/Available versions: (.*)$/m && print $1' \
+      | perl -pe 's/, /\n/g'
   )
 
-  if [ -n "$inst" ]; then
-    for f in $(echo "$inst"); do
-      pip3 uninstall --yes "$f"
-    done
+  if [ -n "$version_list" ]; then
+
+    version=$(echo "$version_list" | _fzf_single_header)
+
+    if [ -n "$version" ]; then
+      pip3 install --upgrade --force-reinstall "$f==$version" 2>/dev/null
+    else
+      echo "Rollback cancel." && return 0
+    fi
+
   else
-    return 0
+    echo "No version provided for package $1." && return 0
   fi
+}
+
+pipf-search() {
+  local tmpfile inst opt header
+
+  header="Pip Search"
+  tmpfile=/tmp/pipf-search
+
+  opt=("install" "uninstall" "info" "rollback")
+
+  if [ ! -e $tmpfile ]; then
+    touch $tmpfile
+
+    inst=$(
+      curl -s "$(pip3 config get global.index-url)/" \
+        | perl -lne '/">(.*?)<\/a>/ && print $1' \
+        | _pipf_list_format \
+        | tee $tmpfile \
+        | _fzf_multi_header --tiebreak=begin,index \
+        | perl -lane 'print $F[0]'
+    )
+
+  else
+    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+  fi
+
+  if [ -n "$inst" ]; then
+    _pipf_switch "$inst" "${opt[@]}"
+  else
+    rm -f $tmpfile && return 0
+  fi
+
+  pipf-search
 
 }
 
-pipf-upgrade() {
-  local inst header
+pipf-manage() {
+  local tmpfile inst header opt
 
-  header="Pip Upgrade"
-  inst=$(
-    _pipf_list --outdated \
-      | perl -lane 'printf "%s %s -> %s\n", $F[0], $F[1], $F[2]' \
-      | _pipf_list_format \
-      | _fzf_multi_header \
-      | perl -lane 'print $F[0]'
-  )
+  header="Pip Manage"
+  tmpfile=/tmp/pipf-manage
+  opt=("uninstall" "rollback" "info")
 
-  if [ -n "$inst" ]; then
-    for f in $(echo "$inst"); do
-      pip3 install --user --upgrade "$f"
-    done
+  if [ ! -e $tmpfile ]; then
+    touch $tmpfile
+
+    inst=$(
+      _pipf_list \
+        | perl -lane 'print join" ",@F[0..$#F]' \
+        | _pipf_list_format \
+        | tee $tmpfile \
+        | _fzf_multi_header --tiebreak=begin,index \
+        | perl -lane 'print $F[0]'
+    )
+
   else
-    return 0
+    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
   fi
 
+  if [ -n "$inst" ]; then
+    _pipf_switch "$inst" "${opt[@]}"
+  else
+    rm -f $tmpfile && return 0
+  fi
+
+  pipf-manage
+
+}
+
+pipf-outdated() {
+  local inst header opt
+
+  header="Pip Outdated"
+  tmpfile=/tmp/pipf-outdated
+  opt=("upgrade" "uninstall" "info" "rollback")
+
+  if [ ! -e $tmpfile ]; then
+
+    outdate_list=$(
+      _pipf_list --outdated \
+        | perl -lane 'printf "%s %s -> %s\n", $F[0], $F[1], $F[2]' \
+        | _pipf_list_format
+    )
+
+    if [ -n "$outdate_list" ]; then
+      touch $tmpfile
+      inst=$(
+        echo "$outdate_list" \
+          | tee $tmpfile \
+          | _fzf_multi_header --tiebreak=begin,index \
+          | perl -lane 'print $F[0]'
+      )
+    else
+      echo "No updates in pip packages."
+      return 0
+    fi
+
+  else
+
+    if [ -s $tmpfile ]; then
+      inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+    else
+      echo "Upgrade finished."
+      rm -f $tmpfile && return 0
+    fi
+
+  fi
+
+  if [ -n "$inst" ]; then
+    _pipf_switch "$inst" "${opt[@]}"
+  else
+    echo "Upgrade cancel."
+    rm -f $tmpfile && return 0
+  fi
+
+  pipf-outdated
 }
 
 pipf() {
   local cmd select header
 
   header="Pip Fzf"
-  cmd=("upgrade" "install" "uninstall")
+  cmd=("outdated" "search" "manage")
   select=$(
     echo "${cmd[@]}" \
       | perl -pe 's/ /\n/g' \
@@ -97,12 +221,10 @@ pipf() {
 
   if [ -n "$select" ]; then
     case $select in
-      upgrade) pipf-upgrade ;;
-      install) pipf-install ;;
-      uninstall) pipf-uninstall ;;
+      outdated) pipf-outdated ;;
+      search) pipf-search ;;
+      manage) pipf-manage ;;
     esac
-  else
-    return 0
   fi
 
 }
