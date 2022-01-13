@@ -5,21 +5,19 @@ _pipf_list() {
 }
 
 _pipf_list_format() {
-  local input pkg all
+  local input pkg
 
   input="$([[ -p /dev/stdin ]] && cat - || return)"
 
   if [[ -n "$input" ]]; then
 
-    all=$(pip3 list | tail -n +3 | perl -lane 'print $F[0]')
     pkg=$(pip3 list --not-required | tail -n +3 | perl -lane 'print $F[0]')
 
     echo "$input" \
       | perl -sane '
-$sign = "";$re = qr/^\Q$F[0]\E$/im;
-if ($all =~ $re) { $sign = ($pkg =~ $re ? "\x1b[33mpkg" : "\x1b[31mdep") }
+$sign = ($pkg !~ /^\Q$F[0]\E$/im ? "\x1b[31mdep" : "\x1b[33mpkg" );
 printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;
-' -- -all="$all" -pkg="$pkg" \
+' -- -pkg="$pkg" \
       | column -s ' ' -t
   fi
 }
@@ -98,7 +96,7 @@ pipf-search() {
   header="Pip Search"
   tmpfile=/tmp/pipf-search
 
-  opt=("install" "uninstall" "info" "rollback")
+  opt=("install" "uninstall" "rollback")
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
@@ -106,7 +104,6 @@ pipf-search() {
     inst=$(
       curl -s "$(pip3 config get global.index-url)/" \
         | perl -lne '/">(.*?)<\/a>/ && print $1' \
-        | _pipf_list_format \
         | tee $tmpfile \
         | _fzf_multi_header --tiebreak=begin,index \
         | perl -lane 'print $F[0]'

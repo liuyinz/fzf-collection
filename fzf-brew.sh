@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 
 _brewf_list_format() {
-  local input pkg
+  local input fle
 
   input="$([[ -p /dev/stdin ]] && cat - || return)"
 
   if [ -n "$input" ]; then
-    pkg="$(brew formulae | perl -pe 's/\r?\n/ /g')"
+
+    fle=$(brew formulae)
 
     # SEE https://stackoverflow.com/a/3322211/13194984
     echo "$input" \
-      | perl -slane '
-$sign = ($i =~ /$F[0]/ ? "\x1b[33mformula" : "\x1b[31mcask" );
-printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;' -- -i="$pkg" \
+      | perl -sane '
+$sign = ($fle =~ /^\Q$F[0]\E$/im ? "\x1b[33mformula" : "\x1b[31mcask" );
+printf "%s \x1b[34m%s %s%s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;
+' -- -fle="$fle" \
       | column -t -s ' '
   fi
 }
@@ -38,13 +40,16 @@ _brewf_switch() {
             perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
           fi
           ;;
+        uses)
+          brew uses --installed "$f"
+          ;;
         *) brew "$subcmd" "$f" ;;
       esac
       echo ""
     done
 
     case $subcmd in
-      upgrade | uninstall | untap| rollback) return 0 ;;
+      upgrade | uninstall | untap | rollback) return 0 ;;
     esac
 
   else
@@ -107,7 +112,6 @@ brewf-search() {
         brew formulae
         brew casks
       } \
-        | _brewf_list_format \
         | tee $tmpfile \
         | _fzf_multi_header \
         | perl -lane 'print $F[0]'
