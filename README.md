@@ -70,7 +70,7 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 ```sh
 # dependency
-brew install sqlite3 coreutils diffutils gnu-sed gawk jq python-yq
+brew install sqlite3 coreutils diffutils jq python-yq
 ```
 
 - `bhf` : history search for `Google Chrome` `Microsoft Edge` `Mozilla Firefox` `MacOs Safari`
@@ -84,7 +84,7 @@ brew install sqlite3 coreutils diffutils gnu-sed gawk jq python-yq
 
 ```sh
 # dependency
-brew install grep gnu-sed gawk coreutils
+brew install grep coreutils
 ```
 
 - `pipf` : pip3 [package]
@@ -93,7 +93,7 @@ brew install grep gnu-sed gawk coreutils
 
 ```sh
 # dependency
-brew install git-extras coreutils gnu-sed gh
+brew install git-extras coreutils gh
 ```
 
 - `gitf` : git [package]
@@ -154,5 +154,6 @@ FZF_COLLECTION_BROWSER="chrome"
 ## todo
 
 - [x] brew sign: formulae or cask brew info --formula/--cask
-- [ ] fzf: proxy gem npm cargo
 - [x] brewf-rollback: inhibit reinstall same commit
+- [ ] fzf: proxy gem npm cargo cpan
+- [ ] remove sed,tr,awk dependecies with perl

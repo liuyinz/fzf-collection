@@ -148,7 +148,7 @@ brewf-manage() {
         brew list --formulae --versions
         brew list --cask --versions
       } \
-        | sed 's/ /|/2g' \
+        | perl -ane 'printf "%s %s\n", $F[0], join"|",@F[1 .. $#F]' \
         | _brewf_list_format \
         | tee $tmpfile \
         | _fzf_multi_header \

@@ -74,10 +74,10 @@ bhf() {
 
   # SEE https://superuser.com/a/555520
   sqlite3 -separator $sep "${asso_browser[tmp]}/history" "${asso_browser[history_sql]}" \
-    | perl -F$sep -lne 'printf "\x1b[33m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s\x1b[m  %s\n", $F[0], $F[1]' \
+    | perl -F$sep -lne 'printf "\x1b[33m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s  \x1b[m%s\n", $F[0], $F[1]' \
     | uniq -u \
     | _fzf_multi_header \
-    | sed 's#.*\(https*://\)#\1#' \
+    | perl -lane 'print $F[-1]' \
     | xargs -r open -a "${asso_browser[name]}" &>/dev/null
 }
 
@@ -109,9 +109,9 @@ join("/") } |
  .path + "/" + .name + "\t" + .url'
 
       jq -r "$jq_script" <"${asso_browser[tmp]}/bookmark" \
-        | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[33m\\2\x1b[m/g' \
+        | perl -F'\t' -lne 'printf "%s\t\x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
         | _fzf_multi_header --no-hscroll --tiebreak=begin \
-        | perl -F'\t' -lne 'print $F[1]' \
+        | perl -F'\t' -lne 'print $F[-1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
 
@@ -133,7 +133,7 @@ join("/")} |
 .path + "/" + .name + "\t" + .url'
 
       plutil -convert xml1 "${asso_browser[tmp]}/bookmark" -o - | xq -r "$jq_script" \
-        | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[33m\\2\x1b[m/g' \
+        | perl -F'\t' -lne 'printf "%s\t\x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
         | _fzf_multi_header --no-hscroll --tiebreak=begin \
         | perl -F'\t' -lne 'print $F[1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
@@ -149,7 +149,7 @@ moz_places P on B.fk = P.id order by visit_count desc"
       sqlite3 -separator $sep "${asso_browser[tmp]}/bookmark" "$sql" \
         | perl -F$sep -lne 'printf "%-'"$cols"'s  \x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
         | _fzf_multi_header \
-        | sed 's#.*\(https*://\)#\1#' \
+        | perl -lane 'print $F[-1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
   esac

@@ -6,7 +6,7 @@ _gitf_sha() {
   commit=$(
     git log --pretty=oneline --abbrev-commit \
       | _fzf_single_header \
-      | sed "s/ .*//"
+      | perl -lane 'print $F[0]'
   )
 
   echo "$commit"
@@ -27,10 +27,9 @@ gitf-submodule() {
   header="Git Submodule"
   # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
   module=$(
-    git config -z --file \
+    git config --file \
       "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
-      | sed -nz 's/^[^\n]*\n//p' \
-      | perl -pe 's/\0/\n/g' \
+      | perl -lane 'print $F[1]' \
       | _fzf_multi_header
   )
 
@@ -108,7 +107,7 @@ gitf-ignoreio() {
   local inst
   inst=$(
     git ignore-io -l \
-      | sed -e "s/[[:space:]]\+/\n/g" \
+      | perl -lpe 's/\s+/\n/g' \
       | _fzf_multi_header
   )
 
