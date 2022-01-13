@@ -21,36 +21,6 @@ gitf-commit() {
   fi
 }
 
-gitf-branch() {
-  local tags
-  local branches
-  local target
-
-  tags="$(git tag | perl -lane 'printf "\x1b[31;1mtag\x1b[m\t%s", $F[0]')" || return
-
-  branches="$(
-    git branch --all \
-      | grep -v HEAD \
-      | sed 's/.* //' \
-      | sed 's#remotes/[^/]*/##' \
-      | sort -u \
-      | perl -lane '{printf "\x1b[34;1mbranch\x1b[m\t%s", $F[0]}'
-  )" || return
-
-  target="$(
-    printf '%s\n%s' "$tags" "$branches" \
-      | fzf \
-        --no-hscroll \
-        --ansi \
-        +m \
-        -d '\t' \
-        -n 2 \
-        -q "$*"
-  )" || return
-
-  git checkout "$(echo "$target" | perl -lane 'print $F[1]')"
-}
-
 gitf-submodule() {
   local module subcmd header
 
@@ -163,7 +133,6 @@ gitf() {
   if [ -n "$select" ]; then
     case $select in
       submodule) gitf-submodule ;;
-      branch) gitf-branch ;;
       commit) gitf-commit ;;
       ignoreio) gitf-ignoreio ;;
       stash) gitf-stash ;;
