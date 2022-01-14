@@ -36,7 +36,7 @@ gitf-submodule() {
   if [ -n "$module" ]; then
     # shellcheck disable=SC2028
     subcmd=$(
-      echo "update-remote\ndelete\nbrowse\nhome\ninit\ndeinit\nupdate-init" \
+      echo "update-remote\ndelete\nhomepage\ndir\ninit\ndeinit\nupdate-init" \
         | _fzf_single_header
     )
 
@@ -50,11 +50,11 @@ gitf-submodule() {
         delete)
           git delete-submodule --force "$f" >/dev/null 2>&1
           ;;
-        browse)
+        homepage)
           # SEE https://stackoverflow.com/a/786515/13194984
           (cd "$f" && exec gh browse)
           ;;
-        home)
+        dir)
           cd "$f" || exit
           ;;
         update-init)

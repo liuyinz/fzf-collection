@@ -101,8 +101,8 @@ brewf-search() {
   header="Brew Search"
   tmpfile=/tmp/brewf-search
 
-  opt=("install" "rollback" "options" "info" "deps" "uses" "edit" "cat"
-    "home" "uninstall" "link" "unlink" "pin" "unpin")
+  opt=("install" "rollback" "options" "homepage" "info" "deps" "uses" "edit" "cat"
+    "uninstall" "link" "unlink" "pin" "unpin")
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
@@ -137,8 +137,8 @@ brewf-manage() {
   header="Brew Manage"
   tmpfile=/tmp/brewf-manage
 
-  opt=("uninstall" "rollback" "link" "unlink" "pin" "unpin"
-    "options" "info" "deps" "uses" "edit" "cat" "home")
+  opt=("uninstall" "rollback" "homepage" "link" "unlink" "pin" "unpin"
+    "options" "info" "deps" "uses" "edit" "cat")
 
   if [ ! -e $tmpfile ]; then
     touch $tmpfile
@@ -174,7 +174,7 @@ brewf-outdated() {
 
   header="Brew Outdated"
   tmpfile=/tmp/brewf-outdated
-  opt=("upgrade" "uninstall" "rollback" "options" "info" "deps" "edit" "cat" "home")
+  opt=("upgrade" "uninstall" "rollback" "options" "homepage" "info" "deps" "edit" "cat")
 
   if [ ! -e $tmpfile ]; then
     brew update
