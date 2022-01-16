@@ -18,6 +18,7 @@ if [ -z "$FZF_COLLECTION_MODULES" ]; then
     browser
     brew
     pip
+    proxy
     git
     gh
     other
