@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+_fzf_opts=($(echo "${FZF_COLLECTION_OPTS}"))
+
 ## Add underline
 __underline_string() {
   printf '%s\n' "$1"
@@ -12,16 +14,16 @@ _headerf() {
 }
 
 _fzf_single() {
-  fzf "${fzf_opts[@]}" "$@"
+  fzf "${_fzf_opts[@]}" "$@"
 }
 
 _fzf_multi() {
-  fzf "${fzf_opts[@]}" --multi "$@"
+  fzf "${_fzf_opts[@]}" --multi "$@"
 }
 
 _fzf_single_header() {
   fzf \
-    "${fzf_opts[@]}" \
+    "${_fzf_opts[@]}" \
     --header \
     "$(__underline_string "$header")" \
     "$@"
@@ -29,7 +31,7 @@ _fzf_single_header() {
 
 _fzf_multi_header() {
   fzf \
-    "${fzf_opts[@]}" \
+    "${_fzf_opts[@]}" \
     --multi \
     --header \
     "$(__underline_string "$header")" \

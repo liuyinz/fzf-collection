@@ -13,8 +13,6 @@ if [ -z "$FZF_COLLECTION_OPTS" ]; then
   --bind=ctrl-u:cancel,ctrl-l:jump,ctrl-t:toggle-all,ctrl-v:clear-selection"
 fi
 
-fzf_opts=($(echo "${FZF_COLLECTION_OPTS}"))
-
 if [ -z "$FZF_COLLECTION_MODULES" ]; then
   FZF_COLLECTION_MODULES=(
     browser
