@@ -6,8 +6,7 @@ if [ -z "$FZF_COLLECTION_BROWSER" ]; then
     plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
       | grep 'https' -b1 \
       | head -1 \
-      | perl -F'"' -le 'print $F[-1]' \
-      | cut -d'.' -f3
+      | perl -lne '/".*\..*\.(.*?)"/ && print $1'
   )
 fi
 
