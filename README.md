@@ -64,8 +64,8 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 ## fzf-other
 
-- `fp` : find `$PATH`
-- `ffp` : find `$FPATH`
+- `fp`: find `$PATH`
+- `ffp`: find `$FPATH`
 
 ## fzf-browser
 
@@ -74,12 +74,19 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 brew install sqlite3 coreutils diffutils jq python-yq
 ```
 
-- `bhf` : history search for `Google Chrome` `Microsoft Edge` `Mozilla Firefox` `MacOs Safari`
-- `bbf` : bookmark search for `Google Chrome` `Microsoft Edge` `Mozilla Firefox`
+- `bhf`: history search
+- `bbf`: bookmark search
+
+Surpports:
+
+|       | Chrome | Edge | Firefox | Safari |
+| ----- | ------ | ---- | ------- | ------ |
+| `bhf` | Yes    | Yes  | Yes     | Yes    |
+| `bbf` | Yes    | Yes  | Yes     | No     |
 
 ## fzf-brew
 
-- `brewf` : brew [package]
+- `brewf`: `outdated` `search` `manage` `tap`
 
 ## fzf-pip
 
@@ -88,11 +95,11 @@ brew install sqlite3 coreutils diffutils jq python-yq
 brew install grep coreutils
 ```
 
-- `pipf` : pip3 [package]
+- `pipf`: `outdated` `search` `manage`
 
 ## fzf-proxy
 
-- `proxyf` : proxy switch, add
+- `proxyf`: `switch` `add`
 
 ## fzf-git
 
@@ -101,7 +108,7 @@ brew install grep coreutils
 brew install git-extras coreutils gh
 ```
 
-- `gitf` : git [package]
+- `gitf`: `submodule` `commit` `ignoreio` `stash`
 
 ## fzf-gh
 
@@ -109,7 +116,7 @@ brew install git-extras coreutils gh
 brew install gh jq
 ```
 
-- `ghf` : manage user/repos
+- `ghf`: manage user/repos
 
 # Envrionment
 

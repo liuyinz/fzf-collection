@@ -122,7 +122,7 @@ gitf() {
   local cmd select header
 
   header="Git Fzf"
-  cmd=("submodule" "branch" "commit" "ignoreio" "stash")
+  cmd=("submodule" "commit" "ignoreio" "stash")
   select=$(
     echo "${cmd[@]}" \
       | perl -pe 's/ /\n/g' \
