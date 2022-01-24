@@ -17,12 +17,14 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [fzf-browser](#fzf-browser)
   - [fzf-brew](#fzf-brew)
   - [fzf-pip](#fzf-pip)
+  - [fzf-proxy](#fzf-proxy)
   - [fzf-git](#fzf-git)
   - [fzf-gh](#fzf-gh)
 - [Envrionment](#envrionment)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
-  - [FZF_COLLECTION_BROWSER](#fzf_collection_browser)
+  - [BROWSERF_DEFAULT](#browserf_default)
+  - [PROXYF_URLS](#proxyf_urls)
   - [todo](#todo)
 
 <!-- markdown-toc end -->
@@ -64,7 +66,6 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 - `fp` : find `$PATH`
 - `ffp` : find `$FPATH`
-- `kp` : kill process
 
 ## fzf-browser
 
@@ -88,6 +89,10 @@ brew install grep coreutils
 ```
 
 - `pipf` : pip3 [package]
+
+## fzf-proxy
+
+- `proxyf` : proxy switch, add
 
 ## fzf-git
 
@@ -115,12 +120,14 @@ By default, all modules are loaded.
 
 ```sh
 FZF_COLLECTION_MODULES=(
-  default
   browser
   brew
   pip
+  proxy
   git
-  gh)
+  gh
+  other
+  )
 ```
 
 ## FZF_COLLECTION_OPTS
@@ -142,13 +149,22 @@ Setting `FZF_COLLECTION_OPTS` to customize fzf options.
   --bind=ctrl-u:cancel,ctrl-l:jump,ctrl-t:toggle-all,ctrl-v:clear-selection"
 ```
 
-## FZF_COLLECTION_BROWSER
+## BROWSERF_DEFAULT
 
-Settng `FZF_COLLECTION_BROWSER` to open url, use default browser if not set.
+Settng `BROWSERF_DEFAULT` to open url, use default browser if not set.
 
 ```sh
 # choose from "chorme" "edgemac" "firefox" "safari"
-FZF_COLLECTION_BROWSER="chrome"
+BROWSERF_DEFAULT="chrome"
+```
+
+## PROXYF_URLS
+
+Setting `PROXYF_URLS` to provide urls for switch:
+
+```sh
+# usually for https and socks, comman seperated.
+PROXYF_URLS="http://127.0.0.1:1234,socks://127.0.0.1:1234"
 ```
 
 ## todo
@@ -156,4 +172,4 @@ FZF_COLLECTION_BROWSER="chrome"
 - [x] brew sign: formulae or cask brew info --formula/--cask
 - [x] brewf-rollback: inhibit reinstall same commit
 - [ ] fzf: proxy gem npm cargo cpan
-- [ ] remove sed,tr,awk dependecies with perl
+- [x] remove sed,tr,awk dependecies with perl

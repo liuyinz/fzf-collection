@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
-if [ -z "$FZF_COLLECTION_BROWSER" ]; then
+if [ -z "$BROWSERF_DEFAULT" ]; then
   # SEE https://stackoverflow.com/a/66026925/13194984
-  FZF_COLLECTION_BROWSER=$(
+  BROWSERF_DEFAULT=$(
     plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
       | grep 'https' -b1 \
       | head -1 \
@@ -14,7 +14,7 @@ prefix_path="$HOME/Library/Application Support"
 
 declare -A asso_browser
 
-case $FZF_COLLECTION_BROWSER in
+case $BROWSERF_DEFAULT in
   chrome)
     asso_browser=(
       [name]="Google Chrome"
@@ -65,7 +65,7 @@ bhf() {
   local sep header
 
   sep='::'
-  header="History: $FZF_COLLECTION_BROWSER"
+  header="History: $BROWSERF_DEFAULT"
 
   if ! cmp -s "${asso_browser[history]}" "${asso_browser[tmp]}/history"; then
     cp -f "${asso_browser[history]}" "${asso_browser[tmp]}/history"
@@ -86,13 +86,13 @@ bhf() {
 bbf() {
   local header
 
-  header="Bookmark: $FZF_COLLECTION_BROWSER"
+  header="Bookmark: $BROWSERF_DEFAULT"
 
   if ! cmp -s "${asso_browser[bookmark]}" "${asso_browser[tmp]}/bookmark"; then
     cp -f "${asso_browser[bookmark]}" "${asso_browser[tmp]}/bookmark"
   fi
 
-  case $FZF_COLLECTION_BROWSER in
+  case $BROWSERF_DEFAULT in
     chrome | edgemac)
       which jq >/dev/null 2>&1 || echo "jq is not installed !!!"
 
