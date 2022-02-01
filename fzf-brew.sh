@@ -184,9 +184,9 @@ brewf-outdated() {
         brew outdated --formula --verbose
         brew outdated --cask --greedy --verbose
       } \
+        | grep -Fv "pinned at" \
         | perl -pe 's/, /|/g; tr/()//d' \
-        | _brewf_list_format \
-        | grep -Fv "pinned at"
+        | _brewf_list_format
     )
 
     if [ -n "$outdate_list" ]; then
