@@ -5,9 +5,9 @@ ghf() {
 
   header="Gh Fzf"
   tmpfile=/tmp/ghf
+  user=$(gh api user --jq '.login')
 
   if [ ! -e $tmpfile ]; then
-    user=$(gh api user --jq '.login')
     touch $tmpfile
     inst=$(
       gh api users/"$user"/repos --paginate --jq '.[].name' \
