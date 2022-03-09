@@ -29,7 +29,7 @@ _brewf_switch() {
     for f in $(echo "$1"); do
       case $subcmd in
         rollback)
-          _brew_rollback "$f"
+          _brewf_rollback "$f"
           ;;
         edit)
           $EDITOR "$(brew formula "$f")"
