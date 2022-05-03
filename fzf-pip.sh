@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 _pipf_list() {
-  pip3 list --version "$@" | tail -n +3
+  pip list --version "$@" | tail -n +3
 }
 
 _pipf_list_format() {
@@ -11,7 +11,7 @@ _pipf_list_format() {
 
   if [[ -n "$input" ]]; then
 
-    pkg=$(pip3 list --not-required | tail -n +3 | perl -lane 'print $F[0]')
+    pkg=$(pip list --not-required | tail -n +3 | perl -lane 'print $F[0]')
 
     echo "$input" \
       | perl -sane '
@@ -30,25 +30,25 @@ _pipf_switch() {
     for f in $(echo "$1"); do
       case $subcmd in
         upgrade)
-          if pip3 install --user --upgrade "$f"; then
+          if pip install --user --upgrade "$f"; then
             perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
           fi
           ;;
         uninstall)
-          if pip3 uninstall --yes "$f"; then
+          if pip uninstall --yes "$f"; then
             perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
           fi
           ;;
         install)
-          pip3 install --user "$f"
+          pip install --user "$f"
           ;;
         rollback)
           _pipf_rollback "$f"
           ;;
         info)
-          pip3 show "$f"
+          pip show "$f"
           ;;
-        *) pip3 "$subcmd" "$f" ;;
+        *) pip "$subcmd" "$f" ;;
       esac
       echo ""
     done
@@ -70,7 +70,7 @@ _pipf_rollback() {
 
   header="Pip Rollback"
   version_list=$(
-    pip3 index versions --pre "$1" 2>/dev/null \
+    pip index versions --pre "$1" 2>/dev/null \
       | perl -lne '/Available versions: (.*)$/m && print $1' \
       | perl -pe 's/, /\n/g'
   )
@@ -80,7 +80,7 @@ _pipf_rollback() {
     version=$(echo "$version_list" | _fzf_single_header)
 
     if [ -n "$version" ]; then
-      pip3 install --upgrade --force-reinstall "$f==$version" 2>/dev/null
+      pip install --upgrade --force-reinstall "$f==$version" 2>/dev/null
     else
       echo "Rollback cancel." && return 0
     fi
@@ -102,7 +102,7 @@ pipf-search() {
     touch $tmpfile
 
     inst=$(
-      curl -s "$(pip3 config get global.index-url)/" \
+      curl -s "$(pip config get global.index-url)/" \
         | perl -lne '/">(.*?)<\/a>/ && print $1' \
         | tee $tmpfile \
         | _fzf_multi_header --tiebreak=begin,index \
