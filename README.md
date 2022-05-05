@@ -170,7 +170,7 @@ BROWSERF_DEFAULT="chrome"
 Setting `PROXYF_URLS` to provide urls for switch:
 
 ```sh
-# usually for https and socks, comman seperated.
+# usually for https and socks, comma seperated.
 PROXYF_URLS="http://127.0.0.1:1234,socks://127.0.0.1:1234"
 ```
 
@@ -180,3 +180,6 @@ PROXYF_URLS="http://127.0.0.1:1234,socks://127.0.0.1:1234"
 - [x] brewf-rollback: inhibit reinstall same commit
 - [ ] fzf: proxy gem npm cargo cpan
 - [x] remove sed,tr,awk dependecies with perl
+- [ ] add proxy restore for initial proxy status
+- [ ] use qypi to rewrite logic
+
