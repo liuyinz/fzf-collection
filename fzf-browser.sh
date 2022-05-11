@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 
 if [ -z "$BROWSERF_DEFAULT" ]; then
   # SEE https://stackoverflow.com/a/66026925/13194984
