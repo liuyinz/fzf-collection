@@ -30,6 +30,7 @@ gitf-submodule() {
     git config --file \
       "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
       | perl -lane 'print $F[1]' \
+      | sort -f \
       | _fzf_multi_header
   )
 
