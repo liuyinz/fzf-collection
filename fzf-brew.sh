@@ -262,11 +262,53 @@ brewf-tap() {
 
 }
 
+brewf-pinned() {
+  local tmpfile inst opt header
+
+  header="Brew Pinned"
+  tmpfile=$(_fzf_temp_file)
+
+  if [ ! -e $tmpfile ]; then
+    pinned_list=$(brew ls --pinned)
+
+    if [ -n "$pinned_list" ]; then
+      touch $tmpfile
+      inst=$(echo "$pinned_list" | tee $tmpfile | _fzf_multi_header)
+    else
+      echo "No formulae is pinned."
+      return 0
+    fi
+
+  else
+
+    if [ -s $tmpfile ]; then
+      inst=$(cat <$tmpfile | _fzf_multi_header)
+    else
+      echo "No formulae is pinned."
+      rm -f $tmpfile && return 0
+    fi
+  fi
+
+  if [ -n "$inst" ]; then
+    for f in $(echo "$inst"); do
+      if brew unpin "$f"; then
+        perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
+      fi
+    done
+  else
+    echo "Unpin cancel."
+    rm -f $tmpfile && return 0
+  fi
+
+  brewf-pinned
+
+}
+
 brewf() {
   local opt select header
 
   header="Brew Fzf"
-  opt=("outdated" "search" "manage" "tap")
+  opt=("outdated" "search" "manage" "pinned" "tap")
   select=$(
     echo "${opt[@]}" \
       | perl -pe 's/ /\n/g' \
@@ -278,6 +320,7 @@ brewf() {
       outdated) brewf-outdated ;;
       search) brewf-search ;;
       manage) brewf-manage ;;
+      pinned) brewf-pinned ;;
       tap) brewf-tap ;;
     esac
   fi
