@@ -99,7 +99,7 @@ brewf-search() {
   local tmpfile inst opt header
 
   header="Brew Search"
-  tmpfile=/tmp/brewf-search
+  tmpfile=$(_fzf_temp_file)
 
   opt=("install" "rollback" "options" "homepage" "info" "deps" "uses" "edit" "cat"
     "uninstall" "link" "unlink" "pin" "unpin")
@@ -135,7 +135,7 @@ brewf-manage() {
   local tmpfile inst opt header
 
   header="Brew Manage"
-  tmpfile=/tmp/brewf-manage
+  tmpfile=$(_fzf_temp_file)
 
   opt=("uninstall" "rollback" "homepage" "link" "unlink" "pin" "unpin"
     "options" "info" "deps" "uses" "edit" "cat")
@@ -173,7 +173,7 @@ brewf-outdated() {
   local tmpfile outdate_list inst opt header
 
   header="Brew Outdated"
-  tmpfile=/tmp/brewf-outdated
+  tmpfile=$(_fzf_temp_file)
   opt=("upgrade" "uninstall" "rollback" "options" "homepage" "info" "deps" "edit" "cat")
 
   if [ ! -e $tmpfile ]; then
@@ -227,7 +227,7 @@ brewf-tap() {
   local tmpfile inst opt header
 
   header="Brew Tap"
-  tmpfile=/tmp/brewf-tap
+  tmpfile=$(_fzf_temp_file)
   opt=("untap" "tap-info")
 
   if [ ! -e $tmpfile ]; then

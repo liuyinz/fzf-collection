@@ -94,7 +94,7 @@ pipf-search() {
   local tmpfile inst opt header
 
   header="Pip Search"
-  tmpfile=/tmp/pipf-search
+  tmpfile=$(_fzf_temp_file)
 
   opt=("install" "uninstall" "rollback")
 
@@ -127,7 +127,7 @@ pipf-manage() {
   local tmpfile inst header opt
 
   header="Pip Manage"
-  tmpfile=/tmp/pipf-manage
+  tmpfile=$(_fzf_temp_file)
   opt=("uninstall" "rollback" "info")
 
   if [ ! -e $tmpfile ]; then
@@ -160,7 +160,7 @@ pipf-outdated() {
   local inst header opt
 
   header="Pip Outdated"
-  tmpfile=/tmp/pipf-outdated
+  tmpfile=$(_fzf_temp_file)
   opt=("upgrade" "uninstall" "info" "rollback")
 
   if [ ! -e $tmpfile ]; then

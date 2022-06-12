@@ -4,7 +4,7 @@ ghf() {
   local tmpfile user header
 
   header="Gh Fzf"
-  tmpfile=/tmp/ghf
+  tmpfile=$(_fzf_temp_file)
   user=$(gh api user --jq '.login')
 
   if [ ! -e $tmpfile ]; then

@@ -37,3 +37,7 @@ _fzf_multi_header() {
     "$(__underline_string "$header")" \
     "$@"
 }
+
+_fzf_temp_file() {
+  echo "/tmp/${header// /-}.lock"
+}
