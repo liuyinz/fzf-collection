@@ -1,29 +1,10 @@
 #!/usr/bin/env bash
 
-_brewf_list_format() {
-  local input fle
-
-  input="$([[ -p /dev/stdin ]] && cat - || return)"
-
-  if [ -n "$input" ]; then
-
-    fle=$(brew formulae)
-
-    # SEE https://stackoverflow.com/a/3322211/13194984
-    echo "$input" \
-      | perl -sane '
-$sign = ($fle =~ /^\Q$F[0]\E$/im ? "\x1b[33mformula" : "\x1b[31mcask" );
-printf "%s \x1b[34m%s %s%s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;
-' -- -fle="$fle" \
-      | column -t -s ' '
-  fi
-}
-
 # SEE https://gist.github.com/steakknife/8294792
 
 _brewf_switch() {
 
-  subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single_header)
+  subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
 
   if [ -n "$subcmd" ]; then
     for f in $(echo "$1"); do
@@ -35,10 +16,7 @@ _brewf_switch() {
           $EDITOR "$(brew formula "$f")"
           ;;
         upgrade | uninstall | untap)
-          if brew "$subcmd" "$f"; then
-            # SEE https://stackoverflow.com/a/24493085/13194984
-            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
-          fi
+          brew "$subcmd" "$f" && _fzf_tmpfile_shift "$f"
           ;;
         uses)
           brew uses --installed "$f"
@@ -63,15 +41,14 @@ _brewf_switch() {
 _brewf_rollback() {
   local f dir sha header
 
-  header="Brew Rollback"
+  header=$(_fzf_header)
   f="$1.rb"
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
 
   if [ -n "$dir" ]; then
     sha=$(
       git -C "$dir" log --color=always -- "$f" \
-        | _fzf_single_header --tiebreak=index --query="$1 update" \
-        | perl -lane 'print $F[0]'
+        | _fzf_single --tiebreak=index --query="$1 update"
     )
 
     if [ -n "$sha" ]; then
@@ -98,33 +75,31 @@ _brewf_rollback() {
 brewf-search() {
   local tmpfile inst opt header
 
-  header="Brew Search"
-  tmpfile=$(_fzf_temp_file)
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
 
   opt=("install" "rollback" "options" "homepage" "info" "deps" "uses" "edit" "cat"
     "uninstall" "link" "unlink" "pin" "unpin")
 
-  if [ ! -e $tmpfile ]; then
-    touch $tmpfile
+  if [ ! -e "$tmpfile" ]; then
+    touch "$tmpfile"
 
     inst=$(
       {
         brew formulae
         brew casks
       } \
-        | tee $tmpfile \
-        | _fzf_multi_header \
-        | perl -lane 'print $F[0]'
+        | _fzf_tmpfile_write
     )
 
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+    inst=$(_fzf_tmpfile_read)
   fi
 
   if [ -n "$inst" ]; then
     _brewf_switch "$inst" "${opt[@]}"
   else
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   brewf-search
@@ -134,35 +109,39 @@ brewf-search() {
 brewf-manage() {
   local tmpfile inst opt header
 
-  header="Brew Manage"
-  tmpfile=$(_fzf_temp_file)
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
 
   opt=("uninstall" "rollback" "homepage" "link" "unlink" "pin" "unpin"
     "options" "info" "deps" "uses" "edit" "cat")
 
-  if [ ! -e $tmpfile ]; then
-    touch $tmpfile
+  if [ ! -e "$tmpfile" ]; then
+    touch "$tmpfile"
 
     inst=$(
-      {
-        brew list --formulae --versions
-        brew list --cask --versions
-      } \
+      brew list --versions \
         | perl -ane 'printf "%s %s\n", $F[0], join"|",@F[1 .. $#F]' \
-        | _brewf_list_format \
-        | tee $tmpfile \
-        | _fzf_multi_header \
-        | perl -lane 'print $F[0]'
+        | _fzf_format manage \
+        | _fzf_tmpfile_write
     )
 
+    # # NOTE time consuming is as twice as above
+    # inst=$(
+    #   brew info --json=v2 --installed \
+    #     | jq -r '.[] | values[] | "\(.name | if type=="array" then .[0] else . end) \(.installed | if type=="array" then map(.version) | join("|") else . end)"' \
+    #     | _fzf_format manage \
+    #     | _fzf_tmpfile_write
+    # )
+
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+
+    inst=$(_fzf_tmpfile_read)
   fi
 
   if [ -n "$inst" ]; then
     _brewf_switch "$inst" "${opt[@]}"
   else
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   brewf-manage
@@ -170,33 +149,33 @@ brewf-manage() {
 }
 
 brewf-outdated() {
-  local tmpfile outdate_list inst opt header
+  local tmpfile outdated_list inst opt header
 
-  header="Brew Outdated"
-  tmpfile=$(_fzf_temp_file)
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
   opt=("upgrade" "uninstall" "rollback" "options" "homepage" "info" "deps" "edit" "cat")
 
-  if [ ! -e $tmpfile ]; then
+  if [ ! -e "$tmpfile" ]; then
     brew update
 
-    outdate_list=$(
-      {
-        brew outdated --formula --verbose
-        brew outdated --cask --greedy --verbose
-      } \
+    # NOTE time consuming is as much as below
+    outdated_list=$(
+      brew outdated --greedy --verbose \
         | grep -Fv "pinned at" \
         | perl -pe 's/, /|/g; tr/()//d' \
-        | _brewf_list_format
+        | perl -ane 'printf "%s %s %s\n", $F[0], $F[1], $F[3]' \
+        | _fzf_format outdated
     )
 
-    if [ -n "$outdate_list" ]; then
-      touch $tmpfile
-      inst=$(
-        echo "$outdate_list" \
-          | tee $tmpfile \
-          | _fzf_multi_header \
-          | perl -lane 'print $F[0]'
-      )
+    # outdated_list=$(
+    #   brew outdated --greedy --json=v2 \
+    #     | jq -r '.[] | values[] | select(.pinned = false) | "\(.name) \(.installed_versions | if type=="array" then . | join("|") else . end) \(.current_version)"' \
+    #     | _fzf_format outdated
+    # )
+
+    if [ -n "$outdated_list" ]; then
+      touch "$tmpfile"
+      inst=$(echo "$outdated_list" | _fzf_tmpfile_write)
     else
       echo "No updates within installed formulae or cask."
       return 0
@@ -204,11 +183,11 @@ brewf-outdated() {
 
   else
 
-    if [ -s $tmpfile ]; then
-      inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+    if [ -s "$tmpfile" ]; then
+      inst=$(_fzf_tmpfile_read)
     else
       echo "Upgrade finished."
-      rm -f $tmpfile && return 0
+      rm -f "$tmpfile" && return 0
     fi
 
   fi
@@ -217,7 +196,7 @@ brewf-outdated() {
     _brewf_switch "$inst" "${opt[@]}"
   else
     echo "Upgrade cancel."
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   brewf-outdated
@@ -226,16 +205,16 @@ brewf-outdated() {
 brewf-tap() {
   local tmpfile inst opt header
 
-  header="Brew Tap"
-  tmpfile=$(_fzf_temp_file)
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
   opt=("untap" "tap-info")
 
-  if [ ! -e $tmpfile ]; then
+  if [ ! -e "$tmpfile" ]; then
     tap_list=$(brew tap)
 
     if [ -n "$tap_list" ]; then
-      touch $tmpfile
-      inst=$(echo "$tap_list" | tee $tmpfile | _fzf_multi_header)
+      touch "$tmpfile"
+      inst=$(echo "$tap_list" | _fzf_tmpfile_write)
     else
       echo "No taps used."
       return 0
@@ -243,11 +222,11 @@ brewf-tap() {
 
   else
 
-    if [ -s $tmpfile ]; then
-      inst=$(cat <$tmpfile | _fzf_multi_header)
+    if [ -s "$tmpfile" ]; then
+      inst=$(_fzf_tmpfile_read)
     else
       echo "Tap finished."
-      rm -f $tmpfile && return 0
+      rm -f "$tmpfile" && return 0
     fi
   fi
 
@@ -255,7 +234,7 @@ brewf-tap() {
     _brewf_switch "$inst" "${opt[@]}"
   else
     echo "Tap cancel."
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   brewf-tap
@@ -265,15 +244,15 @@ brewf-tap() {
 brewf-pinned() {
   local tmpfile inst opt header
 
-  header="Brew Pinned"
-  tmpfile=$(_fzf_temp_file)
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
 
-  if [ ! -e $tmpfile ]; then
-    pinned_list=$(brew ls --pinned)
+  if [ ! -e "$tmpfile" ]; then
+    pinned_list=$(brew ls --pinned --versions)
 
     if [ -n "$pinned_list" ]; then
-      touch $tmpfile
-      inst=$(echo "$pinned_list" | tee $tmpfile | _fzf_multi_header)
+      touch "$tmpfile"
+      inst=$(echo "$pinned_list" | _fzf_format pinned | _fzf_tmpfile_write)
     else
       echo "No formulae is pinned."
       return 0
@@ -281,23 +260,21 @@ brewf-pinned() {
 
   else
 
-    if [ -s $tmpfile ]; then
-      inst=$(cat <$tmpfile | _fzf_multi_header)
+    if [ -s "$tmpfile" ]; then
+      inst=$(_fzf_tmpfile_read)
     else
       echo "No formulae is pinned."
-      rm -f $tmpfile && return 0
+      rm -f "$tmpfile" && return 0
     fi
   fi
 
   if [ -n "$inst" ]; then
     for f in $(echo "$inst"); do
-      if brew unpin "$f"; then
-        perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
-      fi
+      brew unpin "$f" && _fzf_tmpfile_shift "$f"
     done
   else
     echo "Unpin cancel."
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   brewf-pinned
@@ -305,24 +282,11 @@ brewf-pinned() {
 }
 
 brewf() {
-  local opt select header
+  local cmd header
 
-  header="Brew Fzf"
-  opt=("outdated" "search" "manage" "pinned" "tap")
-  select=$(
-    echo "${opt[@]}" \
-      | perl -pe 's/ /\n/g' \
-      | _fzf_single_header
-  )
+  header=$(_fzf_header)
+  cmd=("outdated" "search" "manage" "pinned" "tap")
 
-  if [ -n "$select" ]; then
-    case $select in
-      outdated) brewf-outdated ;;
-      search) brewf-search ;;
-      manage) brewf-manage ;;
-      pinned) brewf-pinned ;;
-      tap) brewf-tap ;;
-    esac
-  fi
+  _fzf_command
 
 }

@@ -17,25 +17,27 @@ fp() {
     | perl -lane 'printf "%s \x1b[33m%s\x1b[0m\n", $F[0], $F[1]' \
     | uniq \
     | column -t -s ' ' \
-    | _fzf_single_header --tiebreak=index
+    | _fzf_single --tiebreak=index
 }
 
 # [F]ind [FP]ath
 
 ffp() {
-  local loc
+  local loc header
+  header="Find Fpath"
   loc=$(
     echo "$FPATH" \
       | perl -pe 's/:/\n/g' \
-      | _fzf_single --header "$(_headerf "Find Fpath")"
+      | _fzf_single
   )
 
   if [ -d "$loc" ]; then
+    header="Find Fpath => ${loc}"
     rg --files "$loc" \
       | rev \
       | cut -d"/" -f1 \
       | rev \
-      | _fzf_single --header "$(_headerf "Find Fpath => ${loc}")" >/dev/null
+      | _fzf_single >/dev/null
     ffp
   fi
 }

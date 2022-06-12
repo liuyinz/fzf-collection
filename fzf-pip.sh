@@ -1,43 +1,21 @@
 #!/usr/bin/env bash
 
 _pipf_list() {
-  pip list --version "$@" | tail -n +3
-}
-
-_pipf_list_format() {
-  local input pkg
-
-  input="$([[ -p /dev/stdin ]] && cat - || return)"
-
-  if [[ -n "$input" ]]; then
-
-    pkg=$(pip list --not-required | tail -n +3 | perl -lane 'print $F[0]')
-
-    echo "$input" \
-      | perl -sane '
-$sign = ($pkg !~ /^\Q$F[0]\E$/im ? "\x1b[31mdep" : "\x1b[33mpkg" );
-printf "%s \x1b[34m%s %s\x1b[0m\n", $F[0], join" ",@F[1 .. $#F], $sign;
-' -- -pkg="$pkg" \
-      | column -s ' ' -t
-  fi
+  pip list --format=json "$@"
 }
 
 _pipf_switch() {
 
-  subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single_header)
+  subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
 
   if [ -n "$subcmd" ]; then
     for f in $(echo "$1"); do
       case $subcmd in
         upgrade)
-          if pip install --user --upgrade "$f"; then
-            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
-          fi
+          pip install --user --upgrade "$f" && _fzf_tmpfile_shift "$f"
           ;;
         uninstall)
-          if pip uninstall --yes "$f"; then
-            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
-          fi
+          pip uninstall --yes "$f" && _fzf_tmpfile_shift "$f"
           ;;
         install)
           pip install --user "$f"
@@ -68,7 +46,7 @@ _pipf_switch() {
 _pipf_rollback() {
   local version_list version header
 
-  header="Pip Rollback"
+  header=$(_fzf_header)
   version_list=$(
     pip index versions --pre "$1" 2>/dev/null \
       | perl -lne '/Available versions: (.*)$/m && print $1' \
@@ -77,7 +55,7 @@ _pipf_rollback() {
 
   if [ -n "$version_list" ]; then
 
-    version=$(echo "$version_list" | _fzf_single_header)
+    version=$(echo "$version_list" | _fzf_single)
 
     if [ -n "$version" ]; then
       pip install --upgrade --force-reinstall "$f==$version" 2>/dev/null
@@ -90,95 +68,86 @@ _pipf_rollback() {
   fi
 }
 
-pipf-search() {
-  local tmpfile inst opt header
-
-  header="Pip Search"
-  tmpfile=$(_fzf_temp_file)
-
-  opt=("install" "uninstall" "rollback")
-
-  if [ ! -e $tmpfile ]; then
-    touch $tmpfile
-
-    inst=$(
-      curl -s "$(pip config get global.index-url)/" \
-        | perl -lne '/">(.*?)<\/a>/ && print $1' \
-        | tee $tmpfile \
-        | _fzf_multi_header --tiebreak=begin,index \
-        | perl -lane 'print $F[0]'
-    )
-
-  else
-    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
-  fi
-
-  if [ -n "$inst" ]; then
-    _pipf_switch "$inst" "${opt[@]}"
-  else
-    rm -f $tmpfile && return 0
-  fi
-
-  pipf-search
-
-}
-
 pipf-manage() {
   local tmpfile inst header opt
 
-  header="Pip Manage"
-  tmpfile=$(_fzf_temp_file)
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
   opt=("uninstall" "rollback" "info")
 
-  if [ ! -e $tmpfile ]; then
-    touch $tmpfile
+  if [ ! -e "$tmpfile" ]; then
+    touch "$tmpfile"
 
     inst=$(
       _pipf_list \
-        | perl -lane 'print join" ",@F[0..$#F]' \
-        | _pipf_list_format \
-        | tee $tmpfile \
-        | _fzf_multi_header --tiebreak=begin,index \
-        | perl -lane 'print $F[0]'
+        | jq -r '.[] | "\(.name) \(.version)"' \
+        | _fzf_format manage \
+        | _fzf_tmpfile_write
     )
 
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+    inst=$(_fzf_tmpfile_read)
   fi
 
   if [ -n "$inst" ]; then
     _pipf_switch "$inst" "${opt[@]}"
   else
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   pipf-manage
 
 }
 
-pipf-outdated() {
-  local inst header opt
+pipf-search() {
+  local tmpfile inst opt header
 
-  header="Pip Outdated"
-  tmpfile=$(_fzf_temp_file)
-  opt=("upgrade" "uninstall" "info" "rollback")
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
 
-  if [ ! -e $tmpfile ]; then
+  opt=("install" "uninstall" "rollback")
 
-    outdate_list=$(
-      _pipf_list --outdated \
-        | perl -lane 'printf "%s %s -> %s\n", $F[0], $F[1], $F[2]' \
-        | _pipf_list_format
+  if [ ! -e "$tmpfile" ]; then
+    touch "$tmpfile"
+
+    inst=$(
+      curl -s "$(pip config get global.index-url)/" \
+        | perl -lne '/">(.*?)<\/a>/ && print $1' \
+        | _fzf_tmpfile_write
     )
 
-    if [ -n "$outdate_list" ]; then
-      touch $tmpfile
-      inst=$(
-        echo "$outdate_list" \
-          | tee $tmpfile \
-          | _fzf_multi_header --tiebreak=begin,index \
-          | perl -lane 'print $F[0]'
-      )
+  else
+    inst=$(_fzf_tmpfile_read)
+  fi
+
+  if [ -n "$inst" ]; then
+    _pipf_switch "$inst" "${opt[@]}"
+  else
+    rm -f "$tmpfile" && return 0
+  fi
+
+  pipf-search
+
+}
+
+pipf-outdated() {
+  local inst header opt tmpfile
+
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
+  opt=("upgrade" "uninstall" "info" "rollback")
+
+  if [ ! -e "$tmpfile" ]; then
+
+    outdated_list=$(
+      _pipf_list --outdated \
+        | jq -r '.[] | "\(.name) \(.version) \(.latest_version)"' \
+        | _fzf_format outdated
+    )
+
+    if [ -n "$outdated_list" ]; then
+      touch "$tmpfile"
+      inst=$(echo "$outdated_list" | _fzf_tmpfile_write)
     else
       echo "No updates in pip packages."
       return 0
@@ -186,11 +155,11 @@ pipf-outdated() {
 
   else
 
-    if [ -s $tmpfile ]; then
-      inst=$(cat <$tmpfile | _fzf_multi_header | perl -lane 'print $F[0]')
+    if [ -s "$tmpfile" ]; then
+      inst=$(_fzf_tmpfile_read)
     else
       echo "Upgrade finished."
-      rm -f $tmpfile && return 0
+      rm -f "$tmpfile" && return 0
     fi
 
   fi
@@ -199,29 +168,17 @@ pipf-outdated() {
     _pipf_switch "$inst" "${opt[@]}"
   else
     echo "Upgrade cancel."
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   pipf-outdated
 }
 
 pipf() {
-  local cmd select header
+  local cmd header
 
-  header="Pip Fzf"
+  header=$(_fzf_header)
   cmd=("outdated" "search" "manage")
-  select=$(
-    echo "${cmd[@]}" \
-      | perl -pe 's/ /\n/g' \
-      | _fzf_single_header
-  )
 
-  if [ -n "$select" ]; then
-    case $select in
-      outdated) pipf-outdated ;;
-      search) pipf-search ;;
-      manage) pipf-manage ;;
-    esac
-  fi
-
+  _fzf_command
 }

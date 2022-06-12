@@ -3,29 +3,27 @@
 ghf() {
   local tmpfile user header
 
-  header="Gh Fzf"
-  tmpfile=$(_fzf_temp_file)
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmpfile)
   user=$(gh api user --jq '.login')
 
-  if [ ! -e $tmpfile ]; then
-    touch $tmpfile
+  if [ ! -e "$tmpfile" ]; then
+    touch "$tmpfile"
     inst=$(
       gh api users/"$user"/repos --paginate --jq '.[].name' \
-        | tee $tmpfile \
-        | _fzf_multi_header
+        | _fzf_tmpfile_write
     )
   else
-    inst=$(cat <$tmpfile | _fzf_multi_header)
+    inst=$(_fzf_tmpfile_read)
   fi
 
   if [ -n "$inst" ]; then
-    subcmd=$(echo "delete-repo\nbrowse" | _fzf_single_header)
+    subcmd=$(echo "delete-repo\nbrowse" | _fzf_single)
     if [ -n "$subcmd" ]; then
       for f in $(echo "$inst"); do
         case $subcmd in
           delete-repo)
-            gh "$subcmd" "$user/$f"
-            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
+            gh "$subcmd" "$user/$f" && _fzf_tmpfile_shift "$f"
             ;;
           browse)
             gh browse --repo "$user/$f"
@@ -35,7 +33,7 @@ ghf() {
       done
     fi
   else
-    rm -f $tmpfile && return 0
+    rm -f "$tmpfile" && return 0
   fi
 
   ghf

@@ -1,23 +1,5 @@
 #!/usr/bin/env bash
 
-_npmf_format() {
-  local input rule
-
-  input="$([[ -p /dev/stdin ]] && cat - || return)"
-
-  case $1 in
-    manage | registry)
-      rule='printf "%s \x1b[34m%s\x1b[0m\n", $F[0], $F[$#F]'
-      ;;
-    outdated)
-      rule='printf "%s \x1b[34m%s\x1b[0m => \x1b[33m%s\x1b[0m\n", $F[0], $F[1], $F[2]'
-      ;;
-    *) echo "Argument error: No such $1" && return 0 ;;
-  esac
-
-  [ -n "$input" ] && echo "$input" | perl -sane "$rule" | column -s ' ' -t
-}
-
 _npmf_switch() {
 
   subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
@@ -26,14 +8,10 @@ _npmf_switch() {
     for f in $(echo "$1"); do
       case $subcmd in
         update)
-          if npm update --global "$f"; then
-            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
-          fi
+          npm update --global "$f" && _fzf_tmpfile_shift "$f"
           ;;
         uninstall)
-          if npm uninstall --global "$f"; then
-            perl -i -slne '/$f/||print' -- -f="$f" "$tmpfile"
-          fi
+          npm uninstall --global "$f" && _fzf_tmpfile_shift "$f"
           ;;
         install)
           npm install --global "$f"
@@ -102,7 +80,7 @@ npmf-manage() {
     inst=$(
       npm list --json --global \
         | jq -r '.dependencies | to_entries[] | "\(.key) \(.value | .version)"' \
-        | _npmf_format manage \
+        | _fzf_format manage \
         | _fzf_tmpfile_write
     )
 
@@ -128,15 +106,15 @@ npmf-outdated() {
   opt=("update" "uninstall" "rollback" "homepage" "deps" "info")
 
   if [ ! -e "$tmpfile" ]; then
-    outdate_list=$(
+    outdated_list=$(
       npm outdated --global --json \
         | jq -r 'to_entries[] | "\(.key) \(.value | .current) \(.value | .latest)"' \
-        | _npmf_format outdated
+        | _fzf_format outdated
     )
 
-    if [ -n "$outdate_list" ]; then
+    if [ -n "$outdated_list" ]; then
       touch "$tmpfile"
-      inst=$(echo "$outdate_list" | _fzf_tmpfile_write)
+      inst=$(echo "$outdated_list" | _fzf_tmpfile_write)
     else
       echo "No updates in npm packages."
       return 0
@@ -204,8 +182,8 @@ npmf-registry() {
     echo "Current: $(nrm current)"
   fi
 
-  # inst=$(nrm test | perl -pe's/..//' | _npmf_format registry | _fzf_single)
-  inst=$(nrm ls | tail -n +2 | _npmf_format registry | _fzf_single)
+  # inst=$(nrm test | perl -pe's/..//' | _fzf_format registry | _fzf_single)
+  inst=$(nrm ls | tail -n +2 | _fzf_format registry | _fzf_single)
 
   if [ -n "$inst" ]; then
     nrm use "$inst"

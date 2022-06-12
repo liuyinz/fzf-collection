@@ -9,6 +9,7 @@ if [ -z "$FZF_COLLECTION_OPTS" ]; then
   --sort
   --exact
   --info=inline
+  --tiebreak=begin,index
   --bind=change:first,btab:up+toggle,ctrl-n:down,ctrl-p:up
   --bind=ctrl-u:cancel,ctrl-l:jump,ctrl-t:toggle-all,ctrl-v:clear-selection"
 fi

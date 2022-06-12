@@ -75,7 +75,7 @@ bhf() {
   sqlite3 -separator $sep "${asso_browser[tmp]}/history" "${asso_browser[history_sql]}" \
     | perl -F$sep -lne 'printf "\x1b[33m%-'$((COLUMNS / 3))'.'$((COLUMNS / 3))'s  \x1b[m%s\n", $F[0], $F[1]' \
     | uniq -u \
-    | _fzf_multi_header \
+    | _fzf_multi \
     | perl -lane 'print $F[-1]' \
     | xargs -r open -a "${asso_browser[name]}" &>/dev/null
 }
@@ -109,7 +109,7 @@ join("/") } |
 
       jq -r "$jq_script" <"${asso_browser[tmp]}/bookmark" \
         | perl -F'\t' -lne 'printf "%s\t\x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
-        | _fzf_multi_header --no-hscroll --tiebreak=begin \
+        | _fzf_multi --no-hscroll --tiebreak=begin \
         | perl -F'\t' -lne 'print $F[-1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
@@ -133,7 +133,7 @@ join("/")} |
 
       plutil -convert xml1 "${asso_browser[tmp]}/bookmark" -o - | xq -r "$jq_script" \
         | perl -F'\t' -lne 'printf "%s\t\x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
-        | _fzf_multi_header --no-hscroll --tiebreak=begin \
+        | _fzf_multi --no-hscroll --tiebreak=begin \
         | perl -F'\t' -lne 'print $F[1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
@@ -147,7 +147,7 @@ join("/")} |
 moz_places P on B.fk = P.id order by visit_count desc"
       sqlite3 -separator $sep "${asso_browser[tmp]}/bookmark" "$sql" \
         | perl -F$sep -lne 'printf "%-'"$cols"'s  \x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
-        | _fzf_multi_header \
+        | _fzf_multi \
         | perl -lane 'print $F[-1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;

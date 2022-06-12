@@ -85,17 +85,17 @@ _proxyf_toggle_yarn() {
 proxyf-switch() {
   local header
 
-  header="Proxy Switch"
+  header=$(_fzf_header)
 
   select=$(
     _proxyf_format \
-      | _fzf_multi_header \
+      | _fzf_multi \
       | perl -lane 'print $F[0]'
   )
 
   if [ -n "$select" ]; then
 
-    url=$(echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_single_header)
+    url=$(echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_single)
 
     if [ -n "$url" ]; then
       for opt in $(echo "$select"); do
@@ -117,8 +117,8 @@ proxyf-switch() {
 proxyf-add() {
   local header new_type new_proxy
 
-  header="Proxy Add"
-  new_type=$(printf "http\nsocks" | _fzf_single_header)
+  header=$(_fzf_header)
+  new_type=$(printf "http\nsocks" | _fzf_single)
 
   if [ -n "$new_type" ]; then
     echo -n "[address:port] ${new_type}://"
@@ -134,29 +134,17 @@ proxyf-add() {
     fi
   fi
 
-  echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_single_header
+  echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_single
 
 }
 
 proxyf() {
-
   _proxyf_init
 
-  local cmd select header
+  local cmd header
 
-  header="Proxy Fzf"
+  header=$(_fzf_header)
   cmd=("switch" "add")
-  select=$(
-    echo "${cmd[@]}" \
-      | perl -pe 's/ /\n/g' \
-      | _fzf_single_header
-  )
 
-  if [ -n "$select" ]; then
-    case $select in
-      switch) proxyf-switch ;;
-      add) proxyf-add ;;
-    esac
-  fi
-
+  _fzf_command
 }

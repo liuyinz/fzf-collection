@@ -5,7 +5,7 @@ _gitf_sha() {
 
   commit=$(
     git log --pretty=oneline --abbrev-commit \
-      | _fzf_single_header \
+      | _fzf_single \
       | perl -lane 'print $F[0]'
   )
 
@@ -24,21 +24,21 @@ gitf-commit() {
 gitf-submodule() {
   local module subcmd header
 
-  header="Git Submodule"
+  header=$(_fzf_header)
   # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
   module=$(
     git config --file \
       "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
       | perl -lane 'print $F[1]' \
       | sort -f \
-      | _fzf_multi_header
+      | _fzf_multi
   )
 
   if [ -n "$module" ]; then
     # shellcheck disable=SC2028
     subcmd=$(
       echo "update-remote\ndelete\nhomepage\ndir\ninit\ndeinit\nupdate-init" \
-        | _fzf_single_header
+        | _fzf_single
     )
 
     for i in $(echo "$module"); do
@@ -75,10 +75,10 @@ gitf-submodule() {
 
 gitf-stash() {
   local inst header
-  header="Git Stash"
+  header=$(_fzf_header)
   inst=$(
     git stash list \
-      | _fzf_single_header \
+      | _fzf_single \
       | perl -F':' -lne 'print $F[1]' \
       | tac
   )
@@ -88,7 +88,7 @@ gitf-stash() {
 
     # shellcheck disable=SC2028
     subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" \
-      | _fzf_single_header)
+      | _fzf_single)
 
     if [ "$subcmd" = "branch" ]; then
       local name
@@ -109,7 +109,7 @@ gitf-ignoreio() {
   inst=$(
     git ignore-io -l \
       | perl -lpe 's/\s+/\n/g' \
-      | _fzf_multi_header
+      | _fzf_multi
   )
 
   if [ -n "$inst" ]; then
@@ -120,22 +120,10 @@ gitf-ignoreio() {
 }
 
 gitf() {
-  local cmd select header
+  local cmd header
 
-  header="Git Fzf"
+  header=$(_fzf_header)
   cmd=("submodule" "commit" "ignoreio" "stash")
-  select=$(
-    echo "${cmd[@]}" \
-      | perl -pe 's/ /\n/g' \
-      | _fzf_single_header
-  )
 
-  if [ -n "$select" ]; then
-    case $select in
-      submodule) gitf-submodule ;;
-      commit) gitf-commit ;;
-      ignoreio) gitf-ignoreio ;;
-      stash) gitf-stash ;;
-    esac
-  fi
+  _fzf_command
 }
