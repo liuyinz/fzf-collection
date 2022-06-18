@@ -17,6 +17,7 @@ if [ -z "$FZF_COLLECTION_MODULES" ]; then
   FZF_COLLECTION_MODULES=(
     browser
     brew
+    npm
     pip
     proxy
     git

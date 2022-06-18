@@ -13,13 +13,14 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [Manual](#manual)
   - [Oh-My-Zsh](#oh-my-zsh)
 - [Commands](#commands)
-  - [fzf-other](#fzf-other)
-  - [fzf-browser](#fzf-browser)
   - [fzf-brew](#fzf-brew)
   - [fzf-pip](#fzf-pip)
+  - [fzf-npm](#fzf-npm)
   - [fzf-proxy](#fzf-proxy)
   - [fzf-git](#fzf-git)
   - [fzf-gh](#fzf-gh)
+  - [fzf-other](#fzf-other)
+  - [fzf-browser](#fzf-browser)
 - [Envrionment](#envrionment)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
@@ -62,28 +63,6 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 
 # Commands
 
-## fzf-other
-
-- `fp`: find `$PATH`
-- `ffp`: find `$FPATH`
-
-## fzf-browser
-
-```sh
-# dependency
-brew install sqlite3 coreutils diffutils jq python-yq
-```
-
-- `bhf`: history search
-- `bbf`: bookmark search
-
-Surpports:
-
-|       | Chrome | Edge | Firefox | Safari |
-| ----- | ------ | ---- | ------- | ------ |
-| `bhf` | Yes    | Yes  | Yes     | Yes    |
-| `bbf` | Yes    | Yes  | Yes     | No     |
-
 ## fzf-brew
 
 - `brewf`: `outdated` `search` `manage` `tap`
@@ -96,6 +75,10 @@ brew install grep coreutils
 ```
 
 - `pipf`: `outdated` `search` `manage`
+
+## fzf-npm
+
+- `npmf`: `manage` `outdated` `search` `registry`
 
 ## fzf-proxy
 
@@ -117,6 +100,28 @@ brew install gh jq
 ```
 
 - `ghf`: manage user/repos
+
+## fzf-other
+
+- `fp`: find `$PATH`
+- `ffp`: find `$FPATH`
+
+## fzf-browser
+
+```sh
+# dependency
+brew install sqlite3 coreutils diffutils jq python-yq
+```
+
+- `bhf`: history search
+- `bbf`: bookmark search
+
+Surpports:
+
+|       | Chrome | Edge | Firefox | Safari |
+| ----- | ------ | ---- | ------- | ------ |
+| `bhf` | Yes    | Yes  | Yes     | Yes    |
+| `bbf` | Yes    | Yes  | Yes     | No     |
 
 # Envrionment
 
