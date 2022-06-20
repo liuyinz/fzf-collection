@@ -148,7 +148,7 @@ npmf-search() {
 
   header=$(_fzf_header)
   tmpfile=$(_fzf_tmpfile)
-  opt=("install" "homepage" "deps" "info")
+  opt=("install" "rollback" "homepage" "deps" "info")
 
   if ! command -v all-the-package-names &>/dev/null; then
     echo 'Error! please run "npm i -g all-the-package-names" first!' && return 0

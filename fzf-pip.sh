@@ -4,6 +4,10 @@ _pipf_list() {
   pip list --format=json "$@"
 }
 
+_pipf_info_extract() {
+  pip show "$1" | perl -sne '/^\Q$f\E: (.+)$/ && print "$1"' -- -f="$2"
+}
+
 _pipf_switch() {
 
   subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
@@ -22,6 +26,16 @@ _pipf_switch() {
           ;;
         rollback)
           _pipf_rollback "$f"
+          ;;
+        homepage)
+          url="$(_pipf_info_extract "$f" Home-page)"
+          [ -n "$url" ] && open "$url" || echo "No homepage."
+          ;;
+        deps)
+          _pipf_info_extract "$f" Requires
+          ;;
+        use)
+          _pipf_info_extract "$f" Required-by
           ;;
         info)
           pip show "$f"
@@ -73,7 +87,7 @@ pipf-manage() {
 
   header=$(_fzf_header)
   tmpfile=$(_fzf_tmpfile)
-  opt=("uninstall" "rollback" "info")
+  opt=("uninstall" "rollback" "homepage" "deps" "use" "info")
 
   if [ ! -e "$tmpfile" ]; then
     touch "$tmpfile"
@@ -135,7 +149,7 @@ pipf-outdated() {
 
   header=$(_fzf_header)
   tmpfile=$(_fzf_tmpfile)
-  opt=("upgrade" "uninstall" "info" "rollback")
+  opt=("upgrade" "uninstall" "rollback" "deps" "use" "info")
 
   if [ ! -e "$tmpfile" ]; then
 
