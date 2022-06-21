@@ -183,8 +183,7 @@ npmf-registry() {
     echo "Current: $(nrm current)"
   fi
 
-  # inst=$(nrm test | perl -pe's/..//' | _fzf_format registry | _fzf_single)
-  inst=$(nrm ls | tail -n +2 | _fzf_format registry | _fzf_single)
+  inst=$(nrm test | perl -pe's/..|^\s*$//' | _fzf_format registry | _fzf_single)
 
   if [ -n "$inst" ]; then
     nrm use "$inst"
