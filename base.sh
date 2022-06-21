@@ -68,11 +68,7 @@ _fzf_format() {
 _fzf_command() {
   local select
 
-  select=$(
-    echo "${cmd[@]}" \
-      | perl -pe 's/ /\n/g' \
-      | _fzf_single
-  )
+  select=$(echo "${cmd[@]}" | perl -pe 's/ /\n/g' | _fzf_single)
 
   [ -n "$select" ] && "$funcstack[2]-$select"
 
