@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 _pipf_list() {
-  pip list --format=json "$@"
+  pip list --not-required --format=json "$@"
 }
 
 _pipf_info_extract() {
