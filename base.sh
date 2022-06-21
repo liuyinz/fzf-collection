@@ -2,6 +2,10 @@
 
 _fzf_opts=($(echo "${FZF_COLLECTION_OPTS}"))
 
+_fzf_exist() {
+  command -v "$@" &>/dev/null
+}
+
 ## generate fzf header according to command name
 _fzf_header() {
   echo $funcstack[2] \

@@ -142,7 +142,7 @@ npmf-outdated() {
 
 }
 
-# npm install -g all-the-package-names
+# REQUIRE npm install -g all-the-package-names
 npmf-search() {
   local tmpfile inst opt header
 
@@ -150,7 +150,7 @@ npmf-search() {
   tmpfile=$(_fzf_tmpfile)
   opt=("install" "rollback" "homepage" "deps" "info")
 
-  if ! command -v all-the-package-names &>/dev/null; then
+  if ! _fzf_exist all-the-package-names; then
     echo 'Error! please run "npm i -g all-the-package-names" first!' && return 0
   fi
 
@@ -171,12 +171,13 @@ npmf-search() {
 
 }
 
+# REQUIRE npm install -g nrm
 npmf-registry() {
   local inst header
 
   header=$(_fzf_header)
 
-  if ! command -v nrm &>/dev/null; then
+  if ! _fzf_exist nrm; then
     echo 'Error! please run "npm i -g nrm" first!' && return 0
   else
     echo "Current: $(nrm current)"
