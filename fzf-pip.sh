@@ -19,7 +19,7 @@ _pipf_switch() {
           pip install --user --upgrade "$f" && _fzf_tmpfile_shift "$f"
           ;;
         uninstall)
-          pip uninstall --yes "$f" && _fzf_tmpfile_shift "$f"
+          _pip_uninstall "$f" && _fzf_tmpfile_shift "$f"
           ;;
         install)
           pip install --user "$f"
@@ -54,6 +54,16 @@ _pipf_switch() {
   fi
 
   _pipf_switch "$@"
+
+}
+
+_pipf_uninstall() {
+  if _fzf_exist pip-autoremove; then
+    # REQUIRE pip install pip-autoremove
+    pip-autoremove "$@" --yes
+  else
+    pip uninstall --yes "$@"
+  fi
 
 }
 
