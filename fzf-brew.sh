@@ -21,6 +21,9 @@ _brewf_switch() {
         uses)
           brew uses --installed "$f"
           ;;
+        deps)
+          brew deps "$f" --tree
+          ;;
         *) brew "$subcmd" "$f" ;;
       esac
       echo ""
