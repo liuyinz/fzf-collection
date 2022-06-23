@@ -12,6 +12,20 @@ _gitf_sha() {
   echo "$commit"
 }
 
+_gitf_browse() {
+  local remote url dir
+
+  dir=${1:-$PWD}
+  remote=$(git -C "$dir" config remote.origin.url)
+
+  if [ -n "$remote" ]; then
+    url=$(echo "$remote" | perl -pe 's|git@(.*):(.*)|https://$1/$2|;s|(.*).git/?$|$1|')
+    echo "Open in browser: $url" && open "$url"
+  else
+    echo "Error! \"$dir\" isn't a git repo!"
+  fi
+}
+
 gitf-commit() {
   local commit
   commit=$(_gitf_sha)
@@ -52,8 +66,7 @@ gitf-submodule() {
           git delete-submodule --force "$f" >/dev/null 2>&1
           ;;
         homepage)
-          # SEE https://stackoverflow.com/a/786515/13194984
-          (cd "$f" && exec gh browse)
+          _gitf_browse "$f"
           ;;
         dir)
           cd "$f" || exit
