@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# https://docs.npmjs.com/cli/v8/using-npm/config#shorthands-and-other-cli-niceties
+
+_npmf() {
+  echo "$1 $2 ..."
+  npm "$1" --quiet --no-fund --no-audit --global "${@:3}" -- "$2"
+}
+
 _npmf_switch() {
 
   subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
@@ -8,13 +15,13 @@ _npmf_switch() {
     for f in $(echo "$1"); do
       case $subcmd in
         update)
-          npm update --global "$f" && _fzf_tmpfile_shift "$f"
+          _npmf update "$f" && _fzf_tmpfile_shift "$f"
           ;;
         uninstall)
-          npm uninstall --global "$f" && _fzf_tmpfile_shift "$f"
+          _npmf uninstall "$f" && _fzf_tmpfile_shift "$f"
           ;;
         install)
-          npm install --global "$f"
+          _npmf install "$f"
           ;;
         rollback)
           _npmf_rollback "$f"
@@ -56,7 +63,7 @@ _npmf_rollback() {
     version=$(echo "$version_list" | _fzf_single)
 
     if [ -n "$version" ]; then
-      npm install --global "$1@$version" 2>/dev/null
+      _npmf install "$1@$version" 2>/dev/null
     else
       echo "Rollback cancel." && return 0
     fi
