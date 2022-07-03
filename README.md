@@ -181,10 +181,6 @@ PROXYF_URLS="http://127.0.0.1:1234,socks://127.0.0.1:1234"
 
 ## todo
 
-- [x] brew sign: formulae or cask brew info --formula/--cask
-- [x] brewf-rollback: inhibit reinstall same commit
-- [ ] fzf: proxy gem npm cargo cpan
 - [x] remove sed,tr,awk dependecies with perl
+- [ ] fzf: proxy gem cargo cpan
 - [ ] add proxy restore for initial proxy status
-- [ ] use qypi to rewrite logic
-
