@@ -68,21 +68,23 @@ _pipf_uninstall() {
 }
 
 _pipf_rollback() {
-  local version_list version header
+  local header versions current new
 
   header=$(_fzf_header)
-  version_list=$(
+  versions=$(
     pip index versions --pre "$1" 2>/dev/null \
       | perl -lne '/Available versions: (.*)$/m && print $1' \
       | perl -pe 's/, /\n/g'
   )
 
-  if [ -n "$version_list" ]; then
+  if [ -n "$versions" ]; then
+    current=$(_pipf_info_extract "$f" Version)
+    echo "Current version: $current"
+    new=$(echo "$versions" | _fzf_single)
 
-    version=$(echo "$version_list" | _fzf_single)
-
-    if [ -n "$version" ]; then
-      pip install --upgrade --force-reinstall "$f==$version" 2>/dev/null
+    if [ -n "$new" ]; then
+      _fzf_version_check
+      pip install --upgrade --force-reinstall "$f==$new" 2>/dev/null
     else
       echo "Rollback cancel." && return 0
     fi

@@ -6,6 +6,11 @@ _fzf_exist() {
   command -v "$@" &>/dev/null
 }
 
+_fzf_version_check() {
+  [[ "$new" == "$current" ]] && echo "\nREINSTALL THE SAME VERSION !\n"
+  sleep 2
+}
+
 ## generate fzf header according to command name
 _fzf_header() {
   echo $funcstack[2] \

@@ -53,17 +53,19 @@ _npmf_switch() {
 }
 
 _npmf_rollback() {
-  local version_list version header
+  local header versions current new
 
   header=$(_fzf_header)
-  version_list=$(npm info "$1" versions --json 2>/dev/null | jq -r 'reverse | .[]')
+  versions=$(npm info "$1" versions --json 2>/dev/null | jq -r 'reverse | .[]')
 
-  if [ -n "$version_list" ]; then
+  if [ -n "$versions" ]; then
+    current=$(npm info "$1" version 2>/dev/null)
+    echo "Current version: $current"
+    new=$(echo "$versions" | _fzf_single)
 
-    version=$(echo "$version_list" | _fzf_single)
-
-    if [ -n "$version" ]; then
-      _npmf install "$1@$version" 2>/dev/null
+    if [ -n "$new" ]; then
+      _fzf_version_check
+      _npmf install "$1@$new" 2>/dev/null
     else
       echo "Rollback cancel." && return 0
     fi
