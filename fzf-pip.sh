@@ -1,28 +1,93 @@
 #!/usr/bin/env bash
+_pipf() {
+  PIP_DISABLE_PIP_VERSION_CHECK=1 pip "$@"
+}
 
 _pipf_list() {
-  pip list --not-required --format=json "$@"
+  _pipf list --not-required --format=json "$@"
 }
 
 _pipf_extract() {
-  pip show "$1" | perl -sne '/^\Q$f\E: (.+)$/ && print "$1"' -- -f="$2"
+  _pipf show "$1" 2>/dev/null | perl -slne '/^\Q$f\E: (.+)$/ && print "$1"' -- -f="$2"
+}
+
+_pipf_pip_outdated() {
+  local installed latest
+
+  installed=$(
+    _pipf index versions pip 2>/dev/null \
+      | perl -lne '/INSTALLED: +(.+)$/ && print "$1"'
+  )
+
+  latest=$(
+    _pipf index versions pip 2>/dev/null \
+      | perl -lne '/LATEST: +(.+)$/ && print "$1"'
+  )
+
+  if [ "$installed" != "$latest" ]; then
+    echo "pip $installed $latest"
+  fi
+}
+
+_pipf_install() {
+  _pipf install --user "$@"
+}
+
+_pipf_uninstall() {
+  if [ "$1" = "pip" ]; then
+    echo "Package [pip] couldn't be uninstalled !"
+  else
+    if _fzf_exist pip-autoremove; then
+      # REQUIRE pip install pip-autoremove
+      pip-autoremove "$1" --yes
+    else
+      _pipf uninstall --yes "$1"
+    fi
+  fi
+}
+
+_pipf_rollback() {
+  local header versions current new
+
+  header=$(_fzf_header)
+  versions=$(
+    _pipf index versions --pre "$1" 2>/dev/null \
+      | perl -lne '/Available versions: (.*)$/m && print $1' \
+      | perl -pe 's/, /\n/g'
+  )
+
+  if [ -n "$versions" ]; then
+    current=$(_pipf_extract "$f" Version)
+    echo "Current: ${current:-Not-installed}"
+    new=$(echo "$versions" | _fzf_single)
+
+    if [ -n "$new" ]; then
+      _fzf_version_check
+      _pipf_install --upgrade --force-reinstall "$f==$new" 2>/dev/null
+    else
+      echo "Rollback cancel." && return 0
+    fi
+
+  else
+    echo "No version provided for package $1." && return 0
+  fi
 }
 
 _pipf_switch() {
-
   subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
 
   if [ -n "$subcmd" ]; then
+
     for f in $(echo "$1"); do
       case $subcmd in
         upgrade)
-          pip install --user --upgrade "$f" && _fzf_tmpfile_shift "$f"
+          _pipf_install --upgrade "$f" && _fzf_tmpfile_shift "$f"
           ;;
         uninstall)
-          _pip_uninstall "$f" && _fzf_tmpfile_shift "$f"
+          _pipf_uninstall "$f" && _fzf_tmpfile_shift "$f"
           ;;
         install)
-          pip install --user "$f"
+          _pipf_install "$f"
           ;;
         rollback)
           _pipf_rollback "$f"
@@ -38,9 +103,11 @@ _pipf_switch() {
           _pipf_extract "$f" Required-by
           ;;
         info)
-          pip show "$f"
+          _pipf show "$f"
           ;;
-        *) pip "$subcmd" "$f" ;;
+        *)
+          _pipf "$subcmd" "$f"
+          ;;
       esac
       echo ""
     done
@@ -54,44 +121,6 @@ _pipf_switch() {
   fi
 
   _pipf_switch "$@"
-
-}
-
-_pipf_uninstall() {
-  if _fzf_exist pip-autoremove; then
-    # REQUIRE pip install pip-autoremove
-    pip-autoremove "$@" --yes
-  else
-    pip uninstall --yes "$@"
-  fi
-
-}
-
-_pipf_rollback() {
-  local header versions current new
-
-  header=$(_fzf_header)
-  versions=$(
-    pip index versions --pre "$1" 2>/dev/null \
-      | perl -lne '/Available versions: (.*)$/m && print $1' \
-      | perl -pe 's/, /\n/g'
-  )
-
-  if [ -n "$versions" ]; then
-    current=$(_pipf_extract "$f" Version)
-    echo "Current version: $current"
-    new=$(echo "$versions" | _fzf_single)
-
-    if [ -n "$new" ]; then
-      _fzf_version_check
-      pip install --upgrade --force-reinstall "$f==$new" 2>/dev/null
-    else
-      echo "Rollback cancel." && return 0
-    fi
-
-  else
-    echo "No version provided for package $1." && return 0
-  fi
 }
 
 pipf-manage() {
@@ -104,9 +133,11 @@ pipf-manage() {
   if [ ! -e "$tmpfile" ]; then
     touch "$tmpfile"
 
+    # SEE https://unix.stackexchange.com/a/615709
     inst=$(
-      _pipf_list \
-        | jq -r '.[] | "\(.name) \(.version)"' \
+      echo "pip $(_pipf_extract pip Version)" \
+        | cat - <(_pipf_list \
+          | jq -r '.[] | "\(.name) \(.version)"') \
         | _fzf_format manage \
         | _fzf_tmpfile_write
     )
@@ -166,8 +197,9 @@ pipf-outdated() {
   if [ ! -e "$tmpfile" ]; then
 
     outdated_list=$(
-      _pipf_list --outdated \
-        | jq -r '.[] | "\(.name) \(.version) \(.latest_version)"' \
+      _pipf_pip_outdated \
+        | cat - <(_pipf_list --outdated \
+          | jq -r '.[] | "\(.name) \(.version) \(.latest_version)"') \
         | _fzf_format outdated
     )
 
