@@ -4,7 +4,7 @@ _pipf_list() {
   pip list --not-required --format=json "$@"
 }
 
-_pipf_info_extract() {
+_pipf_extract() {
   pip show "$1" | perl -sne '/^\Q$f\E: (.+)$/ && print "$1"' -- -f="$2"
 }
 
@@ -28,14 +28,14 @@ _pipf_switch() {
           _pipf_rollback "$f"
           ;;
         homepage)
-          url="$(_pipf_info_extract "$f" Home-page)"
+          url="$(_pipf_extract "$f" Home-page)"
           [ -n "$url" ] && open "$url" || echo "No homepage."
           ;;
         deps)
-          _pipf_info_extract "$f" Requires
+          _pipf_extract "$f" Requires
           ;;
         use)
-          _pipf_info_extract "$f" Required-by
+          _pipf_extract "$f" Required-by
           ;;
         info)
           pip show "$f"
@@ -78,7 +78,7 @@ _pipf_rollback() {
   )
 
   if [ -n "$versions" ]; then
-    current=$(_pipf_info_extract "$f" Version)
+    current=$(_pipf_extract "$f" Version)
     echo "Current version: $current"
     new=$(echo "$versions" | _fzf_single)
 
