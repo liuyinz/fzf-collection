@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 _pipf_list() {
-  pip list --not-required --format=json "$@"
+  pip list --not-required --disable-pip-version-check --format=json "$@"
 }
 
 _pipf_extract() {
@@ -13,6 +13,10 @@ _pipf_switch() {
   subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
 
   if [ -n "$subcmd" ]; then
+
+    # check pip version every time before upgrade
+    [ "$subcmd" = "upgrade" ] && pip install --user --upgrade pip
+
     for f in $(echo "$1"); do
       case $subcmd in
         upgrade)
@@ -104,9 +108,10 @@ pipf-manage() {
   if [ ! -e "$tmpfile" ]; then
     touch "$tmpfile"
 
+    # SEE https://unix.stackexchange.com/a/615709
     inst=$(
-      _pipf_list \
-        | jq -r '.[] | "\(.name) \(.version)"' \
+      echo "pip $(_pipf_extract pip Version)" \
+        | cat - <(_pipf_list | jq -r '.[] | "\(.name) \(.version)"') \
         | _fzf_format manage \
         | _fzf_tmpfile_write
     )
