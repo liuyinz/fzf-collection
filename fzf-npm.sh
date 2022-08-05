@@ -56,11 +56,17 @@ _npmf_rollback() {
   local header versions current new
 
   header=$(_fzf_header)
-  versions=$(npm info "$1" versions --json 2>/dev/null | jq -r 'reverse | .[]')
+  versions=$(
+    npm info "$1" versions --json 2>/dev/null \
+      | jq -r 'reverse | .[]' 2>/dev/null
+  )
 
   if [ -n "$versions" ]; then
-    current=$(npm info "$1" version 2>/dev/null)
-    echo "Current version: $current"
+    current=$(
+      npm list --depth 0 --global 2>/dev/null \
+        | perl -slne '/\Q$f\E@(.+)$/ && print "$1"' -- -f="$1"
+    )
+    echo "Current version: ${current:-Not-installed}"
     new=$(echo "$versions" | _fzf_single)
 
     if [ -n "$new" ]; then
