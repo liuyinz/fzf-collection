@@ -51,6 +51,15 @@ _fzf_tmpfile_shift() {
   perl -i -slne '/$f/||print' -- -f="$1" "$tmpfile"
 }
 
+_fzf_homepage() {
+  if [ -n "$1" ]; then
+    echo "Open: $1 ..."
+    open "$1"
+  else
+    echo "No homepage."
+  fi
+}
+
 _fzf_format() {
   local input rule
 

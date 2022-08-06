@@ -93,8 +93,7 @@ _pipf_switch() {
           _pipf_rollback "$f"
           ;;
         homepage)
-          url="$(_pipf_extract "$f" Home-page)"
-          [ -n "$url" ] && open "$url" || echo "No homepage."
+          _fzf_homepage "$(_pipf_extract "$f" Home-page)"
           ;;
         deps)
           _pipf_extract "$f" Requires

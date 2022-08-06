@@ -27,7 +27,7 @@ _npmf_switch() {
           _npmf_rollback "$f"
           ;;
         homepage)
-          open "$(npm view "$f" homepage)"
+          _fzf_homepage "$(npm view "$f" homepage)"
           ;;
         deps)
           npm view "$f" dependencies
