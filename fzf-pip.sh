@@ -17,7 +17,7 @@ _pipf_install() {
 
 _pipf_uninstall() {
   if [ "$1" = "pip" ]; then
-    echo "Package [pip] couldn't be uninstalled !"
+    echo "Package [pip] couldn't be uninstalled !" && return 1
   else
     if _fzf_exist pip-autoremove && [ "$1" != "pip-autoremove" ]; then
       # REQUIRE pip install pip-autoremove
