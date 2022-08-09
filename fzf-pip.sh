@@ -4,29 +4,11 @@ _pipf() {
 }
 
 _pipf_list() {
-  _pipf list --not-required --format=json "$@"
+  _pipf list --format=json "$@"
 }
 
 _pipf_extract() {
   _pipf show "$1" 2>/dev/null | perl -slne '/^\Q$f\E: (.+)$/ && print "$1"' -- -f="$2"
-}
-
-_pipf_pip_outdated() {
-  local installed latest
-
-  installed=$(
-    _pipf index versions pip 2>/dev/null \
-      | perl -lne '/INSTALLED: +(.+)$/ && print "$1"'
-  )
-
-  latest=$(
-    _pipf index versions pip 2>/dev/null \
-      | perl -lne '/LATEST: +(.+)$/ && print "$1"'
-  )
-
-  if [ "$installed" != "$latest" ]; then
-    echo "pip $installed $latest"
-  fi
 }
 
 _pipf_install() {
@@ -134,9 +116,8 @@ pipf-manage() {
 
     # SEE https://unix.stackexchange.com/a/615709
     inst=$(
-      echo "pip $(_pipf_extract pip Version)" \
-        | cat - <(_pipf_list \
-          | jq -r '.[] | "\(.name) \(.version)"') \
+      _pipf_list \
+        | jq -r '.[] | "\(.name) \(.version)"' \
         | _fzf_format manage \
         | _fzf_tmpfile_write
     )
@@ -196,9 +177,8 @@ pipf-outdated() {
   if [ ! -e "$tmpfile" ]; then
 
     outdated_list=$(
-      _pipf_pip_outdated \
-        | cat - <(_pipf_list --outdated \
-          | jq -r '.[] | "\(.name) \(.version) \(.latest_version)"') \
+      _pipf_list --outdated \
+        | jq -r '.[] | "\(.name) \(.version) \(.latest_version)"' \
         | _fzf_format outdated
     )
 
