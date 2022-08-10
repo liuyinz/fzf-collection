@@ -109,7 +109,7 @@ join("/") } |
 
       jq -r "$jq_script" <"${asso_browser[tmp]}/bookmark" \
         | perl -F'\t' -lne 'printf "%s\t\x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
-        | _fzf_multi --no-hscroll --tiebreak=begin \
+        | _fzf_multi --no-hscroll \
         | perl -F'\t' -lne 'print $F[-1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;
@@ -133,7 +133,7 @@ join("/")} |
 
       plutil -convert xml1 "${asso_browser[tmp]}/bookmark" -o - | xq -r "$jq_script" \
         | perl -F'\t' -lne 'printf "%s\t\x1b[33m%s\x1b[m\n", $F[0], $F[1]' \
-        | _fzf_multi --no-hscroll --tiebreak=begin \
+        | _fzf_multi --no-hscroll \
         | perl -F'\t' -lne 'print $F[1]' \
         | xargs -r open -a "${asso_browser[name]}" &>/dev/null
       ;;

@@ -133,10 +133,10 @@ gitf-ignoreio() {
 }
 
 gitf() {
-  local cmd header
+  local header opt
 
   header=$(_fzf_header)
-  cmd=("submodule" "commit" "ignoreio" "stash")
+  opt=("submodule" "commit" "ignoreio" "stash")
 
   _fzf_command
 }

@@ -141,10 +141,10 @@ proxyf-add() {
 proxyf() {
   _proxyf_init
 
-  local cmd header
+  local header opt
 
   header=$(_fzf_header)
-  cmd=("switch" "add")
+  opt=("switch" "add")
 
   _fzf_command
 }

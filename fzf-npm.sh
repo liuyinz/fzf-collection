@@ -3,22 +3,47 @@
 # https://docs.npmjs.com/cli/v8/using-npm/config#shorthands-and-other-cli-niceties
 
 _npmf() {
-  echo "$1 $2 ..."
-  npm "$1" --quiet --no-fund --no-audit --global "${@:3}" -- "$2"
+  npm "$1" --quiet --no-fund --no-audit --global "${@:2}"
+}
+
+_npmf_list_outdated() {
+  _npmf outdated --json \
+    | jq -r 'to_entries[] | "\(.key) \(.value | .current) \(.value | .latest)"'
+}
+
+_npmf_list_installed() {
+  _npmf list --json \
+    | jq -r '.dependencies | to_entries[] | "\(.key) \(.value | .version)"'
+}
+
+_npmf_list_available() {
+  all-the-package-names
+}
+
+_npmf_version_current() {
+  _npmf list --depth 0 2>/dev/null \
+    | perl -slne '/\Q$f\E@(.+)$/ && print "$1"' -- -f="$pkg"
+}
+
+_npmf_version_install() {
+  echo "Install $pkg@$new"
+  _npmf install "$pkg@$new" 2>/dev/null
 }
 
 _npmf_switch() {
+  local subcmd
 
-  subcmd=$(echo "${@:2}" | perl -pe 's/ /\n/g' | _fzf_single)
+  subcmd=$(_fzf_subcmd)
 
   if [ -n "$subcmd" ]; then
-    for f in $(echo "$1"); do
+    for f in $(echo "$inst"); do
       case $subcmd in
         update)
-          _npmf update "$f" && _fzf_tmpfile_shift "$f"
+          echo "upgrade $f"
+          _npmf update "$f" && _fzf_tmp_shift "$f"
           ;;
         uninstall)
-          _npmf uninstall "$f" && _fzf_tmpfile_shift "$f"
+          _npmf uninstall "$f" && _fzf_tmp_shift "$f"
           ;;
         install)
           _npmf install "$f"
@@ -48,149 +73,71 @@ _npmf_switch() {
     return 0
   fi
 
-  _npmf_switch "$@"
-
+  _npmf_switch
 }
 
 _npmf_rollback() {
-  local header versions current new
+  local header pkg current install versions
 
+  pkg=$1
   header=$(_fzf_header)
+  current="_npmf_version_current"
+  install="_npmf_version_install"
   versions=$(
-    npm info "$1" versions --json 2>/dev/null \
+    npm info "$pkg" versions --json 2>/dev/null \
       | jq -r 'reverse | .[]' 2>/dev/null
   )
 
-  if [ -n "$versions" ]; then
-    current=$(
-      npm list --depth 0 --global 2>/dev/null \
-        | perl -slne '/\Q$f\E@(.+)$/ && print "$1"' -- -f="$1"
-    )
-    echo "Current version: ${current:-Not-installed}"
-    new=$(echo "$versions" | _fzf_single)
-
-    if [ -n "$new" ]; then
-      _fzf_version_check
-      _npmf install "$1@$new" 2>/dev/null
-    else
-      echo "Rollback cancel." && return 0
-    fi
-
-  else
-    echo "No version provided for package $1." && return 0
-  fi
-
+  _fzf_rollback
 }
 
 npmf-manage() {
-  local tmpfile inst header opt
+  local tmpfile inst header opt format installed switch
 
   header=$(_fzf_header)
-  tmpfile=$(_fzf_tmpfile)
+  tmpfile=$(_fzf_tmp_create)
+  format="manage"
+  installed="_npmf_list_installed"
+  switch="_npmf_switch"
   opt=("uninstall" "rollback" "homepage" "deps" "info")
 
-  if [ ! -e "$tmpfile" ]; then
-    touch "$tmpfile"
-
-    inst=$(
-      npm list --json --global \
-        | jq -r '.dependencies | to_entries[] | "\(.key) \(.value | .version)"' \
-        | _fzf_format manage \
-        | _fzf_tmpfile_write
-    )
-
-  else
-    inst=$(_fzf_tmpfile_read)
-  fi
-
-  if [ -n "$inst" ]; then
-    _npmf_switch "$inst" "${opt[@]}"
-  else
-    rm -f "$tmpfile" && return 0
-  fi
-
-  npmf-manage
-
+  _fzf_manage
 }
 
 npmf-outdated() {
-  local tmpfile inst header opt
+  local inst header opt tmpfile format outdated switch
 
   header=$(_fzf_header)
-  tmpfile=$(_fzf_tmpfile)
+  tmpfile=$(_fzf_tmp_create)
+  format="outdated"
+  outdated="_npmf_list_outdated"
+  switch="_npmf_switch"
   opt=("update" "uninstall" "rollback" "homepage" "deps" "info")
 
-  if [ ! -e "$tmpfile" ]; then
-    outdated_list=$(
-      npm outdated --global --json \
-        | jq -r 'to_entries[] | "\(.key) \(.value | .current) \(.value | .latest)"' \
-        | _fzf_format outdated
-    )
-
-    if [ -n "$outdated_list" ]; then
-      touch "$tmpfile"
-      inst=$(echo "$outdated_list" | _fzf_tmpfile_write)
-    else
-      echo "No updates in npm packages."
-      return 0
-    fi
-
-  else
-
-    if [ -s "$tmpfile" ]; then
-      inst=$(_fzf_tmpfile_read)
-    else
-      echo "Update finished."
-      rm -f "$tmpfile" && return 0
-    fi
-
-  fi
-
-  if [ -n "$inst" ]; then
-    _npmf_switch "$inst" "${opt[@]}"
-  else
-    echo "Update cancel."
-    rm -f "$tmpfile" && return 0
-  fi
-
-  npmf-outdated
-
+  _fzf_outdated
 }
 
-# REQUIRE npm install -g all-the-package-names
 npmf-search() {
-  local tmpfile inst opt header
+  local tmpfile inst opt header available switch fzf_extra
 
-  header=$(_fzf_header)
-  tmpfile=$(_fzf_tmpfile)
-  opt=("install" "rollback" "homepage" "deps" "info")
-
+  # REQUIRE npm install -g all-the-package-names
   if ! _fzf_exist all-the-package-names; then
     echo 'Error! please run "npm i -g all-the-package-names" first!' && return 0
   fi
 
-  if [ ! -e "$tmpfile" ]; then
-    touch "$tmpfile"
-    inst=$(all-the-package-names | _fzf_tmpfile_write --tiebreak=begin,length)
-  else
-    inst=$(_fzf_tmpfile_read --tiebreak=begin,length)
-  fi
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmp_create)
+  available="_npmf_list_available"
+  switch="_npmf_switch"
+  opt=("install" "rollback" "homepage" "deps" "info")
+  fzf_extra="--tiebreak=begin,length,index"
 
-  if [ -n "$inst" ]; then
-    _npmf_switch "$inst" "${opt[@]}"
-  else
-    rm -f "$tmpfile" && return 0
-  fi
-
-  npmf-search
-
+  _fzf_search
 }
 
 # REQUIRE npm install -g nrm
 npmf-registry() {
-  local inst header
-
-  header=$(_fzf_header)
+  local inst header format
 
   if ! _fzf_exist nrm; then
     echo 'Error! please run "npm i -g nrm" first!' && return 0
@@ -198,7 +145,9 @@ npmf-registry() {
     echo "Current: $(nrm current)"
   fi
 
-  inst=$(nrm test | perl -pe's/..|^\s*$//' | _fzf_format registry | _fzf_single)
+  format="registry"
+  header=$(_fzf_header)
+  inst=$(nrm test | perl -pe's/..|^\s*$//' | _fzf_format | _fzf_single)
 
   if [ -n "$inst" ]; then
     nrm use "$inst"
@@ -209,11 +158,10 @@ npmf-registry() {
 }
 
 npmf() {
-  local cmd header
+  local header opt
 
   header=$(_fzf_header)
-  cmd=("outdated" "search" "manage" "registry")
+  opt=("outdated" "search" "manage" "registry")
 
   _fzf_command
-
 }
