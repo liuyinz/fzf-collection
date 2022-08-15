@@ -2,6 +2,10 @@
 
 # SEE https://gist.github.com/steakknife/8294792
 
+_brewf_pkg_version() {
+  brew list --versions | perl -slne '/^$f (.+)$/ && print "$1"' -- -f="$1"
+}
+
 _brewf_list_outdated() {
   brew update &>/dev/null
   brew outdated --greedy --verbose \
@@ -74,25 +78,26 @@ _brewf_rollback() {
   local pkg dir sha header
 
   header=$(_fzf_header)
-  f="$1.rb"
+  pkg="$1"
+  f="$pkg.rb"
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
 
   if [ -n "$dir" ]; then
+    _fzf_msg "$(_brewf_pkg_version "$pkg")" "$pkg"
     sha=$(
-      git -C "$dir" log --color=always -- "$f" \
+      git -C "$dir" log --color=always --pretty='format:%s' -- "$f" \
         | _fzf_single --tiebreak=index --query="$1 update"
     )
 
     if [ -n "$sha" ]; then
-      brew unpin "$1" &>/dev/null
+      brew unpin "$pkg" &>/dev/null
 
       git -C "$dir" checkout "$sha" "$f"
-      (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$1")
+      (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$pkg")
       git -C "$dir" checkout HEAD "$f"
 
-      if ! brew outdated "$1" &>/dev/null; then
-        brew pin "$1" &>/dev/null
-      fi
+      # pin formulae if it's not the latest.
+      brew outdated "$pkg" &>/dev/null || brew pin "$pkg" &>/dev/null
 
     else
       echo "No commit selected." && return 0
@@ -186,10 +191,10 @@ brewf-pinned() {
 
   header=$(_fzf_header)
   tmpfile=$(_fzf_tmp_create)
-  caller=$(_fzf_parent)
+  caller=$(_fzf_parent 1)
   switch="_brewf_switch"
   format="pinned"
-  opt=("uninstall" "rollback" "homepage" "link" "unlink" "unpin"
+  opt=("unpin" "rollback" "uninstall" "homepage" "link" "unlink"
     "options" "info" "deps" "uses" "edit" "cat")
 
   if [ ! -e "$tmpfile" ]; then
