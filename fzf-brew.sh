@@ -2,10 +2,6 @@
 
 # SEE https://gist.github.com/steakknife/8294792
 
-_brewf_pkg_version() {
-  brew list --versions | perl -slne '/^$f (.+)$/ && print "$1"' -- -f="$1"
-}
-
 _brewf_list_outdated() {
   brew update &>/dev/null
   brew outdated --greedy --verbose \
@@ -34,6 +30,24 @@ _brewf_list_available() {
   brew casks
 }
 
+_brewf_version_current() {
+  brew list --versions | perl -slne '/^$f (.+)$/ && print "$1"' -- -f="$pkg"
+}
+
+_brewf_version_list() {
+  git -C "$dir" log --color=always --pretty='format:%C(magenta)%h%C(reset) %s' -- "$f"
+}
+
+_brewf_version_install() {
+  brew unpin "$pkg" &>/dev/null
+  git -C "$dir" checkout "$new" "$f"
+  (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$pkg")
+  git -C "$dir" checkout HEAD "$f"
+
+  # pkg if it's pinned at first
+  [ $format = "pinned" ] && brew pin "$pkg" &>/dev/null
+}
+
 _brewf_switch() {
   local subcmd
 
@@ -48,7 +62,7 @@ _brewf_switch() {
         edit)
           $EDITOR "$(brew formula "$f")"
           ;;
-        upgrade | uninstall | untap)
+        upgrade | uninstall | untap | unpin)
           brew "$subcmd" "$f" && _fzf_tmp_shift "$f"
           ;;
         uses)
@@ -75,36 +89,31 @@ _brewf_switch() {
 }
 
 _brewf_rollback() {
-  local pkg dir sha header
+  local header pkg f dir caller fzf_extra current install versions
 
   header=$(_fzf_header)
   pkg="$1"
   f="$pkg.rb"
   dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
+  caller=$(_fzf_parent 1)
+
+  fzf_extra="--tiebreak=index --query=$pkg update"
+  current="_brewf_version_current"
+  install="_brewf_version_install"
+  versions="_brewf_version_list"
 
   if [ -n "$dir" ]; then
-    _fzf_msg "$(_brewf_pkg_version "$pkg")" "$pkg"
-    sha=$(
-      git -C "$dir" log --color=always --pretty='format:%s' -- "$f" \
-        | _fzf_single --tiebreak=index --query="$1 update"
-    )
+    old=$($current)
+    _fzf_msg "${old:-Not-installed}" "$pkg"
+    new=$($versions | _fzf_single)
 
-    if [ -n "$sha" ]; then
-      brew unpin "$pkg" &>/dev/null
-
-      git -C "$dir" checkout "$sha" "$f"
-      (HOMEBREW_NO_AUTO_UPDATE=1 && brew reinstall "$pkg")
-      git -C "$dir" checkout HEAD "$f"
-
-      # pin formulae if it's not the latest.
-      brew outdated "$pkg" &>/dev/null || brew pin "$pkg" &>/dev/null
-
+    if [ -n "$new" ]; then
+      eval " $install"
     else
-      echo "No commit selected." && return 0
+      _fzf_msg "Rollback cancel." && return 0
     fi
-
   else
-    echo "No formulae or cask exists." && return 0
+    _fzf_msg "No formulae or cask exists." && return 0
   fi
 }
 
@@ -187,7 +196,7 @@ brewf-tap() {
 }
 
 brewf-pinned() {
-  local tmpfile inst opt header format switch caller lst
+  local tmpfile inst opt header format switch lst
 
   header=$(_fzf_header)
   tmpfile=$(_fzf_tmp_create)
