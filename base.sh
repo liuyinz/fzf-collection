@@ -56,8 +56,17 @@ _fzf_tmp_write() {
 # SEE https://stackoverflow.com/a/24493085/13194984
 ## remove related line in tmpfile
 _fzf_tmp_shift() {
-  perl -i -slne '/$f/||print' -- -f="$1" "$tmpfile"
+  perl -i -slne '/^$f(\s+.+)$/||print' -- -f="$1" "$tmpfile"
+
+  # BUG cann't delete \n newline
+  # perl -i -lspe 's/^$f(\s+.+)$//' -- -f="$1" "$tmpfile"
 }
+
+# TODO update pkg version info when using rollback
+# SEE https://stackoverflow.com/questions/12131134/replace-specific-capture-group-instead-of-entire-regex-in-perl
+# _fzf_tmp_update() {
+#
+# }
 
 _fzf_subcmd() {
   echo "${opt[@]}" | perl -pe 's/ /\n/g' | _fzf_single
@@ -164,7 +173,7 @@ _fzf_rollback() {
 
   if [ -n "$versions" ]; then
     old=$($current)
-    _fzf_msg "${old:-Not-installed}\n" "$pkg"
+    _fzf_msg "${old:-Not-installed}" "$pkg"
     new=$(echo "$versions" | _fzf_single)
 
     if [ -n "$new" ]; then
