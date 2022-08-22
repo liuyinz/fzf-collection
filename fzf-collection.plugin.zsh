@@ -20,6 +20,7 @@ if [ -z "$FZF_COLLECTION_MODULES" ]; then
     brew
     npm
     pip
+    cargo
     proxy
     git
     gh
