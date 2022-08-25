@@ -85,6 +85,7 @@ _fzf_homepage() {
   fi
 }
 
+# SEE https://stackoverflow.com/a/23777065/13194984
 _fzf_format() {
   local input rule
 
@@ -92,10 +93,10 @@ _fzf_format() {
 
   case $format in
     manage | registry | pinned)
-      rule='printf "%s \x1b[34m%s\x1b[0m\n", $F[0], $F[$#F]'
+      rule='printf "%s \x1b[34m%.15s\x1b[0m\n", $F[0], $F[$#F]'
       ;;
     outdated)
-      rule='printf "%s \x1b[34m%s\x1b[0m => \x1b[33m%s\x1b[0m\n", $F[0], $F[1], $F[2]'
+      rule='printf "%s \x1b[34m%.15s\x1b[0m => \x1b[33m%.15s\x1b[0m\n", $F[0], $F[1], $F[2]'
       ;;
     *) echo "Error: No such format: $format" && return 0 ;;
   esac
