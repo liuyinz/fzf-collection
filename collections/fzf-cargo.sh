@@ -10,8 +10,9 @@ _cargof_list_outdated() {
     | perl -lne '/^(.+)\s+v(.+)\s+v(.+)\s+Yes$/ && print "$1 $2 $3"'
 }
 
-# TODO implemented
-# _cargof_list_avaiable() {}
+_cargof_list_available() {
+  all-the-crate-names
+}
 
 # SEE https://github.com/hcpl/crates.io-http-api-reference#user-content-get-versions
 _cargof_extract() {
@@ -139,9 +140,21 @@ cargof-manage() {
   _fzf_manage
 }
 
-# TODO search implements
 cargof-search() {
-  echo "Not implemented yet."
+  local tmpfile inst opt header available switch
+
+  # REQUIRE cargo install all-the-crate-names
+  if ! _fzf_exist all-the-crate-names; then
+    echo 'Error! please run "cargo install all-the-crate-names" first!' && return 0
+  fi
+
+  header=$(_fzf_header)
+  tmpfile=$(_fzf_tmp_create)
+  opt=("install" "uninstall" "rollback" "homepage" "deps" "info")
+  available="_cargof_list_available"
+  switch="_cargof_switch"
+
+  _fzf_search
 }
 
 cargof() {
