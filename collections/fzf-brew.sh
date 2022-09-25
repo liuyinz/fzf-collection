@@ -152,7 +152,7 @@ brewf-outdated() {
   format="outdated"
   outdated="_brewf_list_outdated"
   switch="_brewf_switch"
-  opt=("upgrade" "uninstall" "rollback" "options" "homepage" "info" "deps" "edit" "cat")
+  opt=("upgrade" "uninstall" "rollback" "options" "homepage" "info" "deps" "uses" "edit" "cat")
 
   _fzf_outdated
 }
