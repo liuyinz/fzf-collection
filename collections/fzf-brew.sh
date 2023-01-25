@@ -16,7 +16,8 @@ _brewf_list_outdated() {
 }
 
 _brewf_list_installed() {
-  brew list --versions \
+  # make brew list --cask --versions don't call curl
+  HOMEBREW_NO_INSTALL_FROM_API=1 brew list --versions \
     | perl -ane 'printf "%s %s\n", $F[0], join"|",@F[1 .. $#F]'
 
   # # NOTE time consuming is as twice as above
