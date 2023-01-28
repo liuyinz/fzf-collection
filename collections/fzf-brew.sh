@@ -2,6 +2,11 @@
 
 # SEE https://gist.github.com/steakknife/8294792
 
+_brewf() {
+  # make brew command don't call curl
+  HOMEBREW_NO_INSTALL_FROM_API=1 brew "$@"
+}
+
 _brewf_list_outdated() {
   brew update &>/dev/null
   brew outdated --greedy --verbose \
@@ -16,12 +21,11 @@ _brewf_list_outdated() {
 }
 
 _brewf_list_installed() {
-  # make brew list --cask --versions don't call curl
-  HOMEBREW_NO_INSTALL_FROM_API=1 brew list --versions \
+  _brewf list --versions \
     | perl -ane 'printf "%s %s\n", $F[0], join"|",@F[1 .. $#F]'
 
   # # NOTE time consuming is as twice as above
-  #   brew info --json=v2 --installed \
+  #   _brewf info --json=v2 --installed \
   #     | jq -r '.[] | values[] | "\(.name | if type=="array" then .[0] else . end) \(.installed | if type=="array" then map(.version) | join("|") else . end)"'
 
 }
@@ -32,7 +36,7 @@ _brewf_list_available() {
 }
 
 _brewf_version_current() {
-  brew list --versions | perl -slne '/^$f (.+)$/ && print "$1"' -- -f="$pkg"
+  _brewf list --versions | perl -slne '/^$f (.+)$/ && print "$1"' -- -f="$pkg"
 }
 
 _brewf_version_list() {
@@ -64,15 +68,15 @@ _brewf_switch() {
           $EDITOR "$(brew formula "$f")"
           ;;
         upgrade | uninstall | untap | unpin)
-          brew "$subcmd" "$f" && _fzf_tmp_shift "$f"
+          _brewf "$subcmd" "$f" && _fzf_tmp_shift "$f"
           ;;
         uses)
-          brew uses --installed "$f"
+          _brewf uses --installed "$f"
           ;;
         deps)
-          brew deps "$f" --tree
+          _brewf deps "$f" --tree
           ;;
-        *) brew "$subcmd" "$f" ;;
+        *) _brewf "$subcmd" "$f" ;;
       esac
       echo ""
     done
