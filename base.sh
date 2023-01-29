@@ -100,7 +100,7 @@ _fzf_format() {
     *) echo "Error: No such format: $format" && return 0 ;;
   esac
 
-  [ -n "$input" ] && echo "$input" | perl -sane "$rule" | column -s ' ' -t
+  [ -n "$input" ] && echo "$input" | perl -ane "$rule" | column -s ' ' -t
 }
 
 _fzf_outdated() {
