@@ -89,13 +89,13 @@ proxyf-switch() {
 
   select=$(
     _proxyf_format \
-      | _fzf_multi \
+      | _fzf_read --multi \
       | perl -lane 'print $F[0]'
   )
 
   if [ -n "$select" ]; then
 
-    url=$(echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_single)
+    url=$(echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_read)
 
     if [ -n "$url" ]; then
       for opt in $(echo "$select"); do
@@ -118,7 +118,7 @@ proxyf-add() {
   local header new_type new_proxy
 
   header=$(_fzf_header)
-  new_type=$(printf "http\nsocks" | _fzf_single)
+  new_type=$(printf "http\nsocks" | _fzf_read)
 
   if [ -n "$new_type" ]; then
     echo -n "[address:port] ${new_type}://"
@@ -134,7 +134,7 @@ proxyf-add() {
     fi
   fi
 
-  echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_single
+  echo "${proxyf_array[@]}" | perl -pe 's/ /\n/g' | _fzf_read
 
 }
 

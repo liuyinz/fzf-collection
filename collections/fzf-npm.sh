@@ -147,7 +147,7 @@ npmf-registry() {
 
   format="registry"
   header=$(_fzf_header)
-  inst=$(nrm test | perl -pe's/..|^\s*$//' | _fzf_format | _fzf_single)
+  inst=$(nrm test | perl -pe's/..|^\s*$//' | _fzf_format | _fzf_read)
 
   if [ -n "$inst" ]; then
     nrm use "$inst"

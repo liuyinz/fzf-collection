@@ -18,7 +18,7 @@ ghf() {
   fi
 
   if [ -n "$inst" ]; then
-    subcmd=$(echo "delete-repo\nbrowse" | _fzf_single)
+    subcmd=$(echo "delete-repo\nbrowse" | _fzf_read)
     if [ -n "$subcmd" ]; then
       for f in $(echo "$inst"); do
         case $subcmd in

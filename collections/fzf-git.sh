@@ -5,7 +5,7 @@ _gitf_sha() {
 
   commit=$(
     git log --pretty=oneline --abbrev-commit \
-      | _fzf_single \
+      | _fzf_read \
       | perl -lane 'print $F[0]'
   )
 
@@ -45,14 +45,14 @@ gitf-submodule() {
       "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
       | perl -lane 'print $F[1]' \
       | sort -f \
-      | _fzf_multi
+      | _fzf_read --multi
   )
 
   if [ -n "$module" ]; then
     # shellcheck disable=SC2028
     subcmd=$(
       echo "update-remote\ndelete\nhomepage\ndir\ninit\ndeinit\nupdate-init" \
-        | _fzf_single
+        | _fzf_read
     )
 
     for i in $(echo "$module"); do
@@ -91,7 +91,7 @@ gitf-stash() {
   header=$(_fzf_header)
   inst=$(
     git stash list \
-      | _fzf_single \
+      | _fzf_read \
       | perl -F':' -lne 'print $F[1]' \
       | tac
   )
@@ -101,7 +101,7 @@ gitf-stash() {
 
     # shellcheck disable=SC2028
     subcmd=$(echo "pop\nbranch\ndrop\napply\nshow" \
-      | _fzf_single)
+      | _fzf_read)
 
     if [ "$subcmd" = "branch" ]; then
       local name
@@ -122,7 +122,7 @@ gitf-ignoreio() {
   inst=$(
     git ignore-io -l \
       | perl -lpe 's/\s+/\n/g' \
-      | _fzf_multi
+      | _fzf_read --multi
   )
 
   if [ -n "$inst" ]; then

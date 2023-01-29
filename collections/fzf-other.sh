@@ -15,7 +15,7 @@ fp() {
   done \
     | _fzf_format \
     | uniq \
-    | _fzf_single --tiebreak=index
+    | _fzf_read --tiebreak=index
 }
 
 # [F]ind [FP]ath
@@ -26,7 +26,7 @@ ffp() {
   loc=$(
     echo "$FPATH" \
       | perl -pe 's/:/\n/g' \
-      | _fzf_single
+      | _fzf_read
   )
 
   if [ -d "$loc" ]; then
@@ -35,7 +35,7 @@ ffp() {
       | rev \
       | cut -d"/" -f1 \
       | rev \
-      | _fzf_single >/dev/null
+      | _fzf_read >/dev/null
     ffp
   fi
 }

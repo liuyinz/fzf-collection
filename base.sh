@@ -31,13 +31,9 @@ _fzf_underline() {
   printf -- '▔%.0s' {1..$#1}
 }
 
-_fzf_single() {
+_fzf_read() {
   fzf "${_fzf_opts[@]}" --header "$(_fzf_underline "$header")" "$@" \
     | perl -lane 'print $F[0]'
-}
-
-_fzf_multi() {
-  _fzf_single --multi "$@"
 }
 
 ## generate fzf tmpfile according to command name
@@ -46,11 +42,11 @@ _fzf_tmp_create() {
 }
 
 _fzf_tmp_read() {
-  cat <"$tmpfile" | _fzf_multi $fzf_extra "$@"
+  cat <"$tmpfile" | _fzf_read --multi $fzf_extra "$@"
 }
 
 _fzf_tmp_write() {
-  tee "$tmpfile" | _fzf_multi $fzf_extra "$@"
+  tee "$tmpfile" | _fzf_read --multi $fzf_extra "$@"
 }
 
 # SEE https://stackoverflow.com/a/24493085/13194984
@@ -69,7 +65,7 @@ _fzf_tmp_shift() {
 # }
 
 _fzf_subcmd() {
-  echo "${opt[@]}" | perl -pe 's/ /\n/g' | _fzf_single
+  echo "${opt[@]}" | perl -pe 's/ /\n/g' | _fzf_read
 }
 
 _fzf_version_check() {
@@ -178,7 +174,7 @@ _fzf_rollback() {
   if [ -n "$versions" ]; then
     old=$($current)
     _fzf_msg "${old:-Not-installed}" "$pkg"
-    new=$(echo "$versions" | _fzf_single)
+    new=$(echo "$versions" | _fzf_read)
 
     if [ -n "$new" ]; then
       _fzf_version_check

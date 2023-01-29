@@ -110,7 +110,7 @@ _brewf_rollback() {
   if [ -n "$dir" ]; then
     old=$($current)
     _fzf_msg "${old:-Not-installed}" "$pkg"
-    new=$($versions | _fzf_single)
+    new=$($versions | _fzf_read)
 
     if [ -n "$new" ]; then
       eval " $install"
