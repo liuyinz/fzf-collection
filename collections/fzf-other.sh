@@ -2,21 +2,19 @@
 
 # [F]ind [P]ath
 
+# TODO add -d to echo dirpath, or full-filepath
 fp() {
-  local header
-
+  local header format
   header="Find Path"
+  format="general"
 
   for i in $(echo ${PATH//:/ }); do
-
     if [ -d "$i" ]; then
       find "$i" -maxdepth 1 -executable -type f,l -printf "%f ${i/$HOME/~}\n"
     fi
-
   done \
-    | perl -lane 'printf "%s \x1b[33m%s\x1b[0m\n", $F[0], $F[1]' \
+    | _fzf_format \
     | uniq \
-    | column -t -s ' ' \
     | _fzf_single --tiebreak=index
 }
 

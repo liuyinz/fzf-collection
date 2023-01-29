@@ -98,6 +98,9 @@ _fzf_format() {
     outdated)
       rule='printf "%s \x1b[34m%.15s\x1b[0m => \x1b[33m%.15s\x1b[0m\n", $F[0], $F[1], $F[2]'
       ;;
+    general)
+      rule='printf "%s \x1b[34m%s\x1b[0m\n", $F[0], $F[$#F]'
+      ;;
     *) echo "Error: No such format: $format" && return 0 ;;
   esac
 
