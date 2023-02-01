@@ -12,7 +12,7 @@ _brewf_list_outdated() {
   brew outdated --greedy --verbose \
     | grep -Fv "pinned at" \
     | perl -pe 's/, /|/g; tr/()//d' \
-    | perl -ane 'printf "%s %s %s\n", $F[0], $F[1], $F[3]'
+    | perl -lane 'print "$F[0] $F[1] $F[3]"'
 
   # # NOTE time consuming is as twice as above
   #   brew info --json=v2 --installed \
@@ -22,7 +22,7 @@ _brewf_list_outdated() {
 
 _brewf_list_installed() {
   _brewf list --versions \
-    | perl -ane 'printf "%s %s\n", $F[0], join"|",@F[1 .. $#F]'
+    | perl -ane 'printf "%s %s\n", $F[0], join("|", @F[1 .. $#F])'
 
   # # NOTE time consuming is as twice as above
   #   _brewf info --json=v2 --installed \

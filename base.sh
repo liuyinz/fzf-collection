@@ -69,7 +69,9 @@ _fzf_subcmd() {
 }
 
 _fzf_version_check() {
-  [ "$new" = "$old" ] && printf "\nREINSTALL THE SAME VERSION !\n" && sleep 2
+  if [ "$new" = "$old" ]; then
+    printf "\nREINSTALL THE SAME VERSION after 2 seconds\n" && sleep 2
+  fi
 }
 
 _fzf_homepage() {
