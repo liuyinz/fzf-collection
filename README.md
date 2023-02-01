@@ -182,6 +182,6 @@ PROXYF_URLS="http://127.0.0.1:1234,socks://127.0.0.1:1234"
 ## todo
 
 - [x] remove sed,tr,awk dependecies with perl
-- [ ] fzf: proxy gem
+- [x] fzf: proxy gem
 - [ ] add proxy restore for initial proxy status
 - [ ] sourcef: switch source for manager
