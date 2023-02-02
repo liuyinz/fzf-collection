@@ -91,7 +91,7 @@ _fzf_format() {
 
   case $format in
     manage | registry | pinned)
-      rule='printf "%s \x1b[34m%.15s\x1b[0m\n", $F[0], $F[$#F]'
+      rule='printf "%s \x1b[34m%s\x1b[0m\n", $F[0], $F[$#F]'
       ;;
     outdated)
       rule='printf "%s \x1b[34m%.15s\x1b[0m => \x1b[33m%.15s\x1b[0m\n", $F[0], $F[1], $F[2]'
