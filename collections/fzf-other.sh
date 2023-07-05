@@ -48,3 +48,16 @@ ffp() {
     ffp
   fi
 }
+
+# [E]nv
+envf() {
+  local header format rule
+  header="Env"
+  format="general"
+  printenv \
+    | sort -u\
+    | perl -pe 's/=/ /' \
+    | _fzf_format \
+    | fzf "${_fzf_opts[@]}" --header "$(_fzf_underline "$header")" \
+    | perl -lane 'printf "%s = %s", $F[0], $F[$#F]'
+}
