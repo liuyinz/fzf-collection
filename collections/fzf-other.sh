@@ -16,7 +16,7 @@ fp() {
 
   for i in $(echo ${PATH//:/ }); do
     if [ -d "$i" ]; then
-      # option -H to allow symblic root_path to parse normally
+      # option -H to allow symbolic root_path to parse normally
       # SEE https://www.gnu.org/software/findutils/manual/html_node/find_html/Symbolic-Links.html
       find -H "$i" -maxdepth 1 -executable -type f,l -printf "%f ${i/$HOME/~}\n"
     fi
@@ -55,7 +55,7 @@ envf() {
   header="Env"
   format="general"
   printenv \
-    | sort -u\
+    | sort -u \
     | perl -pe 's/=/ /' \
     | _fzf_format \
     | fzf "${_fzf_opts[@]}" --header "$(_fzf_underline "$header")" \

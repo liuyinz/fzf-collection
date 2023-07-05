@@ -12,7 +12,7 @@ _fzf_msg() {
 
 # A -> B -> _fzf_parent, return function name of A by default
 # SEE https://stackoverflow.com/a/56305385/13194984
-# use ${array:index:length} in zsh for compatiabliliy, index start at 0, don't bothered by option: ksharrays
+# use ${array:index:length} in zsh for compatibility, index start at 0, don't bothered by option: ksharrays
 _fzf_parent() {
   local level
   level=${1:-2}
