@@ -2,7 +2,7 @@
 
 [![GitHub license](https://img.shields.io/github/license/liuyinz/fzf-collection)](https://github.com/liuyinz/fzf-collection/blob/master/LICENSE)
 
-A collection of functions to enhance cmdline with [FZF](https://github.com/junegunn/fzf)
+A collection of functions to enhance commandline with [FZF](https://github.com/junegunn/fzf)
 
 <!-- markdown-toc start -->
 
@@ -21,12 +21,12 @@ A collection of functions to enhance cmdline with [FZF](https://github.com/juneg
   - [fzf-gh](#fzf-gh)
   - [fzf-other](#fzf-other)
   - [fzf-browser](#fzf-browser)
-- [Envrionment](#envrionment)
+- [Environment](#environment)
   - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
   - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
   - [BROWSERF_DEFAULT](#browserf_default)
   - [PROXYF_URLS](#proxyf_urls)
-  - [todo](#todo)
+  - [Todo](#todo)
 
 <!-- markdown-toc end -->
 
@@ -116,18 +116,18 @@ brew install sqlite3 coreutils diffutils jq python-yq
 - `bhf`: history search
 - `bbf`: bookmark search
 
-Surpports:
+Supports:
 
 |       | Chrome | Edge | Firefox | Safari |
 | ----- | ------ | ---- | ------- | ------ |
 | `bhf` | Yes    | Yes  | Yes     | Yes    |
 | `bbf` | Yes    | Yes  | Yes     | No     |
 
-# Envrionment
+# Environment
 
 ## FZF_COLLECTION_MODULES
 
-Settng `FZF_COLLECTION_MODULES` to load modules.
+Setting `FZF_COLLECTION_MODULES` to load modules.
 By default, all modules are loaded.
 
 ```sh
@@ -163,7 +163,7 @@ Setting `FZF_COLLECTION_OPTS` to customize fzf options.
 
 ## BROWSERF_DEFAULT
 
-Settng `BROWSERF_DEFAULT` to open url, use default browser if not set.
+Setting `BROWSERF_DEFAULT` to open URL, use default browser if not set.
 
 ```sh
 # choose from "chorme" "edgemac" "firefox" "safari"
@@ -172,16 +172,16 @@ BROWSERF_DEFAULT="chrome"
 
 ## PROXYF_URLS
 
-Setting `PROXYF_URLS` to provide urls for switch:
+Setting `PROXYF_URLS` to provide URLs for switch:
 
 ```sh
 # usually for https and socks, comma seperated.
 PROXYF_URLS="http://127.0.0.1:1234,socks://127.0.0.1:1234"
 ```
 
-## todo
+## Todo
 
-- [x] remove sed,tr,awk dependecies with perl
+- [x] remove sed,tr,awk dependencies with perl
 - [x] fzf: proxy gem
 - [ ] add proxy restore for initial proxy status
 - [ ] sourcef: switch source for manager
