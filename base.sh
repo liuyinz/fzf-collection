@@ -91,18 +91,18 @@ _fzf_format() {
 
   case $format in
     manage | registry | pinned)
-      rule='printf "%s \x1b[34m%s\x1b[0m\n", $F[0], $F[$#F]'
+      rule='printf "%s^^\x1b[34m%s\x1b[0m\n", $F[0], join(" ", @F[1 .. $#F])'
       ;;
     outdated)
-      rule='printf "%s \x1b[34m%.15s\x1b[0m => \x1b[33m%.15s\x1b[0m\n", $F[0], $F[1], $F[2]'
+      rule='printf "%s^^\x1b[34m%.15s\x1b[0m^^=>^^\x1b[33m%.15s\x1b[0m\n", $F[0], $F[1], join(" ", @F[2 .. $#F])'
       ;;
     general)
-      rule='printf "%s \x1b[34m%s\x1b[0m\n", $F[0], $F[$#F]'
+      rule='printf "%s^^\x1b[34m%s\x1b[0m\n", $F[0], join(" ", @F[1 .. $#F])'
       ;;
     *) echo "Error: No such format: $format" && return 0 ;;
   esac
 
-  [ -n "$input" ] && echo "$input" | perl -ane "$rule" | column -s ' ' -t
+  [ -n "$input" ] && echo "$input" | perl -ane "$rule" | column -s '^^' -t
 }
 
 _fzf_outdated() {
