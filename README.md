@@ -6,33 +6,33 @@ A collection of functions to enhance commandline with [FZF](https://github.com/j
 
 <!-- markdown-toc start -->
 
-**Table of Contents**
+## Contents
 
 - [fzf-collection](#fzf-collection)
-- [Install](#install)
-  - [Manual](#manual)
-  - [Oh-My-Zsh](#oh-my-zsh)
-- [Commands](#commands)
-  - [fzf-brew](#fzf-brew)
-  - [fzf-pip](#fzf-pip)
-  - [fzf-npm](#fzf-npm)
-  - [fzf-proxy](#fzf-proxy)
-  - [fzf-git](#fzf-git)
-  - [fzf-gh](#fzf-gh)
-  - [fzf-other](#fzf-other)
-  - [fzf-browser](#fzf-browser)
-- [Environment](#environment)
-  - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
-  - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
-  - [BROWSERF_DEFAULT](#browserf_default)
-  - [PROXYF_URLS](#proxyf_urls)
-  - [Todo](#todo)
+  - [Install](#install)
+    - [Manual](#manual)
+    - [Oh-My-Zsh](#oh-my-zsh)
+  - [Commands](#commands)
+    - [fzf-brew](#fzf-brew)
+    - [fzf-pip](#fzf-pip)
+    - [fzf-npm](#fzf-npm)
+    - [fzf-proxy](#fzf-proxy)
+    - [fzf-git](#fzf-git)
+    - [fzf-gh](#fzf-gh)
+    - [fzf-other](#fzf-other)
+    - [fzf-browser](#fzf-browser)
+  - [Environment](#environment)
+    - [FZF_COLLECTION_MODULES](#fzf_collection_modules)
+    - [FZF_COLLECTION_OPTS](#fzf_collection_opts)
+    - [BROWSERF_DEFAULT](#browserf_default)
+    - [PROXYF_URLS](#proxyf_urls)
+    - [Todo](#todo)
 
 <!-- markdown-toc end -->
 
-# Install
+## Install
 
-## Manual
+### Manual
 
 First, clone this repository.
 
@@ -46,7 +46,7 @@ Then add the following line to your `~/.zshrc` .
 source /path/to/fzf-collection.plugin.zsh
 ```
 
-## Oh-My-Zsh
+### Oh-My-Zsh
 
 Clone this repository to custom plugin directory
 
@@ -61,13 +61,13 @@ To start using it, add the fzf-collection plugin to your plugins array in `~/.zs
 + plugins=(... fzf-collection)
 ```
 
-# Commands
+## Commands
 
-## fzf-brew
+### fzf-brew
 
 - `brewf`: `outdated` `search` `manage` `tap`
 
-## fzf-pip
+### fzf-pip
 
 ```sh
 # dependency
@@ -76,15 +76,15 @@ brew install grep coreutils
 
 - `pipf`: `outdated` `search` `manage`
 
-## fzf-npm
+### fzf-npm
 
 - `npmf`: `manage` `outdated` `search` `registry`
 
-## fzf-proxy
+### fzf-proxy
 
 - `proxyf`: `switch` `add`
 
-## fzf-git
+### fzf-git
 
 ```sh
 # dependency
@@ -93,7 +93,7 @@ brew install git-extras coreutils gh
 
 - `gitf`: `submodule` `commit` `ignoreio` `stash`
 
-## fzf-gh
+### fzf-gh
 
 ```sh
 brew install gh jq
@@ -101,12 +101,12 @@ brew install gh jq
 
 - `ghf`: manage user/repos
 
-## fzf-other
+### fzf-other
 
 - `fp`: find `$PATH`
 - `ffp`: find `$FPATH`
 
-## fzf-browser
+### fzf-browser
 
 ```sh
 # dependency
@@ -123,12 +123,11 @@ Supports:
 | `bhf` | Yes    | Yes  | Yes     | Yes    |
 | `bbf` | Yes    | Yes  | Yes     | No     |
 
-# Environment
+## Environment
 
-## FZF_COLLECTION_MODULES
+### FZF_COLLECTION_MODULES
 
-Setting `FZF_COLLECTION_MODULES` to load modules.
-By default, all modules are loaded.
+Setting `FZF_COLLECTION_MODULES` to load modules. By default, all modules are loaded.
 
 ```sh
 FZF_COLLECTION_MODULES=(
@@ -142,7 +141,7 @@ FZF_COLLECTION_MODULES=(
   )
 ```
 
-## FZF_COLLECTION_OPTS
+### FZF_COLLECTION_OPTS
 
 Setting `FZF_COLLECTION_OPTS` to customize fzf options.
 
@@ -161,7 +160,7 @@ Setting `FZF_COLLECTION_OPTS` to customize fzf options.
   --bind=ctrl-u:cancel,ctrl-l:jump,ctrl-t:toggle-all,ctrl-v:clear-selection"
 ```
 
-## BROWSERF_DEFAULT
+### BROWSERF_DEFAULT
 
 Setting `BROWSERF_DEFAULT` to open URL, use default browser if not set.
 
@@ -170,7 +169,7 @@ Setting `BROWSERF_DEFAULT` to open URL, use default browser if not set.
 BROWSERF_DEFAULT="chrome"
 ```
 
-## PROXYF_URLS
+### PROXYF_URLS
 
 Setting `PROXYF_URLS` to provide URLs for switch:
 
@@ -179,7 +178,7 @@ Setting `PROXYF_URLS` to provide URLs for switch:
 PROXYF_URLS="http://127.0.0.1:1234,socks://127.0.0.1:1234"
 ```
 
-## Todo
+### Todo
 
 - [x] remove sed,tr,awk dependencies with perl
 - [x] fzf: proxy gem
