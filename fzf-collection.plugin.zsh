@@ -19,6 +19,7 @@ if [ -z "$FZF_COLLECTION_MODULES" ]; then
     browser
     brew
     npm
+    pnpm
     pip
     gem
     cargo

@@ -16,6 +16,7 @@ A collection of functions to enhance commandline with [FZF](https://github.com/j
     - [fzf-brew](#fzf-brew)
     - [fzf-pip](#fzf-pip)
     - [fzf-npm](#fzf-npm)
+    - [fzf-pnpm](#fzf-pnpm)
     - [fzf-proxy](#fzf-proxy)
     - [fzf-git](#fzf-git)
     - [fzf-gh](#fzf-gh)
@@ -79,6 +80,10 @@ brew install grep coreutils
 ### fzf-npm
 
 - `npmf`: `manage` `outdated` `search` `registry`
+
+### fzf-pnpm
+
+- `pnpmf`: `manage` `outdated` `search` `registry`
 
 ### fzf-proxy
 
