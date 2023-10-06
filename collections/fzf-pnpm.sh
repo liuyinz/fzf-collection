@@ -35,8 +35,9 @@ _pnpmf_switch() {
     for f in $(echo "$inst"); do
       case $subcmd in
         update)
-          echo "upgrade $f"
-          _pnpmf update "$f" && _fzf_tmp_shift "$f"
+          echo "update $f"
+          # SEE https://github.com/pnpm/pnpm/issues/5365#issuecomment-1252398786
+          _pnpmf update --latest "$f" && _fzf_tmp_shift "$f"
           ;;
         remove)
           _pnpmf remove "$f" && _fzf_tmp_shift "$f"
