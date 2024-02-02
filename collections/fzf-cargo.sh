@@ -144,6 +144,7 @@ cargof-search() {
   local tmpfile inst opt header available switch
 
   # REQUIRE cargo install all-the-crate-names
+  # BUG not available yet
   if ! _fzf_exist all-the-crate-names; then
     echo 'Error! please run "cargo install all-the-crate-names" first!' && return 0
   fi
@@ -161,7 +162,8 @@ cargof() {
   local header opt
 
   header=$(_fzf_header)
-  opt=("outdated" "search" "manage")
+  # opt=("outdated" "search" "manage")
+  opt=("outdated" "manage")
 
   _fzf_command
 }
