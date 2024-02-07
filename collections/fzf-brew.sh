@@ -99,7 +99,7 @@ _brewf_rollback() {
   header=$(_fzf_header)
   pkg="$1"
   f="$pkg.rb"
-  dir=$(dirname "$(find "$(brew --repository)" -name "$f")")
+  dir=$(dirname "$(find "$(brew --repository)" -name "$f" | head -n 1)")
   caller=$(_fzf_parent 1)
 
   fzf_extra="--tiebreak=index --query=$pkg update"
