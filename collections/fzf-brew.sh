@@ -3,8 +3,9 @@
 # SEE https://gist.github.com/steakknife/8294792
 
 _brewf() {
-  # make brew command don't call curl
-  HOMEBREW_NO_INSTALL_FROM_API=1 brew "$@"
+  # # make brew command don't call curl
+  # HOMEBREW_NO_INSTALL_FROM_API=1
+  brew "$@"
 }
 
 _brewf_list_outdated() {
