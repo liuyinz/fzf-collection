@@ -10,7 +10,7 @@ _brewf() {
 
 _brewf_list_outdated() {
   brew update &>/dev/null
-  brew outdated --greedy --verbose \
+  brew outdated --verbose \
     | grep -Fv "pinned at" \
     | perl -pe 's/, /|/g; tr/()//d' \
     | perl -lane 'print "$F[0] $F[1] $F[3]"'
