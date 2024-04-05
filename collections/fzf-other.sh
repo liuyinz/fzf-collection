@@ -54,9 +54,11 @@ envf() {
   local header format rule
   header="Env"
   format="general"
-  printenv \
+  # NOTE use null as separator then replace \n and first = to space to avoid conflicts.
+  printenv --null \
+    | perl -pe 's/\n+/ /g;s/\x00/\n/g' \
+    | perl -pe 's/^(\S+?)=/$1 /' \
     | sort -u \
-    | perl -pe 's/=/ /' \
     | _fzf_format \
     | fzf "${_fzf_opts[@]}" --header "$(_fzf_underline "$header")" \
     | perl -lane 'printf "%s = %s", $F[0], $F[$#F]'
