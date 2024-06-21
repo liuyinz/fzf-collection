@@ -39,11 +39,11 @@ gitf-submodule() {
   local module subcmd header
 
   header=$(_fzf_header)
-  # SEE https://stackoverflow.com/questions/12641469/list-submodules-in-a-git-repository#comment84215697_12641787
+  top_level=$(git rev-parse --show-toplevel)
+  module_file="$top_level/.gitmodules"
+
   module=$(
-    git config --file \
-      "$(git rev-parse --show-toplevel)/.gitmodules" --get-regexp '\.path$' \
-      | perl -lane 'print $F[1]' \
+    grep -oP '(?<=\[submodule ").*?(?="\])' $module_file \
       | sort -f \
       | _fzf_read --multi
   )
@@ -51,16 +51,20 @@ gitf-submodule() {
   if [ -n "$module" ]; then
     # shellcheck disable=SC2028
     subcmd=$(
-      echo "update-remote\ndelete\nhomepage\ndir\ninit\ndeinit\nupdate-init" \
+      echo "update-remote\ndelete\nhomepage\ndir\ninit\ndeinit\nupdate-init\npin\nunpin" \
         | _fzf_read
     )
 
     for i in $(echo "$module"); do
-      f="$(git rev-parse --show-toplevel)"/$i
+      f="$top_level/$(git config --file "$module_file" submodule."$i".path)"
       case $subcmd in
         update-remote)
-          echo "$i ..."
-          git submodule update --remote "$f"
+          if [[ "$(git config --file $module_file submodule."$i".pin)" == "true" ]]; then
+            echo "$i is pinned."
+          else
+            echo "$i ..."
+            git submodule update --remote "$f"
+          fi
           ;;
         delete)
           git delete-submodule --force "$f" >/dev/null 2>&1
@@ -80,6 +84,12 @@ gitf-submodule() {
           ;;
         init)
           git submodule init "$f"
+          ;;
+        pin)
+          git config --file "$module_file" submodule."$i".pin true
+          ;;
+        unpin)
+          git config --file "$module_file" submodule."$i".pin false
           ;;
       esac
     done
