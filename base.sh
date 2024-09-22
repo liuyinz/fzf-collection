@@ -90,7 +90,7 @@ _fzf_format() {
   input="$([[ -p /dev/stdin ]] && cat - || return)"
 
   case $format in
-    manage | registry | pinned)
+    manage | pinned)
       rule='printf "%s^^\x1b[34m%s\x1b[0m\n", $F[0], join(" ", @F[1 .. $#F])'
       ;;
     outdated)

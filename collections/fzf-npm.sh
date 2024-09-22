@@ -135,36 +135,12 @@ npmf-search() {
   _fzf_search
 }
 
-# REQUIRE npm install -g nnrm
-npmf-registry() {
-  local inst header format
-
-  if ! _fzf_exist nrm; then
-    echo 'Error! please run "npm i -g nnrm" first!' && return 0
-  else
-    echo "Current: $(nrm ls | perl -slne '/\* (.+) -+ https.*$/ && print $1')"
-  fi
-
-  format="registry"
-  header=$(_fzf_header)
-  inst=$(timeout 3 nrm test \
-    | perl -pe 's/-+//; s/^\s+|\s+$//' \
-    | _fzf_format \
-    | _fzf_read)
-
-  if [ -n "$inst" ]; then
-    nrm use "$inst"
-  else
-    echo "Registry switch cancel." && return 0
-  fi
-
-}
 
 npmf() {
   local header opt
 
   header=$(_fzf_header)
-  opt=("outdated" "search" "manage" "registry")
+  opt=("outdated" "search" "manage")
 
   _fzf_command
 }
