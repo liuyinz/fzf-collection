@@ -16,15 +16,12 @@ fi
 
 if [ -z "$FZF_COLLECTION_MODULES" ]; then
   FZF_COLLECTION_MODULES=(
-    browser
     brew
     npm
     pnpm
     pip
     gem
     cargo
-    proxy
-    git
     gh
     other
   )
