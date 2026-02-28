@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 _pipf() {
-  pip --disable-pip-version-check "$@"
+  pip3 --disable-pip-version-check "$@"
 }
 
 _pipf_list_installed() {
