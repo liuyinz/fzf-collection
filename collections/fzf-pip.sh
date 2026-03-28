@@ -95,7 +95,7 @@ _pipf_switch() {
           _pipf_extract "$f" Required-by
           ;;
         info)
-          _pipf show "$f"
+          _pipf show "$f" | _fzf_pager
           ;;
         *)
           _pipf "$subcmd" "$f"

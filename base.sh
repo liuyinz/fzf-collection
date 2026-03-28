@@ -10,6 +10,18 @@ _fzf_msg() {
   printf "\n\x1b[34m%s\x1b[0m: %s\n" ${2:-$caller} $1
 }
 
+_fzf_pager() {
+  local pager
+  pager="${PAGER:-less}"
+  if [ "$pager" = "less" ] && _fzf_exist less; then
+    less -R
+  elif _fzf_exist "$pager"; then
+    $pager
+  else
+    cat
+  fi
+}
+
 # A -> B -> _fzf_parent, return function name of A by default
 # SEE https://stackoverflow.com/a/56305385/13194984
 # use ${array:index:length} in zsh for compatibility, index start at 0, don't bothered by option: ksharrays

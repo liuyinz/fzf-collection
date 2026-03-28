@@ -75,7 +75,7 @@ _gemf_switch() {
           gem dependency "^$f$" --prerelease
           ;;
         info)
-          gem info "$f"
+          gem info "$f" | _fzf_pager
           ;;
         *)
           gem "$subcmd" "$f"

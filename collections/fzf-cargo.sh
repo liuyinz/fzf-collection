@@ -94,7 +94,7 @@ _cargof_switch() {
           _cargof_extract "$f" dependencies | column -s ' ' -t
           ;;
         info)
-          _cargof_extract "$f" info
+          _cargof_extract "$f" info | _fzf_pager
           ;;
         *)
           cargo "$subcmd" "$f"

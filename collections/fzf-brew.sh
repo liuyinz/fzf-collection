@@ -77,6 +77,9 @@ _brewf_switch() {
         deps)
           _brewf deps "$f" --tree
           ;;
+        info)
+          _brewf info "$f" | _fzf_pager
+          ;;
         *) _brewf "$subcmd" "$f" ;;
       esac
       echo ""

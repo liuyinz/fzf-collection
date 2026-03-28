@@ -58,7 +58,7 @@ _npmf_switch() {
           npm view "$f" dependencies
           ;;
         info)
-          npm view "$f"
+          npm view "$f" | _fzf_pager
           ;;
         *) npm "$subcmd" "$f" ;;
       esac

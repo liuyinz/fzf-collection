@@ -55,7 +55,7 @@ _pnpmf_switch() {
           pnpm view "$f" dependencies
           ;;
         info)
-          pnpm view "$f"
+          pnpm view "$f" | _fzf_pager
           ;;
         *) pnpm "$subcmd" "$f" ;;
       esac
